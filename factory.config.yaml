@@ -90,6 +90,9 @@ analytics:
   token_ledger:
     enabled: true
   measurement:
+    enabled: true         # master switch event store (ADR-021 §F) — senza questo
+                          # record-event.sh e' no-op e l'hook SessionEnd non persiste
+    store: jsonl          # default ADR-021 §A → analytics/events/<YYYY-MM>.jsonl (gitignored)
     agent: false
   estimation:
     agent: false

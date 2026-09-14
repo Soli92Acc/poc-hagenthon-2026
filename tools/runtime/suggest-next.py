@@ -12,14 +12,18 @@ Adapter note: The script is runtime-agnostic; the *binding* hook is adapter-spec
 
 Usage:
   python3 tools/runtime/suggest-next.py --command=/dev [--dry-run]
+  python3 tools/runtime/suggest-next.py --from-hook          # Stop hook (reads stdin)
 
-  --command name of the command just executed (e.g. /dev, /lint, /run, /review)
-  --dry-run print evaluated rules to stderr, no suggested output (debug)
+  --command   name of the command just executed (e.g. /dev, /lint, /run, /review)
+  --from-hook read the Stop-hook JSON payload from stdin and auto-detect the command
+  --dry-run   print evaluated rules to stderr, no suggested output (debug)
 
 Changelog:
   v2.24 EP-033 core rules (a11y, ux-ui-review, semantic-drift-scan, premortem, analytics)
   EP-035 Added Rule EP-035: TSK FE + design-spec without recent prototype → /prototype
   Sprint-1+ Canonical under tools/runtime/; shim retained under .claude/tools/
+  2026-09-14 Added --from-hook. The Stop event exposes no command name and Claude Code
+            exports no $CLAUDE_COMMAND, so the command is recovered from the transcript.
 
 
 """
@@ -27,9 +31,64 @@ Changelog:
 import sys
 import os
 import re
+import json
 import argparse
 from pathlib import Path
 from datetime import datetime, timedelta
+
+# Commands that carry at least one rule in evaluate_rules(). Used by
+# detect_command_from_stdin() to ignore every other prompt.
+TARGET_COMMANDS = {"dev", "lint", "run", "review"}
+
+
+def detect_command_from_stdin():
+    """Read the Claude Code Stop-hook JSON payload from stdin and return the name
+    of the last slash command the user issued (without the slash), or "".
+
+    Rationale: the Stop event carries no `command` field and Claude Code exports no
+    $CLAUDE_COMMAND env var, so the command has to be recovered from the transcript.
+    Returns "" on any problem — the caller then emits no suggestion (fail-open).
+    """
+    try:
+        raw = sys.stdin.read()
+        payload = json.loads(raw) if raw.strip() else {}
+    except Exception:
+        return ""
+
+    transcript_path = payload.get("transcript_path", "")
+    if not transcript_path or not os.path.exists(transcript_path):
+        return ""
+
+    try:
+        with open(transcript_path, encoding="utf-8", errors="replace") as fh:
+            lines = fh.readlines()
+        for line in reversed(lines[-40:]):
+            try:
+                entry = json.loads(line)
+            except Exception:
+                continue
+            if entry.get("type") != "user":
+                continue
+            msg = entry.get("message") or {}
+            if msg.get("role") != "user":
+                continue
+            content = msg.get("content", "")
+            # content is either a plain string or a list of content blocks
+            if isinstance(content, list):
+                text = " ".join(
+                    block.get("text", "") for block in content
+                    if isinstance(block, dict) and block.get("type") == "text"
+                )
+            else:
+                text = str(content)
+            m = re.match(r"^/(\w[\w-]*)", text.strip())
+            if m:
+                cmd = m.group(1)
+                return cmd if cmd in TARGET_COMMANDS else ""
+    except Exception:
+        pass
+
+    return ""
 
 
 def find_project_root():
@@ -370,8 +429,13 @@ def main():
     )
     parser.add_argument(
         "--command",
-        required=True,
+        default="",
         help="Nome del comando appena eseguito (es. /dev, /lint, /run, /review)",
+    )
+    parser.add_argument(
+        "--from-hook",
+        action="store_true",
+        help="Modalita' hook: legge il payload Stop da stdin e auto-rileva il comando",
     )
     parser.add_argument(
         "--dry-run",
@@ -379,6 +443,11 @@ def main():
         help="Stampa le regole valutate su stderr, nessun output suggerito (debug)",
     )
     args = parser.parse_args()
+
+    # --from-hook wins over --command; without either there is nothing to evaluate.
+    command = detect_command_from_stdin() if args.from_hook else args.command
+    if not command:
+        sys.exit(0)
 
     root = find_project_root()
     if root is None:
@@ -391,12 +460,12 @@ def main():
     flags = read_config_flags(config_path)
 
     if args.dry_run:
-        print(f"[dry-run] command={args.command}", file=sys.stderr)
+        print(f"[dry-run] command={command}", file=sys.stderr)
         print(f"[dry-run] root={root}", file=sys.stderr)
         print(f"[dry-run] log_tail_len={len(log_tail)}", file=sys.stderr)
         print(f"[dry-run] flags={flags}", file=sys.stderr)
 
-    suggestions = evaluate_rules(args.command, log_tail, flags, root)
+    suggestions = evaluate_rules(command, log_tail, flags, root)
 
     if args.dry_run:
         print(f"[dry-run] suggestions={suggestions}", file=sys.stderr)

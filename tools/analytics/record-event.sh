@@ -349,9 +349,96 @@ EVENT_ID="${TS}-${TASK_ID}"
 EVENTS_DIR="$REPO_ROOT/analytics/events"
 
 # Temporal State Machine hook registration (opt-in v2.18+, ADR-028 §B.2).
-# The _temporal_sm_hook_v218 function is defined at the end of the file (section 7).
+# The function is defined immediately below, BEFORE the `trap` that registers it:
+# bash only defines a function once execution reaches it, and the JSONL path exits
+# at section 6a, so a definition placed later in the file would never be reached and
+# the EXIT trap would abort with 127 'command not found', masking a successful write.
 # Runs via EXIT trap after every exit with code 0 (dispatch successful).
 # With flag off (default) → no-op: triple gate in the function itself (R.P3).
+
+# ---------------------------------------------------------------------------
+# 7. Temporal State Machine hook (opt-in v2.18+, ADR-028 §B.2)
+#    Function invoked via the `trap EXIT` registered just below, after each successful dispatch.
+#    Single-writer of the side-channel management/state/<task_id>.json mode
+#    `source: events`. Delega all'algoritmo canonico rebuild-state-from-events.sh.
+#    Backward compat absolute (R.P3): gate triple → no-op when flag off.
+# ---------------------------------------------------------------------------
+_temporal_sm_hook_v218() {
+  local _exit_code=$?
+  # Run only on successful dispatch (exit 0 from JSONL or SQLite path)
+  [[ "$_exit_code" -ne 0 ]] && return 0
+
+  # Gate 1: temporal.enabled
+  local _tm_enabled
+  _tm_enabled="$(python3 -c "
+import re, sys
+try:
+    with open('${CONFIG}') as f: c = f.read()
+    m = re.search(r'^\s*temporal:\s*\n\s+enabled:\s*(true|false)', c, re.M)
+    print(m.group(1) if m else 'false')
+except: print('false')
+" 2>/dev/null)"
+  [[ "$_tm_enabled" != "true" ]] && return 0
+
+  # Gate 2: temporal.state_machine.enabled
+  local _sm_enabled
+  _sm_enabled="$(python3 -c "
+import re
+try:
+    with open('${CONFIG}') as f: c = f.read()
+    m = re.search(r'state_machine:\s*\n\s+enabled:\s*(true|false)', c)
+    print(m.group(1) if m else 'false')
+except: print('false')
+" 2>/dev/null)"
+  [[ "$_sm_enabled" != "true" ]] && return 0
+
+  # Gate 3: temporal.state_machine.source == "events"
+  local _sm_source
+  _sm_source="$(python3 -c "
+import re
+try:
+    with open('${CONFIG}') as f: c = f.read()
+    m = re.search(r'state_machine:.*?source:\s*[\"']?(\w+)', c, re.S)
+    print(m.group(1) if m else 'standalone')
+except: print('standalone')
+" 2>/dev/null)"
+  [[ "$_sm_source" != "events" ]] && return 0
+
+  # Validation cross-config (ADR-028 §G): source:events richiede analytics.measurement.enabled: true.
+  # We are already on the success path, so measurement is enabled (section 3 checks this).
+
+  # ADR-028 §B.2: eventi senza step_id → WARNING su stderr, no state update (no fail-loud)
+  local _step_id
+  _step_id="$(printf '%s' "$EVENT" | jq -r '.extras.step_id // ""' 2>/dev/null || echo '')"
+  if [[ -z "$_step_id" ]]; then
+    echo "WARNING: Evento per TSK temporal-aware ${TASK_ID} senza step_id in extras. State view non aggiornata. Vedi ADR-028 §B.2." >&2
+    return 0
+  fi
+
+  # Read state_file_path from config (default management/state)
+  local _sm_path
+  _sm_path="$(python3 -c "
+import re
+try:
+    with open('${CONFIG}') as f: c = f.read()
+    m = re.search(r'state_file_path:\s*[\"']?([^\n\"'#]+)', c)
+    print(m.group(1).strip() if m else 'management/state')
+except: print('management/state')
+" 2>/dev/null)"
+
+  # Delega all'algoritmo canonico rebuild-state-from-events.sh (ADR-028 §B.2 idempotente)
+  local _rebuild="$SCRIPT_DIR/../temporal/rebuild-state-from-events.sh"
+  if [[ -f "$_rebuild" ]]; then
+    bash "$_rebuild" \
+      --task-id "$TASK_ID" \
+      --events-dir "$REPO_ROOT/analytics/events" \
+      --output-dir "$REPO_ROOT/$_sm_path" \
+      --config "$CONFIG" >&2 || true
+  else
+    echo "WARNING: rebuild-state-from-events.sh non trovato (${_rebuild}). State view non aggiornata. Vedi ADR-028 §B.2." >&2
+  fi
+  return 0
+}
 
 trap '_temporal_sm_hook_v218' EXIT
 
@@ -498,86 +585,3 @@ SQL
   exit 0
 fi
 
-# ---------------------------------------------------------------------------
-# 7. Temporal State Machine hook (opt-in v2.18+, ADR-028 §B.2)
-#    Function invoked via `trap EXIT` (section 5) after each successful dispatch.
-#    Single-writer of the side-channel management/state/<task_id>.json mode
-#    `source: events`. Delega all'algoritmo canonico rebuild-state-from-events.sh.
-#    Backward compat absolute (R.P3): gate triple → no-op when flag off.
-# ---------------------------------------------------------------------------
-_temporal_sm_hook_v218() {
-  local _exit_code=$?
-  # Run only on successful dispatch (exit 0 from JSONL or SQLite path)
-  [[ "$_exit_code" -ne 0 ]] && return 0
-
-  # Gate 1: temporal.enabled
-  local _tm_enabled
-  _tm_enabled="$(python3 -c "
-import re, sys
-try:
-    with open('${CONFIG}') as f: c = f.read()
-    m = re.search(r'^\s*temporal:\s*\n\s+enabled:\s*(true|false)', c, re.M)
-    print(m.group(1) if m else 'false')
-except: print('false')
-" 2>/dev/null)"
-  [[ "$_tm_enabled" != "true" ]] && return 0
-
-  # Gate 2: temporal.state_machine.enabled
-  local _sm_enabled
-  _sm_enabled="$(python3 -c "
-import re
-try:
-    with open('${CONFIG}') as f: c = f.read()
-    m = re.search(r'state_machine:\s*\n\s+enabled:\s*(true|false)', c)
-    print(m.group(1) if m else 'false')
-except: print('false')
-" 2>/dev/null)"
-  [[ "$_sm_enabled" != "true" ]] && return 0
-
-  # Gate 3: temporal.state_machine.source == "events"
-  local _sm_source
-  _sm_source="$(python3 -c "
-import re
-try:
-    with open('${CONFIG}') as f: c = f.read()
-    m = re.search(r'state_machine:.*?source:\s*[\"']?(\w+)', c, re.S)
-    print(m.group(1) if m else 'standalone')
-except: print('standalone')
-" 2>/dev/null)"
-  [[ "$_sm_source" != "events" ]] && return 0
-
-  # Validation cross-config (ADR-028 §G): source:events richiede analytics.measurement.enabled: true.
-  # We are already on the success path, so measurement is enabled (section 3 checks this).
-
-  # ADR-028 §B.2: eventi senza step_id → WARNING su stderr, no state update (no fail-loud)
-  local _step_id
-  _step_id="$(printf '%s' "$EVENT" | jq -r '.extras.step_id // ""' 2>/dev/null || echo '')"
-  if [[ -z "$_step_id" ]]; then
-    echo "WARNING: Evento per TSK temporal-aware ${TASK_ID} senza step_id in extras. State view non aggiornata. Vedi ADR-028 §B.2." >&2
-    return 0
-  fi
-
-  # Read state_file_path from config (default management/state)
-  local _sm_path
-  _sm_path="$(python3 -c "
-import re
-try:
-    with open('${CONFIG}') as f: c = f.read()
-    m = re.search(r'state_file_path:\s*[\"']?([^\n\"'#]+)', c)
-    print(m.group(1).strip() if m else 'management/state')
-except: print('management/state')
-" 2>/dev/null)"
-
-  # Delega all'algoritmo canonico rebuild-state-from-events.sh (ADR-028 §B.2 idempotente)
-  local _rebuild="$SCRIPT_DIR/../temporal/rebuild-state-from-events.sh"
-  if [[ -f "$_rebuild" ]]; then
-    bash "$_rebuild" \
-      --task-id "$TASK_ID" \
-      --events-dir "$REPO_ROOT/analytics/events" \
-      --output-dir "$REPO_ROOT/$_sm_path" \
-      --config "$CONFIG" >&2 || true
-  else
-    echo "WARNING: rebuild-state-from-events.sh non trovato (${_rebuild}). State view non aggiornata. Vedi ADR-028 §B.2." >&2
-  fi
-  return 0
-}

@@ -42,6 +42,8 @@ RECORD = HERE / "record-event.sh"
 # When a new CC release changes the JSONL format: verify compatibility, then add the
 # version string here. Do NOT add blindly — parsing correctness must be confirmed first.
 SUPPORTED_CC_VERSIONS = {
+    "2.1.270",  # empirically verified 2026-09-14: 59/59 usage rows carry all four
+                # token fields, isSidechain present, message.model present
     "2.1.263",  # empirically verified in TSK-545/TSK-546 (2026-09-08) — current session
     "2.1.258",  # empirically verified in TR-c4e8f1b2 (2026-09-08)
     "2.1.257",  # structurally identical to 2.1.258, no format change observed

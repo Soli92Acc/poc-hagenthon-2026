@@ -89,9 +89,30 @@ Risorse:
 
 [^src: raw/2026-09-14-openrouter-research.md §1. Cos'è OpenRouter e perché è rilevante per questo progetto]
 
+### Requisiti demo finale — i 6 criteri obbligatori
+
+Il brief ufficiale Hagenthon 2026 prescrive che la demo finale mostri obbligatoriamente:
+
+| # | Criterio | Copertura NumeriMiei (verificata) |
+|---|----------|----------------------------------|
+| 1 | il problema scelto | Slide 2 — misconcepto `denominator_magnitude` |
+| 2 | l'utente o lo scenario di riferimento | Slide 2 — LPS Luca, 11 anni, PDP 2025 |
+| 3 | come funziona la soluzione | Slide 3 — flow MCQ → AI explainer → remediation → transfer |
+| 4 | dove interviene l'agente AI | Slide 3 — fixture lookup + `getSafeRemediation()` + denylist |
+| 5 | quale miglioramento viene prodotto | Slide 4 — before/after + transfer task autonomo |
+| 6 | quali limiti o rischi sono stati considerati | Slide 5 — confine clinico + copertura 2 misconcepit |
+
+Tutti e 6 i criteri sono coperti in `presentation/numerimiei-deck.html` (slide 2–5).
+Il mapping è verificato (kicker espliciti ①–⑥ nel deck). Script demo: 4 minuti, timestamping in Slide 6.
+
+Fonte completa con mapping analitico: [[wiki/sources/hagenthon-2026-demo-requirements.md]]
+
+[^src: raw/2026-09-14-demo-requirements.md §Trascrizione verbatim]
+
 ## Fonti
 
 - [[wiki/sources/hagenthon-2026-temi-sfida.md]]
 - [[wiki/sources/openrouter-research.md]]
+- [[wiki/sources/hagenthon-2026-demo-requirements.md]]
 
 [^src: raw/2026-09-14-hagenthon-temi-sfida.md §Hagenthon · Temi della sfida]

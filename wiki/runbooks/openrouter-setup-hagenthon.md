@@ -187,6 +187,19 @@ non disponibili (`402 Payment Required`) → tutto free-only.
 
 ### Batch fixtures (slot 1:15–2:00, 12-18 chiamate)
 
+> ⚠️ **SUPERSEDED DALL'ESECUZIONE — non seguire il blocco qui sotto.**
+> `thinkingmachines/inkling-small:free` restituisce **403 gated** ("only available on
+> agentic harnesses"): non è utilizzabile via API. Modello realmente adottato e
+> verificato in esecuzione:
+>
+> ```javascript
+> { "model": "nex-agi/nex-n2.5-mini:free", "reasoning": { "enabled": false }, "messages": [...] }
+> ```
+>
+> Evidenza: `app/openrouter-budget.md` (registro chiamate reali) · codice allineato in
+> `app/explainer.js:31` e `app/tools/gen-fixtures.mjs:27`. Gap aperto: **G_004**.
+> Il testo storico resta sotto per tracciabilità della decisione originaria.
+
 ```javascript
 { "model": "thinkingmachines/inkling-small:free", "messages": [...] }
 ```

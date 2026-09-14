@@ -10,6 +10,21 @@ stato: terminata
 started_at: 2026-09-14T10:00:00Z
 ---
 
+> ⚠️ **NOTA REDAZIONALE AGGIUNTA POST-HOC — 2026-09-14, wiki-keeper.**
+> Il corpo di questo verbale **non è stato modificato** ed è da leggersi come registro
+> storico di ciò che fu deciso alle 10:00Z, non come stato corrente.
+>
+> **Superata sul provider LLM.** Il verbale assume Anthropic / Claude / Haiku (righe
+> ~151, ~154, ~253, ~296, ~782, ~834). Quella scelta è stata sostituita due volte:
+> prima dalla ricerca OpenRouter (G_001 → `thinkingmachines/inkling-small:free`), poi
+> dall'esecuzione reale, che ha rilevato quel modello **403 gated** e ha adottato
+> **`nex-agi/nex-n2.5-mini:free`** (`app/explainer.js:31`, `app/tools/gen-fixtures.mjs:27`).
+>
+> Questo verbale è l'**origine a monte** delle menzioni "Claude" propagate nel deck e
+> corrette il 2026-09-14. Vedi **G_004** in `wiki/gaps.md`.
+
+---
+
 ## Posizioni Fase 1
 
 ### product-manager — 2026-09-14T10:08:00Z

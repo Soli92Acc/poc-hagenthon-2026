@@ -2,6 +2,207 @@
 
 ---
 
+## 2026-09-14 — Update: G_004 ampliata a quattro fonti, banner sul verbale Tavola Rotonda
+
+**Operazione:** `update`
+**Agente:** wiki-keeper (sessione principale)
+**Trigger:** segnalazione da `poc-hagenthon-2026-dc` (terza fonte) + sweep repo-wide
+**Verifica:** `grep` su `app/ presentation/ management/ wiki/ raw/` per nomi di modello
+
+### Esito dello sweep
+
+`-dc` ha segnalato che le fonti divergenti erano tre, non due (il deck diceva "Claude").
+Lo sweep ne ha trovata una **quarta**, che è l'origine di tutte: il verbale della Tavola
+Rotonda delle 10:00Z assume Anthropic / Claude / Haiku in 6 punti, perché fu scritto
+*prima* della ricerca OpenRouter. Il deck non ha inventato "Claude": l'ha ereditato.
+
+| Fonte | Diceva | Stato |
+|---|---|---|
+| `wiki/decisions/tavola-rotonda-e3f2a1b4-…` | Claude / Haiku | banner supersessione, corpo intatto |
+| G_001 + runbook | `inkling-small:free` (403 gated) | runbook ⚠️ SUPERSEDED; G_001 da riaprire |
+| `presentation/numerimiei-deck.html:394,548` | Claude | corretto da `-dc` |
+| `app/explainer.js:31`, `gen-fixtures.mjs:27` | `nex-agi/nex-n2.5-mini:free` | riferimento |
+
+### Pagine aggiornate
+
+| Path | Natura del delta |
+|------|-----------------|
+| `wiki/gaps.md` | G_004 rititolata "Quattro fonti dichiarano tre modelli LLM diversi"; nuova sezione §Ampliamento con tabella fonti, cronologia della propagazione e nota sul trattamento dei decision record |
+| `wiki/decisions/tavola-rotonda-e3f2a1b4-…-2026-09-14.md` | Banner ⚠️ post-hoc in testa, dichiarato come tale; **corpo non modificato** |
+
+### Nota di metodo
+
+Il verbale non è stato riscritto. Un decision record registra ciò che fu deciso:
+correggerlo a posteriori distrugge la tracciabilità della catena decisionale, che qui
+è esattamente l'informazione di valore (tre strati di scelta sovrapposti in 4 ore).
+Annotato, non falsificato.
+
+La classe di difetto: ogni strato decisionale ha lasciato dietro un artefatto non
+marcato come superato. Il verbale è il caso peggiore perché "è storia" e non si rilegge
+mai — quindi continua a seminare il dato vecchio a valle senza che nessuno lo controlli.
+
+---
+
+## 2026-09-14 — Update: G_003 chiusa, due superfici di copertura, G_004 aperta
+
+**Operazione:** `update`
+**Agente:** wiki-keeper (sessione principale)
+**Trigger:** correzione deck da `poc-hagenthon-2026-dc`
+**Verifica:** `presentation/numerimiei-deck.html:665`, `presentation/demo-script.html`,
+`app/explainer.js`, `app/openrouter-budget.md`
+
+### G_003 → resolved
+
+Slide 5 corretta e verificata: nessuna occorrenza residua di "2 misconcep" in
+`presentation/`. Il limite "un solo item per step" omesso dall'owner per leggibilità
+in sala — scelta consapevole, documentata in gaps.
+
+### Mapping dei 6 criteri: ora due superfici
+
+`demo-script.html` §6 mappa gli stessi 6 criteri sulle **frasi parlate**. La wiki ora
+distingue: la slide **dimostra**, la battuta **dichiara**. Il criterio 6 è coperto due
+volte di proposito (slide 5 + chiusura parlata sul confine clinico).
+
+### Precisazioni entrate in §Copertura reale
+
+- `round_number_bias` è scoperto **per costruzione**: il degrado per livello in
+  `app/explainer.js:151` itera solo su `['L1','L2']` e `step7` non ha chiavi a nessun
+  livello → nessun ramo lo risolve da file. Verificato leggendo il codice.
+- La generazione dal vivo richiede `DEMO_MODE = false`: col default `true` anche
+  `step7` ricade sul testo di ripiego. Lo script demo gestisce il toggle.
+
+### G_004 aperta — divergenza wiki/esecuzione sul modello LLM
+
+Trovata per cross-check incidentale, non cercata. G_001 è `resolved` con
+`thinkingmachines/inkling-small:free`, che `app/openrouter-budget.md` registra come
+**403 gated**. Il codice usa `nex-agi/nex-n2.5-mini:free`; il runbook no.
+
+### Pagine aggiornate
+
+| Path | Natura del delta |
+|------|-----------------|
+| `wiki/sources/hagenthon-2026-demo-requirements.md` | Nuova §Due superfici; riga 6 del mapping aggiornata; meccanismo "per costruzione" con riferimento al codice; condizione `DEMO_MODE` |
+| `wiki/gaps.md` | G_003 → resolved con evidenza; nuovo G_004 (open, owner maintainer) |
+| `wiki/runbooks/openrouter-setup-hagenthon.md` | Blocco ⚠️ SUPERSEDED sul modello batch, con modello verificato e rimando a G_004; testo storico conservato |
+
+### Nota
+
+Sul runbook ho aggiunto un avviso, non ho ri-pinnato il modello: la scelta di
+configurazione è del maintainer. Un runbook che porta a un 403 sotto pressione è però
+un rischio attivo, e segnalarlo non richiede di decidere al posto suo.
+
+---
+
+## 2026-09-14 — Update: ordine curriculum corretto, transfer chiude a ogni livello
+
+**Operazione:** `update`
+**Agente:** wiki-keeper (sessione principale)
+**Trigger:** fix applicato da `poc-hagenthon-2026-d4` dopo segnalazione da questa sessione
+**Verifica:** diretta su `app/data/` + esecuzione `node app/tests/e2e.mjs` → 32/32 PASS
+
+### Cosa è cambiato nel prodotto
+
+`step7` spostato **prima** di `step3`. Ordine filtrato risultante:
+
+| Livello | Sequenza | Ultimo step |
+|---|---|---|
+| L1 | step1, step4, step5, step6, step3 | `step3` — `scaffold:false`, `transfer:true` |
+| L2 | + step2 prima di step3 | `step3` |
+| L3 | + step2, step7 prima di step3 | `step3` |
+
+Prima del fix, a L3 la sessione si chiudeva su `step7` (scaffoldato): il transfer non
+era in fondo e la dimostrazione del criterio 6 sarebbe stata incoerente col percorso reale.
+
+Il `_nota` del curriculum, che affermava una cosa falsa a L3, è stato riscritto dall'owner.
+L'invariante è ora coperta da test su L1/L2/L3, non più da un commento.
+
+### Pagine aggiornate
+
+| Path | Natura del delta |
+|------|-----------------|
+| `wiki/sources/hagenthon-2026-demo-requirements.md` | §Copertura reale: aggiunta riga "Ordine di gioco per livello"; transfer annotato come ultimo a tutti i livelli; `step7` ora penultimo a L3; nuovo paragrafo sull'invariante coperta da test |
+
+### Nota di provenienza
+
+Il difetto è emerso da una lettura incrociata durante l'ingest, non da un test fallito:
+i test allora non coprivano l'assunzione. Registrato qui perché la classe di difetto
+— ordine di un array che cambia significato dopo un filtro per livello — è muta finché
+qualcuno non la guarda.
+
+---
+
+## 2026-09-14 — Update: copertura reale misconcetti (post espansione curriculum)
+
+**Operazione:** `update`
+**Agente:** wiki-keeper (sessione principale)
+**Trigger:** segnalazione cross-session da `poc-hagenthon-2026-d4`
+**Verifica:** diretta su `app/data/{curriculum-discalculia,fixtures,misconceptions,pdp-levels}.json`
+
+I numeri segnalati dalla sessione peer sono stati **verificati indipendentemente**
+prima di entrare in wiki, non accettati sulla parola. Esito: confermati tutti.
+
+| Dato | Verificato |
+|---|---|
+| 3 misconcetti modellati | sì — `denominator_magnitude`, `numerator_focus`, `round_number_bias` |
+| 2 con fixture pre-validate | sì — 22 chiavi, step1–step6, L1/L2 |
+| `round_number_bias` scoperto a ogni livello | sì — zero chiavi in `fixtures.json` |
+| `step7` = 1/8 vs 1/10, solo L3 | sì — `level: L3`, incluso solo da `pdp-levels.L3.includes_levels` |
+| L1→5, L2→6, L3→7 esercizi | sì |
+| 1 solo step di transfer (`step3`) | sì — unico con `scaffold: false` + `transfer: true` |
+
+### Pagine aggiornate
+
+| Path | Natura del delta |
+|------|-----------------|
+| `wiki/sources/hagenthon-2026-demo-requirements.md` | Nuova sezione `## Copertura reale — dati verificati`; riga 6 della tabella mapping annotata come stale; nota sulla validità temporale del mapping |
+| `wiki/gaps.md` | Nuovo `G_003` (open) — deck riga 665 dichiara "2 misconcepit" contro 3 modellati; owner `poc-hagenthon-2026-dc` |
+
+### Nota di confine
+
+La correzione della slide 5 **non** è stata eseguita: `presentation/**` è fuori dallo
+scope di questa sessione (solo `wiki/`). Il gap è registrato e relayato all'owner.
+
+---
+
+## 2026-09-14 — Ingest: requisiti demo finale Hagenthon 2026 (6 criteri obbligatori)
+
+**Operazione:** `ingest`
+**Agente:** wiki-keeper
+**Sorgente:** `raw/2026-09-14-demo-requirements.md`
+**Trigger:** Richiesta esplicita ingest file raw
+**Ramo:** seriale (N=1)
+
+### Verifica mapping eseguita
+
+Il mapping raw→slide dichiarato nella sorgente è stato verificato leggendo direttamente
+`presentation/numerimiei-deck.html`. Tutti e 6 i criteri hanno kicker espliciti (①–⑥)
+nelle slide 2–5. Nessuna asserzione propagata senza evidenza.
+
+### Pagine create
+
+| Path | Tipo | Status |
+|------|------|--------|
+| `wiki/sources/hagenthon-2026-demo-requirements.md` | source | approved |
+
+### Pagine aggiornate
+
+| Path | Natura del delta |
+|------|-----------------|
+| `wiki/syntheses/hagenthon-2026-overview.md` | Nuova sotto-sezione `### Requisiti demo finale — i 6 criteri obbligatori` nel blocco `## Aggiornamenti (v2026-09-14)`; tabella mapping verificata + link a source; aggiornata sezione `## Fonti` |
+| `wiki/index.md` | Aggiunta entry source `hagenthon-2026-demo-requirements.md` |
+
+### Gap aperti in questa sessione
+
+Nessuno. Il mapping sui 6 criteri è verificato dal deck HTML. Nessuna asserzione non supportata rilevata nel raw.
+
+### Decisione di non creare concept page
+
+I 6 criteri sono requisiti normativi dell'evento Hagenthon, non un dominio concettuale
+riutilizzabile. Una pagina concept non avrebbe sostanza aggiuntiva rispetto alla source.
+Decisione: source + aggiornamento synthesis sono sufficienti.
+
+---
+
 ## 2026-09-14 — Decisioni G_001 e G_002: configurazione modelli e budget OpenRouter
 
 **Operazione:** `decision`

@@ -6,6 +6,7 @@ Generato automaticamente da wiki-keeper. Ultima rigenerazione: 2026-09-14.
 
 - [[wiki/sources/hagenthon-2026-temi-sfida.md]] — Hagenthon 2026: Temi della sfida (source, approved)
 - [[wiki/sources/openrouter-research.md]] — OpenRouter: Ricerca operativa (Hagenthon 2026) (source, approved)
+- [[wiki/sources/hagenthon-2026-demo-requirements.md]] — Hagenthon 2026: Requisiti demo finale — 6 criteri obbligatori (source, approved)
 
 ## concepts/
 

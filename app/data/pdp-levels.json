@@ -1,0 +1,23 @@
+{
+  "L1": {
+    "level_id": "L1",
+    "label": "Livello 1 — supporto visivo immediato",
+    "max_denominator": 6,
+    "show_number_line_after_errors": 1,
+    "includes_levels": ["L1", "L1|L2"]
+  },
+  "L2": {
+    "level_id": "L2",
+    "label": "Livello 2 — supporto visivo differito",
+    "max_denominator": 10,
+    "show_number_line_after_errors": 2,
+    "includes_levels": ["L1", "L2", "L1|L2"]
+  },
+  "L3": {
+    "level_id": "L3",
+    "label": "Livello 3 — senza supporto visivo",
+    "max_denominator": 10,
+    "show_number_line_after_errors": 99,
+    "includes_levels": ["L1", "L2", "L1|L2"]
+  }
+}

@@ -17,6 +17,25 @@ async function sessione(livello, { consentiRete = false } = {}) {
   return m;
 }
 
+/** Gli step del livello, nell'ordine in cui vengono affrontati. */
+const idsDi = (m) => m.engine.QuizEngine.steps.map((s) => s.step_id);
+
+/**
+ * Porta l'engine sullo step di transfer rispondendo correttamente ai precedenti.
+ * Derivato dal curriculum e non dal numero di step: aggiungere un esercizio al
+ * JSON non deve rompere i test, altrimenti l'extension point EP-1 e' una favola.
+ */
+function vaiAlTransfer(m) {
+  const E = m.engine.QuizEngine;
+  let guardia = 0;
+  while (!E.isTransferStep()) {
+    E.submit('d1');
+    if (E.nextStep() === 'COMPLETION') throw new Error('nessuno step di transfer nel curriculum');
+    if ((guardia += 1) > 50) throw new Error('avanzamento senza fine');
+  }
+  return E;
+}
+
 console.log('\n=== TSK-004 — gate pdpLevel ===');
 
 await test('startSession fallisce forte se pdpLevel non e configurato', async () => {
@@ -34,11 +53,23 @@ await test('con pdpLevel impostato la sessione parte', async () => {
   assert(engine.QuizEngine.getCurrentStep(), 'nessuno step caricato');
 });
 
-await test('L1 vede 1 training + transfer, L2 vede 2 training + transfer', async () => {
+await test('L1 e contenuto in L2, e il transfer chiude entrambi i percorsi', async () => {
   const a = await sessione('L1');
-  assertEq(a.engine.QuizEngine.steps.map((s) => s.step_id), ['step1', 'step3'], 'step L1');
   const b = await sessione('L2');
-  assertEq(b.engine.QuizEngine.steps.map((s) => s.step_id), ['step1', 'step2', 'step3'], 'step L2');
+  const l1 = idsDi(a);
+  const l2 = idsDi(b);
+  assert(l1.length >= 2, `L1 deve avere almeno un training e il transfer, ha ${l1.length}`);
+  assert(l1.every((id) => l2.includes(id)), `L1 non e contenuto in L2: ${l1} contro ${l2}`);
+  assert(l2.length > l1.length, 'L2 deve vedere piu step di L1');
+  // L3 vede anche gli item propri del livello: la verifica deve restare in fondo
+  // anche li', altrimenti la sessione non si chiude sul transfer.
+  const c = await sessione('L3');
+  for (const [nome, m] of [['L1', a], ['L2', b], ['L3', c]]) {
+    const steps = m.engine.QuizEngine.steps;
+    const transfer = steps.filter((s) => s.scaffold === false);
+    assertEq(transfer.length, 1, `${nome}: un solo step di transfer`);
+    assertEq(steps[steps.length - 1].step_id, transfer[0].step_id, `${nome}: il transfer e l ultimo step`);
+  }
 });
 
 await test('getScaffoldPolicy espone la soglia per livello', async () => {
@@ -58,11 +89,14 @@ await test('risposta corretta porta a NEXT senza remediation', async () => {
   assertEq(r.misconcepto_slug, null, 'nessun misconcetto su risposta giusta');
 });
 
-await test('L2 nominale: step1 giusto avanza a step2 (test 2 di TSK-010)', async () => {
-  const { engine } = await sessione('L2');
-  engine.QuizEngine.submit('d1');
-  assertEq(engine.QuizEngine.nextStep(), 'STEP', 'stato dopo nextStep');
-  assertEq(engine.QuizEngine.getCurrentStep().step_id, 'step2', 'step raggiunto');
+await test('L2 nominale: risposta giusta sul primo step e si avanza al secondo (test 2 di TSK-010)', async () => {
+  const m = await sessione('L2');
+  const [primo, secondo] = idsDi(m);
+  const E = m.engine.QuizEngine;
+  assertEq(E.getCurrentStep().step_id, primo, 'step di partenza');
+  E.submit('d1');
+  assertEq(E.nextStep(), 'STEP', 'stato dopo nextStep');
+  assertEq(E.getCurrentStep().step_id, secondo, 'step raggiunto');
 });
 
 await test('risposta errata porta a REMEDIATION e riporta il misconcetto', async () => {
@@ -97,9 +131,13 @@ await test('una risposta giusta azzera il contatore errori', async () => {
 
 await test('esaurendo gli step si arriva a COMPLETION', async () => {
   const { engine } = await sessione('L1');
-  engine.QuizEngine.submit('d1'); engine.QuizEngine.nextStep();
+  const n = engine.QuizEngine.steps.length;
+  for (let i = 0; i < n - 1; i += 1) {
+    engine.QuizEngine.submit('d1');
+    assertEq(engine.QuizEngine.nextStep(), 'STEP', `avanzamento allo step ${i + 2} di ${n}`);
+  }
   engine.QuizEngine.submit('d1');
-  assertEq(engine.QuizEngine.nextStep(), 'COMPLETION', 'fine sessione');
+  assertEq(engine.QuizEngine.nextStep(), 'COMPLETION', `fine sessione dopo ${n} step`);
 });
 
 console.log('\n=== TSK-014 — scaffold-fading e transfer ===');
@@ -121,24 +159,19 @@ await test('L2: lo scaffold compare solo dal secondo errore', async () => {
 });
 
 await test('sul transfer lo scaffold non compare mai', async () => {
-  const { engine } = await sessione('L1');
-  engine.QuizEngine.submit('d1'); engine.QuizEngine.nextStep();
-  assertEq(engine.QuizEngine.isTransferStep(), true, 'step di transfer');
-  engine.QuizEngine.submit('d2');
-  assertEq(engine.QuizEngine.getScaffoldVisible(), false, 'anche dopo un errore');
+  const E = vaiAlTransfer(await sessione('L1'));
+  assertEq(E.isTransferStep(), true, 'step di transfer');
+  E.submit('d2');
+  assertEq(E.getScaffoldVisible(), false, 'anche dopo un errore');
 });
 
 await test('transfer risolto: solvedWithoutScaffold = true', async () => {
-  const { engine } = await sessione('L1');
-  engine.QuizEngine.submit('d1'); engine.QuizEngine.nextStep();
-  engine.QuizEngine.submit('d1');
+  vaiAlTransfer(await sessione('L1')).submit('d1');
   assertEq(globalThis.localStorage.getItem('solvedWithoutScaffold'), 'true', 'esito');
 });
 
 await test('transfer sbagliato: solvedWithoutScaffold = false', async () => {
-  const { engine } = await sessione('L1');
-  engine.QuizEngine.submit('d1'); engine.QuizEngine.nextStep();
-  engine.QuizEngine.submit('d2');
+  vaiAlTransfer(await sessione('L1')).submit('d2');
   assertEq(globalThis.localStorage.getItem('solvedWithoutScaffold'), 'false', 'esito');
 });
 
@@ -244,25 +277,26 @@ await test('il testo di fallback e esso stesso denylist-clean', async () => {
 console.log('\n=== TSK-016 — report di sessione ===');
 
 await test('il report aggrega i misconcetti per step nell ordine di esecuzione', async () => {
-  const { engine, report } = await sessione('L2');
-  engine.QuizEngine.submit('d2');
-  engine.QuizEngine.submit('d2');
-  engine.QuizEngine.submit('d1');
-  engine.QuizEngine.nextStep();
-  engine.QuizEngine.submit('d3');
-  engine.QuizEngine.submit('d1');
-  const r = report.getSessionReport();
-  assertEq(r.stepsData.map((s) => s.step_id), ['step1', 'step2'], 'ordine degli step');
-  assertEq(r.stepsData[0].attempts, 3, 'tentativi step1');
-  assertEq(r.stepsData[0].misconceptErrors, [{ slug: SLUG_DEN, count: 2 }], 'misconcetti step1');
-  assertEq(r.stepsData[1].misconceptErrors, [{ slug: 'numerator_focus', count: 1 }], 'misconcetti step2');
+  const m = await sessione('L2');
+  const [primo, secondo] = idsDi(m);
+  const E = m.engine.QuizEngine;
+  E.submit('d2');
+  E.submit('d2');
+  E.submit('d1');
+  E.nextStep();
+  E.submit('d3');
+  E.submit('d1');
+  const r = m.report.getSessionReport();
+  assertEq(r.stepsData.map((s) => s.step_id), [primo, secondo], 'ordine degli step');
+  assertEq(r.stepsData[0].attempts, 3, 'tentativi sul primo step');
+  assertEq(r.stepsData[0].misconceptErrors, [{ slug: SLUG_DEN, count: 2 }], 'misconcetti primo step');
+  assertEq(r.stepsData[1].misconceptErrors, [{ slug: 'numerator_focus', count: 1 }], 'misconcetti secondo step');
 });
 
 await test('il report riporta l esito del transfer a parole, non come punteggio', async () => {
-  const { engine, report } = await sessione('L1');
-  engine.QuizEngine.submit('d1'); engine.QuizEngine.nextStep();
-  engine.QuizEngine.submit('d1');
-  const r = report.getSessionReport();
+  const m = await sessione('L1');
+  vaiAlTransfer(m).submit('d1');
+  const r = m.report.getSessionReport();
   assertEq(r.transferOutcome, 'Transfer completato autonomamente', 'esito');
   assert(!/%|\d+\s*su\s*\d+/.test(JSON.stringify(r)), 'il report contiene un punteggio numerico');
 });
@@ -282,12 +316,14 @@ await test('una nuova sessione azzera i dati della precedente', async () => {
 
 console.log('\n=== TSK-012 — router ===');
 
-await test('ruolo di default student, ruoli ignoti ricadono su student', async () => {
+await test('senza ruolo si entra dalla home, i ruoli ignoti ci ricadono', async () => {
   installaPolyfill();
   const { router } = await importaModuli();
-  assertEq(router.getRole(), 'student', 'default');
+  assertEq(router.getRole(), 'home', 'default');
   globalThis.location.search = '?role=pirata';
-  assertEq(router.getRole(), 'student', 'ruolo ignoto');
+  assertEq(router.getRole(), 'home', 'ruolo ignoto');
+  globalThis.location.search = '?role=student';
+  assertEq(router.getRole(), 'student', 'ruolo valido');
   globalThis.location.search = '?role=teacher';
   assertEq(router.getRole(), 'teacher', 'ruolo valido');
 });

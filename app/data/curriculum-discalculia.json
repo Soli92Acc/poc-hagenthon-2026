@@ -1,11 +1,13 @@
 {
+  "_nota": "Ordine di gioco = ordine di questo array, filtrato per livello da pdp-levels.json. La scala e' voluta: divario grande e visibile all'inizio, divario minimo alla fine. Lo step di transfer (l'unico con scaffold:false) sta in fondo e resta l'ultimo a ogni livello: la sessione si chiude sempre sulla verifica senza supporto.",
   "steps": [
     {
       "step_id": "step1",
+      "label": "Esercizio 1",
       "level": "L1",
       "scaffold": true,
       "transfer": false,
-      "question": "Quale è più grande: 1/3 o 1/4?",
+      "question": "Qual è più grande: 1/3 o 1/4?",
       "items": [
         {
           "fraction_a": "1/3",
@@ -28,7 +30,7 @@
             },
             {
               "id": "d3",
-              "label": "Sono uguali, il numeratore è 1 in tutte e due",
+              "label": "Sono uguali, il numero sopra è 1 in tutte e due",
               "misconcepto_slug": "numerator_focus",
               "position_pct": 0.25,
               "correct": false
@@ -38,11 +40,126 @@
       ]
     },
     {
+      "step_id": "step4",
+      "label": "Esercizio 2",
+      "level": "L1",
+      "scaffold": true,
+      "transfer": false,
+      "question": "Qual è più grande: 1/2 o 1/5?",
+      "items": [
+        {
+          "fraction_a": "1/2",
+          "fraction_b": "1/5",
+          "correct": "d1",
+          "distractors": [
+            {
+              "id": "d2",
+              "label": "1/5, perché 5 è più grande di 2",
+              "misconcepto_slug": "denominator_magnitude",
+              "position_pct": 0.2,
+              "correct": false
+            },
+            {
+              "id": "d1",
+              "label": "1/2",
+              "misconcepto_slug": null,
+              "position_pct": 0.5,
+              "correct": true
+            },
+            {
+              "id": "d3",
+              "label": "Sono uguali, sopra c'è 1 in tutte e due",
+              "misconcepto_slug": "numerator_focus",
+              "position_pct": 0.2,
+              "correct": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "step_id": "step5",
+      "label": "Esercizio 3",
+      "level": "L1",
+      "scaffold": true,
+      "transfer": false,
+      "question": "Qual è più grande: 1/3 o 1/6?",
+      "items": [
+        {
+          "fraction_a": "1/3",
+          "fraction_b": "1/6",
+          "correct": "d1",
+          "distractors": [
+            {
+              "id": "d3",
+              "label": "Sono uguali, sopra c'è sempre 1",
+              "misconcepto_slug": "numerator_focus",
+              "position_pct": 0.167,
+              "correct": false
+            },
+            {
+              "id": "d2",
+              "label": "1/6, perché 6 è il doppio di 3",
+              "misconcepto_slug": "denominator_magnitude",
+              "position_pct": 0.167,
+              "correct": false
+            },
+            {
+              "id": "d1",
+              "label": "1/3",
+              "misconcepto_slug": null,
+              "position_pct": 0.333,
+              "correct": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "step_id": "step6",
+      "label": "Esercizio 4",
+      "level": "L1",
+      "scaffold": true,
+      "transfer": false,
+      "question": "Qual è più grande: 1/4 o 1/5?",
+      "items": [
+        {
+          "fraction_a": "1/4",
+          "fraction_b": "1/5",
+          "correct": "d1",
+          "distractors": [
+            {
+              "id": "d3",
+              "label": "Sono uguali, cambia solo il numero sotto",
+              "misconcepto_slug": "numerator_focus",
+              "position_pct": 0.2,
+              "correct": false
+            },
+            {
+              "id": "d1",
+              "label": "1/4",
+              "misconcepto_slug": null,
+              "position_pct": 0.25,
+              "correct": true
+            },
+            {
+              "id": "d2",
+              "label": "1/5, perché 5 è più grande di 4",
+              "misconcepto_slug": "denominator_magnitude",
+              "position_pct": 0.2,
+              "correct": false
+            }
+          ]
+        }
+      ]
+    },
+    {
       "step_id": "step2",
+      "label": "Esercizio 5",
       "level": "L2",
       "scaffold": true,
       "transfer": false,
-      "question": "Quale è più grande: 1/4 o 1/7?",
+      "question": "Qual è più grande: 1/4 o 1/7?",
       "items": [
         {
           "fraction_a": "1/4",
@@ -65,7 +182,7 @@
             },
             {
               "id": "d3",
-              "label": "Sono uguali, il numeratore è lo stesso",
+              "label": "Sono uguali, il numero sopra è lo stesso",
               "misconcepto_slug": "numerator_focus",
               "position_pct": 0.143,
               "correct": false
@@ -75,24 +192,57 @@
       ]
     },
     {
+      "step_id": "step7",
+      "label": "Esercizio 6",
+      "level": "L3",
+      "scaffold": true,
+      "transfer": false,
+      "question": "Qual è più grande: 1/8 o 1/10?",
+      "_nota": "Item nuovo, raggiungibile solo a L3. Volutamente PRIVO di testi pre-scritti in fixtures.json: e' il caso in cui la catena di explainer.js arriva davvero al modello (DEMO_MODE=false) invece di risolvere da fixture. A DEMO_MODE=true degrada sul testo generico, senza rompere nulla.",
+      "items": [
+        {
+          "fraction_a": "1/8",
+          "fraction_b": "1/10",
+          "correct": "d1",
+          "distractors": [
+            {
+              "id": "d2",
+              "label": "1/10, perché 10 è un numero tondo",
+              "misconcepto_slug": "round_number_bias",
+              "position_pct": 0.1,
+              "correct": false
+            },
+            {
+              "id": "d1",
+              "label": "1/8",
+              "misconcepto_slug": null,
+              "position_pct": 0.125,
+              "correct": true
+            },
+            {
+              "id": "d3",
+              "label": "Sono uguali, il numero sopra è lo stesso",
+              "misconcepto_slug": "numerator_focus",
+              "position_pct": 0.1,
+              "correct": false
+            }
+          ]
+        }
+      ]
+    },
+    {
       "step_id": "step3",
+      "label": "Esercizio di verifica",
       "level": "L1|L2",
       "scaffold": false,
       "transfer": true,
-      "question": "Quale è più grande: 1/5 o 1/6?",
+      "question": "Qual è più grande: 1/5 o 1/6?",
       "items": [
         {
           "fraction_a": "1/5",
           "fraction_b": "1/6",
           "correct": "d1",
           "distractors": [
-            {
-              "id": "d1",
-              "label": "1/5",
-              "misconcepto_slug": null,
-              "position_pct": 0.2,
-              "correct": true
-            },
             {
               "id": "d2",
               "label": "1/6, perché 6 è più grande di 5",
@@ -102,10 +252,17 @@
             },
             {
               "id": "d3",
-              "label": "Sono uguali, il numeratore è lo stesso",
+              "label": "Sono uguali, il numero sopra è lo stesso",
               "misconcepto_slug": "numerator_focus",
               "position_pct": 0.167,
               "correct": false
+            },
+            {
+              "id": "d1",
+              "label": "1/5",
+              "misconcepto_slug": null,
+              "position_pct": 0.2,
+              "correct": true
             }
           ]
         }

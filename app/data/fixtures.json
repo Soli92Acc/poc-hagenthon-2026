@@ -1,52 +1,112 @@
 {
   "step1-L1-denominator_magnitude": {
-    "headline": "Quarto o terzo? Dipende dai pezzi",
+    "headline": "Quarto o terzo? Dipende dai pezzi.",
     "spiegazione": "Quattro pezzi sono più di tre. Ma ogni pezzo diventa più piccolo. Taglia la stessa pizza in quattro fette. Poi tagliala in tre fette. Le fette da tre sono più grandi. Perciò un terzo è più grande di un quarto.",
     "analogia": "Una pizza in quattro fette dà bocconi più piccoli di una pizza in tre fette."
   },
   "step1-L1-numerator_focus": {
-    "headline": "Sopra c'è 1, ma le fette cambiano",
+    "headline": "Sopra c'è 1, ma le fette cambiano.",
     "spiegazione": "Sopra c'è 1 tutte e due le volte. Ma il numero sotto dice in quante fette tagli la pizza. Se tagli in tre, ogni fetta è più grande. Quindi una fetta su tre è più grande di una su quattro.",
     "analogia": "Stessa pizza: tagliala in tre fette, poi in quattro. Le fette da tre restano più grandi."
   },
-  "step3-L1-numerator_focus": {
-    "headline": "Confronta 1/5 e 1/6 senza immagini",
-    "spiegazione": "Il 1 in alto indica una sola parte. Il 5 dice che la pizza è divisa in cinque fette uguali. Il 6 dice invece sei fette uguali. Con più fette, ogni fetta è più piccola. Quindi una parte su cinque è più grande di una parte su sei.",
-    "analogia": "Immagina una pizza uguale: cinque fette grandi oppure sei fette piccole."
-  },
   "step1-L2-denominator_magnitude": {
-    "headline": "Più pezzi fai, più sono piccoli",
+    "headline": "Più pezzi fai, più sono piccoli.",
     "spiegazione": "Con il metro, 1/3 significa una striscia divisa in 3 pezzi uguali. 1/4 significa una striscia divisa in 4 pezzi uguali. Più pezzi ci sono, più piccoli diventano. Perciò il pezzo di 1/3 è più grande del pezzo di 1/4. Il numero in basso non basta da solo.",
     "analogia": "Immagina due strisce dello stesso metro: una tagliata in 3 parti uguali, l’altra in 4 parti uguali. Il taglio più grande è 1/3."
   },
   "step1-L2-numerator_focus": {
-    "headline": "Sopra c'è 1, guarda sotto",
+    "headline": "Sopra c'è 1, guarda sotto.",
     "spiegazione": "Sopra c'è 1 tutte e due le volte. Il numero sotto dice in quanti pezzi tagli la striscia. Con tre pezzi ognuno è più lungo. Con quattro pezzi ognuno è più corto. Perciò una parte su tre è più grande.",
     "analogia": "La stessa striscia: tre pezzi lunghi oppure quattro pezzi corti."
   },
+  "step4-L1-denominator_magnitude": {
+    "headline": "Cinque fette o due fette.",
+    "spiegazione": "Il 5 è più grande del 2. Ma qui conta la fetta, non il numero. Taglia la pizza in due fette: sono enormi. Taglia la stessa pizza in cinque fette: diventano piccole. Quindi una fetta su due è più grande di una su cinque.",
+    "analogia": "Una pizza tagliata a metà dà due fette enormi. La stessa pizza in cinque dà fette piccole."
+  },
+  "step4-L1-numerator_focus": {
+    "headline": "Sopra c'è 1, ma le fette cambiano.",
+    "spiegazione": "Sopra c'è 1 tutte e due le volte. Il numero sotto dice in quante fette tagli la pizza. Due fette sono grandi. Cinque fette sono piccole. Perciò una fetta su due vince su una fetta su cinque.",
+    "analogia": "La stessa pizza: due fette grandi oppure cinque fette piccole."
+  },
+  "step4-L2-denominator_magnitude": {
+    "headline": "Più pezzi fai, più corti diventano.",
+    "spiegazione": "Il 5 è più grande del 2, ma qui non decide lui. Prendi una striscia e dividila in 2 pezzi. Poi dividi la stessa striscia in 5 pezzi. I pezzi da 5 sono molto più corti. Perciò 1/2 è più grande di 1/5.",
+    "analogia": "Lo stesso metro diviso in 2 parti oppure in 5: i pezzi da 2 restano molto più lunghi."
+  },
+  "step4-L2-numerator_focus": {
+    "headline": "Sopra c'è 1, guarda il numero sotto.",
+    "spiegazione": "Sopra c'è 1 in tutte e due. Il numero sotto dice in quanti pezzi tagli la striscia. Con 2 pezzi ognuno è lungo. Con 5 pezzi ognuno è corto. Quindi una parte su due è più lunga.",
+    "analogia": "La stessa striscia: due pezzi lunghi oppure cinque pezzi corti."
+  },
+  "step5-L1-denominator_magnitude": {
+    "headline": "Il doppio dei tagli, metà fetta.",
+    "spiegazione": "Il 6 è il doppio di 3, è vero. Ma raddoppiando i tagli la fetta si dimezza. Una pizza in tre fette dà fette grandi. La stessa pizza in sei fette dà fette piccole. Perciò un terzo batte un sesto.",
+    "analogia": "Tre fette di pizza per te. Poi sei fette dalla stessa pizza: ognuna diventa la metà."
+  },
+  "step5-L1-numerator_focus": {
+    "headline": "Sopra sempre 1, sotto cambia tutto.",
+    "spiegazione": "Sopra c'è 1 tutte e due le volte, è vero. Il numero sotto però cambia la grandezza della fetta. Con tre fette la fetta è grande. Con sei fette la fetta è piccola. Quindi una su tre è più grande.",
+    "analogia": "Stessa pizza, due tagli diversi: tre fette grandi oppure sei fette piccole."
+  },
+  "step5-L2-denominator_magnitude": {
+    "headline": "Sei pezzi sono corti, tre no.",
+    "spiegazione": "Il 6 è il doppio di 3. Proprio per questo ogni pezzo si dimezza. Dividi una striscia in tre parti uguali: i pezzi sono lunghi. Dividi la stessa striscia in sei: i pezzi si accorciano. Perciò 1/3 è più grande.",
+    "analogia": "Un metro diviso in tre pezzi lunghi, poi in sei pezzi corti: il metro non è cambiato."
+  },
+  "step5-L2-numerator_focus": {
+    "headline": "Sopra uguale, sotto decide la lunghezza.",
+    "spiegazione": "Sopra c'è 1 in tutte e due, è vero. Ma il numero sotto dice in quanti pezzi tagli il metro. Tre pezzi restano lunghi. Sei pezzi diventano corti. Quindi una parte su tre è più lunga di una su sei.",
+    "analogia": "Lo stesso metro: tre pezzi lunghi oppure sei pezzi corti."
+  },
+  "step6-L1-denominator_magnitude": {
+    "headline": "Una fetta in più, fette più piccole.",
+    "spiegazione": "Qui la differenza è piccola, ma c'è. Il 5 è più grande del 4 di poco. Anche così, cinque fette sono più strette di quattro. Taglia la pizza in quattro: le fette restano più larghe. Perciò un quarto vince.",
+    "analogia": "Quattro fette di pizza contro cinque: con cinque tagli ogni fetta si assottiglia un po'."
+  },
+  "step6-L1-numerator_focus": {
+    "headline": "Cambia solo il numero sotto, e basta.",
+    "spiegazione": "Hai visto bene: sopra c'è 1 tutte e due le volte. Ma il numero sotto non è un dettaglio. Dice in quante fette tagli la pizza. Quattro fette sono più larghe di cinque. Quindi un quarto è più grande.",
+    "analogia": "La stessa pizza: quattro fette un po' più larghe, cinque fette un po' più strette."
+  },
+  "step6-L2-denominator_magnitude": {
+    "headline": "Differenza piccola, ma stessa direzione.",
+    "spiegazione": "Il 5 supera il 4 di poco. Anche la differenza fra i pezzi sarà piccola. Ma la direzione non cambia mai. Dividi la striscia in cinque parti: i pezzi sono più stretti che in quattro. Perciò 1/4 resta più grande.",
+    "analogia": "Lo stesso metro in quattro pezzi e poi in cinque: la differenza si vede poco, ma c'è."
+  },
+  "step6-L2-numerator_focus": {
+    "headline": "Sopra uguale, sotto no: conta il taglio.",
+    "spiegazione": "Sopra c'è 1 in tutte e due, hai ragione. Il confronto però si gioca sul numero sotto. Dice in quanti pezzi dividi la striscia. Con quattro pezzi ognuno è più largo. Con cinque diventa più stretto. Quindi 1/4 vince.",
+    "analogia": "Una striscia in quattro pezzi larghi, la stessa in cinque pezzi stretti."
+  },
   "step2-L2-denominator_magnitude": {
-    "headline": "Quarto o settimo? Confronta le parti",
+    "headline": "Quarto o settimo? Confronta le parti.",
     "spiegazione": "1/4 significa una striscia divisa in 4 parti uguali. 1/7 significa la stessa striscia divisa in 7 parti uguali. Più parti fai, più ciascuna diventa piccola. Perciò il quarto è più grande del settimo. 1/4 è la risposta giusta.",
     "analogia": "Immagina una striscia: 4 pezzi grandi contro 7 pezzetti piccoli."
   },
   "step2-L2-numerator_focus": {
-    "headline": "Quarto o settimo? Confronta le parti",
+    "headline": "Quarto o settimo? Confronta le parti.",
     "spiegazione": "1/4 significa un pezzo su quattro parti uguali. 1/7 significa un pezzo su sette parti uguali. Dividendo la stessa striscia in quattro parti, ogni pezzo risulta più grande. Dividendo la stessa striscia in sette parti, ogni pezzo risulta più piccolo. Quindi 1/4 è maggiore di 1/7.",
     "analogia": "Immagina lo stesso metro diviso in quattro o sette parti uguali: il quarto è più lungo del settimo."
   },
+  "step3-L1-denominator_magnitude": {
+    "headline": "Più fette, fette più piccole.",
+    "spiegazione": "Qui non c'è la riga che ti aiuta. Prova a vederlo con la mente. Immagina la stessa pizza tagliata in cinque fette. Poi immaginala tagliata in sei. Con sei fette ogni fetta diventa più piccola. Perciò una fetta su cinque è più grande.",
+    "analogia": "Cinque fette grandi oppure sei fette piccole: la pizza è sempre la stessa."
+  },
+  "step3-L1-numerator_focus": {
+    "headline": "Confronta 1/5 e 1/6 senza immagini.",
+    "spiegazione": "Il 1 in alto indica una sola parte. Il 5 dice che la pizza è divisa in cinque fette uguali. Il 6 dice invece sei fette uguali. Con più fette, ogni fetta è più piccola. Quindi una parte su cinque è più grande di una parte su sei.",
+    "analogia": "Immagina una pizza uguale: cinque fette grandi oppure sei fette piccole."
+  },
   "step3-L2-denominator_magnitude": {
-    "headline": "Più tagli fai, più corti i pezzi",
+    "headline": "Più tagli fai, più corti i pezzi.",
     "spiegazione": "Qui devi immaginare senza la striscia davanti. Prendi lo stesso metro due volte. La prima volta lo dividi in cinque pezzi. La seconda volta in sei pezzi. Con sei tagli ogni pezzo è più corto. Perciò una parte su cinque è più lunga.",
     "analogia": "Lo stesso metro: cinque pezzi lunghi oppure sei pezzi corti."
   },
   "step3-L2-numerator_focus": {
-    "headline": "Sopra c'è 1, ma i pezzi cambiano",
+    "headline": "Sopra c'è 1, ma i pezzi cambiano.",
     "spiegazione": "Sopra c'è sempre 1: una parte sola. Ma il numero sotto cambia tutto. Dice in quanti pezzi dividi il metro. Con cinque pezzi ognuno è più lungo. Con sei pezzi ognuno è più corto. Perciò una parte su cinque vince.",
     "analogia": "Un metro diviso in cinque parti, poi in sei: i pezzi da cinque restano più lunghi."
-  },
-  "step3-L1-denominator_magnitude": {
-    "headline": "Più fette, fette più piccole",
-    "spiegazione": "Qui non c'è la riga che ti aiuta. Prova a vederlo con la mente. Immagina la stessa pizza tagliata in cinque fette. Poi immaginala tagliata in sei. Con sei fette ogni fetta diventa più piccola. Perciò una fetta su cinque è più grande.",
-    "analogia": "Cinque fette grandi oppure sei fette piccole: la pizza è sempre la stessa."
   }
 }

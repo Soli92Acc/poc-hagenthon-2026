@@ -4,24 +4,67 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NumeriMiei</title>
-  <!-- Tailwind local — obbligatorio per dry run offline (TSK-024) -->
+  <!-- Tailwind local — obbligatorio per dry run offline (TSK-024). Resta caricato per
+       compatibilita' con le utility gia' presenti; il layout vive nel CSS qui sotto. -->
   <script src="./vendor/tailwind.js"></script>
   <style>
-    /* ── Numerics: tabular-nums su tutto il contenuto dell'app ──
-       font-variant-numeric si eredita, quindi `main` copre domanda, opzioni,
-       feedback, number line e report senza inseguire una lista di classi.
-       Il footer resta fuori: e' prosa legale, le sue cifre non si leggono
-       in colonna. ── */
-    main,
-    .numeric,
-    .option-btn,
-    .fraction-marker,
-    .stacked-fraction,
-    .nl-label {
-      font-variant-numeric: tabular-nums;
+    /* ════════════════════════════════════════════════════════════════════════
+       NumeriMiei — design system
+       Un solo set di token, DUE shell: studente e docente. Le due shell
+       condividono contrasto, focus, spaziatura e cifre; cambiano densita',
+       scala tipografica, colore di fondo e struttura, perche' servono due
+       compiti diversi: "una cosa alla volta" contro "leggo tutto insieme".
+       ════════════════════════════════════════════════════════════════════════ */
+
+    :root {
+      --ink:        #151922;  /* testo principale */
+      --ink-soft:   #4c5464;  /* testo secondario — 7:1 su fondo chiaro */
+      --line:       #c3cbd9;
+      --line-soft:  #e2e7ef;
+      --surface:    #ffffff;
+      --canvas:     #ffffff;
+
+      --accent:     #1a49c9;  /* blu: supporto visivo, elementi attivi */
+      --accent-soft:#e7eeff;
+      --accent-fill:#b9cdfb;  /* riempimento dei modelli di quantita' */
+
+      --good:       #0e6238;
+      --good-ink:   #0e6238;
+      --good-soft:  #e4f2ea;
+
+      --retry-ink:  #7a4a00;  /* ambra: "riprova", mai rosso allarme */
+      --retry-soft: #fdf2df;
+
+      --radius:     14px;
+      --focus:      #151922;
     }
 
-    /* ── prefers-reduced-motion: remove all animations/transitions ── */
+    /* Fondo caldo per lo studente (meno abbagliante del bianco puro, raccomandazione
+       ricorrente per chi legge con fatica); fondo freddo da cruscotto per il docente. */
+    body[data-role="student"] { --canvas: #fbfaf6; }
+    body[data-role="parent"]  { --canvas: #fbfaf6; }
+    body[data-role="teacher"] { --canvas: #eef1f7; }
+
+    * { box-sizing: border-box; }
+
+    html, body { margin: 0; padding: 0; }
+
+    body {
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 18px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      /* Cifre a larghezza fissa ovunque: le colonne di numeri non ballano.
+         Il footer torna a cifre proporzionali: e' prosa legale, non dati. */
+      font-variant-numeric: tabular-nums;
+    }
+    footer { font-variant-numeric: normal; }
+
+    /* ── prefers-reduced-motion: nessuna animazione, nessuna transizione ── */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.01ms !important;
@@ -30,152 +73,406 @@
         scroll-behavior: auto !important;
       }
     }
-
-    /* ── No transitions on numeric elements ── */
-    .number-line,
-    .fraction-marker,
-    .stacked-fraction,
-    .nl-label {
+    /* Di default non introduciamo movimento da nessuna parte: il carico visivo
+       e' gia' il costo principale di questa interfaccia. */
+    .number-line, .fraction-marker, .stacked-fraction, .nl-label,
+    .option-btn, .btn, .qty-pie, .qty-strip {
       animation: none;
       transition: none;
     }
 
-    /* ── Focus outline global: 3px, visibile ── */
+    /* ── Focus: unico, spesso, sempre visibile ── */
     :focus-visible {
-      outline: 3px solid #1a1a1a;
-      outline-offset: 2px;
-    }
-
-    /* ── Option button: selected state via aria-pressed ── */
-    .option-btn[aria-pressed="true"] {
-      background-color: #f0f0f0;
-      font-weight: 600;
-    }
-
-    /* ── Number line ── */
-    .number-line-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 16px 0 24px;
-    }
-    .nl-label {
-      font-size: 13px;
-      min-width: 14px;
-      text-align: center;
-      color: #555;
-    }
-    .number-line {
-      flex: 1;
-      position: relative;
-      height: 52px;
-      animation: none;
-      transition: none;
-    }
-    /* horizontal track */
-    .number-line::before {
-      content: '';
-      position: absolute;
-      left: 0; right: 0;
-      top: 50%;
-      height: 2px;
-      background: #1a1a1a;
-      transform: translateY(-50%);
-    }
-    /* tick at 0 */
-    .number-line::after {
-      content: '';
-      position: absolute;
-      left: 0; right: 0;
-      bottom: 0;
-    }
-    .fraction-marker {
-      position: absolute;
-      /* above the track */
-      top: 0;
-      transform: translateX(-50%);
-      font-size: 13px;
-      line-height: 1.2;
-      text-align: center;
-      padding: 2px 5px;
-      background: #fff;
-      border: 2px solid #1a1a1a;
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
       border-radius: 4px;
-      white-space: nowrap;
-      animation: none;
-      transition: none;
     }
-    /* tick line from marker down to track */
-    .fraction-marker::after {
+
+    .skip-link {
+      position: absolute; left: -9999px; top: 0;
+      background: var(--ink); color: #fff; padding: 12px 18px; z-index: 50;
+    }
+    .skip-link:focus { left: 0; }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+    }
+
+    /* ════════════ SHELL comuni ════════════ */
+    .shell {
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+    .shell__bar {
+      display: flex; align-items: center; gap: 16px;
+      padding: 14px 24px;
+      margin: 0 auto;
+    }
+    .brand {
+      font-weight: 700; letter-spacing: -0.01em;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 999px;
+      background: var(--accent-soft); color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+
+    /* ── SHELL STUDENTE: barra sottile, marchio piccolo, avanzamento in evidenza ── */
+    #header-student .shell__bar { max-width: 46rem; }
+    #header-student .brand { font-size: 17px; }
+
+    .progress {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .progress__label { font-size: 15px; color: var(--ink-soft); }
+    .progress__dots { display: flex; gap: 7px; }
+    .progress__dot {
+      width: 13px; height: 13px; border-radius: 50%;
+      border: 2px solid var(--ink); background: var(--surface);
+    }
+    .progress__dot--done { background: var(--ink); }
+    .progress__dot--now  { background: var(--accent); border-color: var(--accent); }
+
+    .shell__home {
+      margin-left: 16px; font-size: 15px; font-weight: 600;
+      color: var(--ink); text-decoration: underline; text-underline-offset: 3px;
+    }
+    #header-student .progress:empty + .shell__home { margin-left: auto; }
+
+    /* ── SHELL DOCENTE: barra piu' alta, badge di ruolo, navigazione ── */
+    #header-teacher .shell__bar { max-width: 68rem; padding-top: 16px; padding-bottom: 16px; }
+    #header-teacher { border-bottom: 3px solid var(--ink); }
+    #header-teacher .brand { font-size: 19px; }
+    .shell__nav { margin-left: auto; display: flex; gap: 20px; font-size: 15px; }
+    .shell__nav a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+
+    /* ════════════ MAIN ════════════ */
+    main { flex: 1; width: 100%; }
+    .wrap-student { max-width: 46rem; margin: 0 auto; padding: 28px 24px 56px; }
+    .wrap-teacher { max-width: 68rem; margin: 0 auto; padding: 28px 24px 56px; }
+
+    /* Vista studente: riga corta, testo grande, interlinea ampia. */
+    body[data-role="student"] { font-size: 20px; line-height: 1.65; letter-spacing: 0.005em; }
+    /* Vista docente: piu' densa, si legge tutta la sessione in una schermata. */
+    body[data-role="teacher"] { font-size: 16px; line-height: 1.55; }
+
+    .card {
+      background: var(--surface);
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    body[data-role="teacher"] .card { border-width: 1px; padding: 20px; }
+
+    h1, h2, h3 { margin: 0; line-height: 1.25; }
+    .h-question { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+    .h-section  { font-size: 17px; font-weight: 700; margin-bottom: 12px; }
+    .muted { color: var(--ink-soft); }
+    .small { font-size: 15px; }
+
+    /* ════════════ Bottoni ════════════ */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      font: inherit; font-weight: 700;
+      padding: 16px 24px;
+      border-radius: 10px;
+      border: 2px solid var(--ink);
+      background: var(--ink); color: #fff;
+      cursor: pointer;
+      min-height: 56px;
+    }
+    .btn--wide { width: 100%; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn--ghost { background: var(--surface); color: var(--ink); }
+    .btn--link {
+      background: none; border: none; padding: 4px 0; min-height: 0;
+      color: var(--ink); text-decoration: underline; text-underline-offset: 3px;
+      font-weight: 600; font-size: 15px; cursor: pointer;
+    }
+
+    /* ════════════ Opzioni MCQ ════════════
+       Bersagli grandi, una colonna, distanza ampia: sbagliare bottone non deve
+       poter essere confuso con sbagliare risposta. */
+    /* gap >= 24px: bersagli ampi e distanti, sbagliare bottone non deve poter
+       essere confuso con sbagliare risposta (TSK-005). */
+    .options { list-style: none; margin: 0 0 28px; padding: 0; display: grid; gap: 24px; }
+    .option-btn {
+      position: relative;
+      display: block; width: 100%; text-align: left;
+      font: inherit;
+      padding: 18px 20px 18px 60px;
+      min-height: 72px;
+      background: var(--surface);
+      border: 2px solid var(--ink);
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    /* Pallino di selezione: la selezione si vede per forma, non per colore. */
+    .option-btn::before {
       content: '';
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 2px;
-      height: 10px;
-      background: #1a1a1a;
+      position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+      width: 24px; height: 24px; border-radius: 50%;
+      border: 2px solid var(--ink); background: var(--surface);
     }
-    .fraction-marker.highlighted {
-      background: #dbeafe;
-      border-color: #1d4ed8;
-      color: #1d4ed8;
+    .option-btn[aria-pressed="true"] {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      box-shadow: inset 5px 0 0 var(--accent);
       font-weight: 700;
     }
+    .option-btn[aria-pressed="true"]::before {
+      border-color: var(--accent);
+      background: var(--accent);
+      box-shadow: inset 0 0 0 4px var(--surface);
+    }
+    .option-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
-    /* ── Stacked fraction (≥28px font) ── */
+    /* ── Home: card di scelta profilo. Sono <a>, non <button>: puntano a un URL
+       reale (?role=...), quindi restano apribili in una scheda nuova. ── */
+    .profile-card { display: block; text-decoration: none; color: inherit; }
+    .profile-card__row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+    .profile-card__name { font-size: 23px; font-weight: 700; }
+    .profile-card__desc { display: block; margin-top: 4px; }
+    .profile-card__go { font-size: 23px; }
+
+    /* ════════════ Frazione impilata ════════════ */
     .stacked-fraction {
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 28px;
-      font-variant-numeric: tabular-nums;
-      line-height: 1;
+      display: inline-flex; flex-direction: column; align-items: center;
+      font-size: 44px; font-weight: 700; line-height: 1;
       vertical-align: middle;
-      animation: none;
-      transition: none;
     }
+    body[data-role="teacher"] .stacked-fraction { font-size: 24px; }
     .stacked-fraction .num {
-      border-bottom: 2px solid currentColor;
-      padding-bottom: 2px;
-      line-height: 1.3;
-      min-width: 1ch;
-      text-align: center;
+      border-bottom: 3px solid currentColor; padding: 0 6px 3px;
+      min-width: 1ch; text-align: center;
     }
-    .stacked-fraction .den {
-      padding-top: 2px;
-      line-height: 1.3;
-      min-width: 1ch;
-      text-align: center;
+    .stacked-fraction .den { padding: 3px 6px 0; min-width: 1ch; text-align: center; }
+
+    .fraction-duel {
+      display: flex; align-items: center; justify-content: center; gap: 36px;
+      margin: 8px 0 24px;
+    }
+    .fraction-duel__vs { font-size: 18px; color: var(--ink-soft); font-weight: 600; }
+
+    /* ════════════ Scaffold (supporto visivo) ════════════
+       Il contenitore occupa lo spazio anche da nascosto: quando compare, la
+       pagina non si sposta sotto le dita di chi sta gia' leggendo. */
+    .scaffold {
+      border: 2px dashed var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 18px 20px 10px;
+      margin: 0 0 24px;
+    }
+    .scaffold__title {
+      font-size: 15px; font-weight: 700; color: var(--accent);
+      margin-bottom: 14px;
+    }
+    /* Stato chiuso. Riservare l'intera altezza del supporto (come faceva
+       visibility:hidden) lasciava mezzo schermo vuoto fra la domanda e le
+       risposte: peggio dello spostamento che evitava. Da chiuso il riquadro
+       resta, basso e con una riga di testo — cosi' lo studente sa che un aiuto
+       esiste, invece di guardare un buco. */
+    .scaffold--chiuso { padding: 12px 20px; }
+    .scaffold--chiuso > *:not(.scaffold__hint) { display: none; }
+    .scaffold__hint { margin: 0; font-size: 15px; color: var(--ink-soft); }
+    .scaffold:not(.scaffold--chiuso) .scaffold__hint { display: none; }
+
+    /* Modello di quantita' — L1: fette (discreto). L2/L3: striscia (lineare).
+       Il modello segue il livello: e' la stessa immagine del testo di aiuto. */
+    .qty { display: flex; gap: 28px; align-items: flex-end; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+    .qty__item { text-align: center; }
+    .qty__name { display: block; font-size: 15px; font-weight: 700; margin-top: 8px; }
+
+    .qty-pie {
+      width: 96px; height: 96px; border-radius: 50%;
+      border: 2px solid var(--ink);
+      background:
+        conic-gradient(var(--accent-fill) 0 calc(360deg / var(--parts)), var(--surface) 0);
+      position: relative;
+    }
+    /* Tagli fra le fette, disegnati sopra il riempimento. */
+    .qty-pie::after {
+      content: '';
+      position: absolute; inset: 0; border-radius: 50%;
+      background: repeating-conic-gradient(
+        var(--ink) 0deg 1.6deg,
+        transparent 1.6deg calc(360deg / var(--parts))
+      );
+    }
+
+    .qty-strip {
+      display: flex; width: 168px; height: 46px;
+      border: 2px solid var(--ink); border-radius: 6px; overflow: hidden;
+    }
+    .qty-strip__seg { flex: 1 1 0; border-right: 2px solid var(--ink); }
+    .qty-strip__seg:last-child { border-right: none; }
+    .qty-strip__seg--on { background: var(--accent-fill); }
+
+    /* ════════════ Linea dei numeri ════════════ */
+    .number-line-wrapper { display: flex; align-items: center; gap: 12px; margin: 20px 0 26px; }
+    .nl-label { font-size: 15px; font-weight: 700; min-width: 14px; text-align: center; }
+    .number-line { flex: 1; position: relative; height: 56px; }
+    .number-line::before {
+      content: ''; position: absolute; left: 0; right: 0; top: 50%;
+      height: 3px; background: var(--ink); transform: translateY(-50%);
+    }
+    .fraction-marker {
+      position: absolute; top: 0; transform: translateX(-50%);
+      font-size: 14px; font-weight: 700; line-height: 1.2; text-align: center;
+      padding: 3px 7px; background: var(--surface);
+      border: 2px solid var(--ink); border-radius: 5px; white-space: nowrap;
+    }
+    .fraction-marker::after {
+      content: ''; position: absolute; top: 100%; left: 50%;
+      transform: translateX(-50%); width: 3px; height: 12px; background: var(--ink);
+    }
+    .fraction-marker.highlighted {
+      background: var(--accent-soft); border-color: var(--accent); color: var(--accent);
+    }
+
+    /* ════════════ Feedback ════════════
+       Sta SOPRA il pulsante di azione: si legge prima di poter ri-agire.
+       L'errore non e' rosso: e' ambra e dice "riprova", non "sbagliato". */
+    .feedback { border-radius: var(--radius); padding: 20px 22px; margin: 0 0 20px; }
+    .feedback[hidden] { display: none; }
+    .feedback__head { display: flex; align-items: baseline; gap: 10px; font-weight: 700; margin-bottom: 8px; }
+    .feedback__icon { font-size: 22px; line-height: 1; }
+    .feedback p { margin: 0 0 10px; }
+    .feedback p:last-child { margin-bottom: 0; }
+    .feedback--ok    { background: var(--good-soft);  border: 2px solid var(--good-ink); color: var(--good-ink); }
+    .feedback--retry { background: var(--retry-soft); border: 2px solid var(--retry-ink); color: var(--retry-ink); }
+    .feedback--stop  { background: var(--surface);    border: 2px solid var(--ink); }
+    .feedback--ok p, .feedback--retry p { color: inherit; }
+
+    /* ════════════ Tabella andamento (docente) ════════════ */
+    .grid-teacher { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr) 20rem; align-items: start; }
+    @media (max-width: 860px) { .grid-teacher { grid-template-columns: 1fr; } }
+
+    .tbl { width: 100%; border-collapse: collapse; }
+    .tbl th, .tbl td { text-align: left; padding: 12px 12px 12px 0; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+    /* Solo l'intestazione di colonna e' in maiuscoletto: le intestazioni di RIGA
+       (il nome dell'esercizio) restano testo normale, e non si portano dietro il
+       bordo spesso che spezzava la prima colonna. */
+    .tbl thead th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-soft); border-bottom: 2px solid var(--line); }
+    .tbl tbody th { font-weight: 600; }
+    .tbl tbody tr:last-child th, .tbl tbody tr:last-child td { border-bottom: none; }
+    .tbl td.num { white-space: nowrap; }
+
+    /* Tentativi come blocchi: la quantita' si vede prima di leggerla. */
+    .tries { display: inline-flex; gap: 4px; vertical-align: middle; margin-right: 8px; }
+    .tries__b { width: 10px; height: 18px; border: 1px solid var(--ink); background: var(--surface); }
+    .tries__b--err { background: var(--retry-ink); border-color: var(--retry-ink); }
+    .tries__b--ok  { background: var(--good-ink);  border-color: var(--good-ink); }
+
+    .chip { display: inline-block; white-space: nowrap; font-size: 13px; font-weight: 700; padding: 3px 9px; border-radius: 999px; border: 1px solid currentColor; }
+    .chip--ok  { color: var(--good-ink); background: var(--good-soft); }
+    .chip--no  { color: var(--retry-ink); background: var(--retry-soft); }
+    .chip--off { color: var(--ink-soft); background: var(--surface); }
+
+    .callout { border-left: 5px solid var(--accent); background: var(--accent-soft); padding: 16px 18px; border-radius: 0 10px 10px 0; }
+    .callout--good { border-left-color: var(--good-ink); background: var(--good-soft); }
+
+    .stack > * + * { margin-top: 20px; }
+    .stack-sm > * + * { margin-top: 12px; }
+
+    .field-label { display: block; font-weight: 700; margin-bottom: 8px; }
+    .select {
+      width: 100%; font: inherit; padding: 14px 16px; min-height: 56px;
+      border: 2px solid var(--ink); border-radius: 10px; background: var(--surface); color: var(--ink);
+    }
+
+    /* ════════════ Footer di legge ════════════ */
+    footer {
+      border-top: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink-soft);
+      font-size: 14px;
+      padding: 14px 24px;
+    }
+    footer p { margin: 0 auto; max-width: 68rem; }
+
+    /* ════════════ Schermi stretti ════════════
+       La barra va a capo invece di tagliare l'ultimo elemento: su 390px
+       "Cambia utente" finiva fuori dallo schermo. ── */
+    @media (max-width: 680px) {
+      .shell__bar { flex-wrap: wrap; gap: 8px 14px; padding: 12px 16px; }
+      .shell__nav { gap: 14px; }
+      .wrap-student, .wrap-teacher { padding: 20px 16px 40px; }
+      .card { padding: 18px 16px; }
+      .stacked-fraction { font-size: 38px; }
+      .fraction-duel { gap: 24px; }
+      .qty { gap: 20px; }
+    }
+
+    /* ════════════ Stampa: il report docente finisce nel fascicolo ════════════ */
+    @media print {
+      body { background: #fff; font-size: 11pt; }
+      .shell__nav, .btn, .no-print { display: none !important; }
+      .card { border: 1px solid #000; break-inside: avoid; }
+      .grid-teacher { grid-template-columns: 1fr; }
     }
   </style>
 </head>
-<body class="bg-white text-[#1a1a1a] text-[18px] font-sans min-h-screen flex flex-col">
+<body>
 
-  <header class="border-b border-gray-200 px-6 py-4" role="banner">
-    <h1 class="text-2xl font-bold">NumeriMiei</h1>
+  <a class="skip-link" href="#app">Vai al contenuto</a>
+
+  <!-- Due intestazioni, una per ruolo: e' il primo segnale che dice a chi sta
+       guardando "questa schermata e' tua". app.js mostra quella giusta. -->
+  <header id="header-home" class="shell" role="banner" hidden>
+    <div class="shell__bar">
+      <span class="brand">NumeriMiei</span>
+    </div>
   </header>
 
-  <main id="app" class="flex-1 px-6 py-8 max-w-2xl mx-auto w-full" role="main">
+  <header id="header-student" class="shell" role="banner" hidden>
+    <div class="shell__bar">
+      <span class="brand">NumeriMiei</span>
+      <div id="progress-slot" class="progress"></div>
+      <a id="link-home" class="shell__home no-print" href="?role=home">Cambia utente</a>
+    </div>
+  </header>
 
-    <!-- Student view (TSK-005, TSK-015, TSK-020) -->
-    <div id="view-student" hidden></div>
+  <header id="header-teacher" class="shell" role="banner" hidden>
+    <div class="shell__bar">
+      <span class="brand">NumeriMiei</span>
+      <span class="badge">Vista docente</span>
+      <nav class="shell__nav no-print" aria-label="Cambia vista">
+        <a href="?role=student">Vista studente</a>
+        <a href="?role=parent">Vista famiglie</a>
+        <a href="?role=home">Cambia utente</a>
+      </nav>
+    </div>
+  </header>
 
-    <!-- Teacher view (TSK-013, TSK-017) -->
-    <div id="view-teacher" hidden></div>
+  <main id="app" role="main">
 
-    <!-- Parent view (TSK-018) -->
-    <div id="view-parent" hidden></div>
+    <!-- Home: selezione del profilo (nessun ruolo assunto di default) -->
+    <div id="view-home" class="wrap-student" hidden></div>
 
-    <!-- Loading placeholder, hidden after init -->
-    <div id="loading-message" class="text-center py-12">
+    <!-- Vista studente (TSK-005, TSK-015, TSK-020) -->
+    <div id="view-student" class="wrap-student" hidden></div>
+
+    <!-- Vista docente (TSK-013, TSK-017) -->
+    <div id="view-teacher" class="wrap-teacher" hidden></div>
+
+    <!-- Vista famiglie (TSK-018) -->
+    <div id="view-parent" class="wrap-student" hidden></div>
+
+    <!-- Segnaposto di caricamento, nascosto dopo l'init -->
+    <div id="loading-message" class="wrap-student">
       <p>Caricamento...</p>
     </div>
 
   </main>
 
-  <!-- Footer Legge 170/2010 — permanente, visibile senza scroll -->
-  <footer class="border-t border-gray-100 px-6 py-3 bg-gray-50 text-sm text-gray-600" role="contentinfo">
+  <!-- Footer Legge 170/2010 — permanente, su tutte le view -->
+  <footer role="contentinfo">
     <p>
       NumeriMiei è uno strumento didattico compensativo per studenti con diagnosi certificata
       di discalculia ai sensi della Legge 170/2010. Non sostituisce la valutazione clinica
@@ -183,7 +480,7 @@
     </p>
   </footer>
 
-  <!-- app.js: P-B (UI, routing, rendering) -->
+  <!-- app.js: UI, routing, rendering -->
   <script type="module" src="./app.js"></script>
 </body>
 </html>

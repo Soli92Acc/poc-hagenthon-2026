@@ -152,13 +152,14 @@ export function mockGetSessionReportFn() {
 }
 
 // Mock router (CT-4 interface)
-export function mockInitRouter({ student, teacher, parent }) {
-  const role = new URLSearchParams(window.location.search).get('role') || 'student';
+export function mockInitRouter({ home, student, teacher, parent }) {
+  const role = mockGetRole();
   if (role === 'teacher') teacher();
   else if (role === 'parent') parent();
-  else student();
+  else if (role === 'student') student();
+  else home();
 }
-export const mockGetRole = () => new URLSearchParams(window.location.search).get('role') || 'student';
+export const mockGetRole = () => new URLSearchParams(window.location.search).get('role') || 'home';
 // Il mock tiene il livello in memoria: scrivere la chiave reale creerebbe un
 // secondo writer di pdpLevel e romperebbe l'invariante single-writer (US-011).
 let _mockPdp = null;

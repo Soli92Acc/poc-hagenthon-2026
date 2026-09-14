@@ -19,6 +19,8 @@ const ERRORE = {
     "il bambino ha guardato solo il numero in basso: pensa che se quel numero e' piu' grande, anche la parte sia piu' grande",
   numerator_focus:
     "il bambino ha risposto che le due parti sono uguali perche' sopra c'e' lo stesso numero, senza guardare in quante parti e' diviso l'intero",
+  round_number_bias:
+    "il bambino ha scelto il numero che gli suona piu' familiare (un numero tondo) invece di ragionare su quanto diventa grande ogni parte",
 };
 
 const ERRORE_GENERICO =

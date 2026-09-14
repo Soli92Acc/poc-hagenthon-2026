@@ -40,7 +40,35 @@ const impostaLivello = async (livello) => {
   await page.waitForLoadState('networkidle');
 };
 
-console.log('=== TSK-013/TSK-012 — configurazione PDP e routing ===');
+console.log('=== Home — selezione del profilo che sta entrando ===');
+await page.goto(`${BASE}/index.html`);
+await page.waitForLoadState('networkidle');
+const profili = await page.$$eval('#view-home .profile-card', (as) => as.map((a) => a.dataset.role));
+profili.join(',') === 'student,teacher,parent'
+  ? ok('la home elenca i tre profili')
+  : ko(`profili inattesi sulla home: [${profili.join(', ')}]`);
+
+await page.click('.profile-card[data-role="teacher"]');
+await page.waitForLoadState('networkidle');
+const arrivoDocente = page.url().includes('role=teacher') && (await page.$('#pdp-level-select')) !== null;
+arrivoDocente ? ok('scegliere "Docente" apre la vista docente') : ko(`la scelta non porta al docente: ${page.url()}`);
+
+// Il ritorno alla home non e' legato a un id: ogni shell di ruolo ha il suo
+// link, e quello che conta e' che da dentro un ruolo se ne esca sempre.
+const ritorni = await page.$$('a[href*="role=home"]');
+let ritorno = null;
+for (const l of ritorni) if (await l.isVisible()) { ritorno = l; break; }
+if (!ritorno) {
+  ko('dalla vista docente non c e un link visibile per tornare alla home');
+} else {
+  await ritorno.click();
+  await page.waitForLoadState('networkidle');
+  (await page.$('#view-home .profile-card')) !== null
+    ? ok('"Cambia utente" riporta alla selezione del profilo')
+    : ko('il link di ritorno non apre la home');
+}
+
+console.log('\n=== TSK-013/TSK-012 — configurazione PDP e routing ===');
 await impostaLivello('L1');
 const url = page.url();
 url.includes('role=student') ? ok('dopo la conferma del PDP si arriva alla view studente')
@@ -93,7 +121,11 @@ await ctx.clearCookies();
 await page.evaluate(() => localStorage.clear());
 await impostaLivello('L2');
 let passi = 0;
-for (let i = 0; i < 6; i += 1) {
+// Tetto derivato dal percorso reale, non dal numero di esercizi di ieri: un giro
+// per step piu' margine. Con un cap fisso, aggiungere un esercizio faceva fallire
+// il test invece del prodotto.
+const tetto = await page.evaluate(() => (window.__engine?.steps?.length ?? 3) + 3);
+for (let i = 0; i < tetto; i += 1) {
   const corretto = await page.evaluate(() => {
     const e = window.__engine;
     const item = e?.getCurrentItem?.();
@@ -122,7 +154,7 @@ const report = await page.textContent('body');
 !/\d+\s*%/.test(report) ? ok('nessun punteggio percentuale nel report') : ko('il report mostra una percentuale');
 
 console.log('\n=== TSK-021 verifica 5 — footer Legge 170/2010 su tutte le view ===');
-for (const ruolo of ['student', 'teacher', 'parent']) {
+for (const ruolo of ['home', 'student', 'teacher', 'parent']) {
   await vaiA(ruolo);
   const f = await page.$('text=/170\\/2010/');
   const visibile = f ? await f.isVisible() : false;

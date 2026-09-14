@@ -4,14 +4,18 @@
  * Il ruolo viaggia nell'URL (`?role=`), il livello PDP in localStorage.
  * Nessuna sincronizzazione fra tab: e' una scelta, non una dimenticanza.
  *
+ * Senza `?role=` si entra dalla home, dove si sceglie il profilo: chi apre l'app
+ * non viene assunto studente, lo dichiara. Stessa regola per un ruolo ignoto —
+ * ricade sulla home e non su una view a caso.
+ *
  * NO cross-tab sync by design. Role round-trip via URL param + reload. [PA-R2-1]
  * Nessun listener `storage` in tutta la codebase: due tab aperte su ruoli diversi
  * devono restare indipendenti, altrimenti la view docente riscriverebbe sotto i
  * piedi della sessione studente in corso.
  */
 
-const RUOLI_VALIDI = ['student', 'teacher', 'parent'];
-const RUOLO_DEFAULT = 'student';
+const RUOLI_VALIDI = ['home', 'student', 'teacher', 'parent'];
+const RUOLO_DEFAULT = 'home';
 const LS_PDP = 'pdpLevel';
 
 export function getRole() {
@@ -38,7 +42,7 @@ export function setPdpLevel(level) {
  * Le funzioni di render sono fornite da app.js (P-B): questo modulo non conosce
  * il DOM e non chiama nulla per nome.
  *
- * @param {{student: Function, teacher: Function, parent?: Function}} views
+ * @param {{home: Function, student: Function, teacher: Function, parent?: Function}} views
  */
 export function initRouter(views = {}) {
   const role = getRole();

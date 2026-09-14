@@ -4,20 +4,38 @@
     "label": "Livello 1 — supporto visivo immediato",
     "max_denominator": 6,
     "show_number_line_after_errors": 1,
-    "includes_levels": ["L1", "L1|L2"]
+    "includes_levels": [
+      "L1",
+      "L1|L2"
+    ],
+    "quantity_model": "slices",
+    "effetto": "La linea dei numeri e le fette compaiono al primo errore."
   },
   "L2": {
     "level_id": "L2",
     "label": "Livello 2 — supporto visivo differito",
     "max_denominator": 10,
     "show_number_line_after_errors": 2,
-    "includes_levels": ["L1", "L2", "L1|L2"]
+    "includes_levels": [
+      "L1",
+      "L2",
+      "L1|L2"
+    ],
+    "quantity_model": "strip",
+    "effetto": "Il supporto visivo compare solo dopo due errori nello stesso esercizio."
   },
   "L3": {
     "level_id": "L3",
     "label": "Livello 3 — senza supporto visivo",
     "max_denominator": 10,
     "show_number_line_after_errors": 99,
-    "includes_levels": ["L1", "L2", "L1|L2"]
+    "includes_levels": [
+      "L1",
+      "L2",
+      "L1|L2",
+      "L3"
+    ],
+    "quantity_model": "strip",
+    "effetto": "Nessun supporto visivo: si lavora solo sui numeri."
   }
 }

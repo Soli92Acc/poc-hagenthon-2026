@@ -74,8 +74,14 @@ try {
   if (r.state === 'REMEDIATION' && rem.text.length > 20) ok(`remediation servita offline (origine: ${rem.source})`);
   else ko('remediation non servita offline');
 
+  // Recupero sullo step corrente, poi avanti fino alla verifica finale. Derivato
+  // dal curriculum: aggiungere un esercizio non deve far fallire questo test.
   engine.QuizEngine.submit('d1');
-  engine.QuizEngine.nextStep();
+  let giri = 0;
+  while (engine.QuizEngine.nextStep() === 'STEP' && !engine.QuizEngine.isTransferStep()) {
+    engine.QuizEngine.submit('d1');
+    if ((giri += 1) > 50) break;
+  }
   engine.QuizEngine.submit('d1');
   const rep = report.getSessionReport();
   if (rep.transferOutcome === 'Transfer completato autonomamente') ok('transfer e report completati offline');

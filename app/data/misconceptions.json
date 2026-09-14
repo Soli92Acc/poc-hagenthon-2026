@@ -1,4 +1,18 @@
 {
-  "denominator_magnitude": "Confronto per grandezza del denominatore",
-  "numerator_focus": "Focus solo sul numeratore"
+  "denominator_magnitude": {
+    "label": "Confronto per grandezza del denominatore",
+    "nota_docente": "Riproponi il confronto su oggetti concreti prima di tornare ai numeri: la parte più piccola va vista, non dedotta."
+  },
+  "numerator_focus": {
+    "label": "Focus solo sul numeratore",
+    "nota_docente": "Chiedi di dire ad alta voce in quante parti è diviso l'intero, prima di guardare il numero sopra."
+  },
+  "round_number_bias": {
+    "label": "Preferenza per il numero più familiare",
+    "nota_docente": "Chiedi di stimare quanto diventa grande la parte prima di scegliere: il numero più familiare non è il più grande."
+  },
+  "non_classificato": {
+    "label": "Errore non classificato",
+    "nota_docente": ""
+  }
 }

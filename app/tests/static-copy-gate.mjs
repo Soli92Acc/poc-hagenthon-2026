@@ -23,7 +23,7 @@ const ko = (m) => { console.log(`  FAIL  ${m}`); esito = 1; };
 const denylistRaw = JSON.parse(await readFile(resolve(APP, 'data/clinical-denylist.json'), 'utf8'));
 const termini = (denylistRaw.terms ?? denylistRaw).map((t) => ({ t, re: new RegExp(`\\b${t}`, 'i') }));
 
-const sorgenti = ['index.html', 'data/parent-language.json', 'data/misconceptions.json'];
+const sorgenti = ['index.html', 'data/parent-language.json', 'data/misconceptions.json', 'data/pdp-levels.json', 'data/curriculum-discalculia.json'];
 
 for (const nome of sorgenti) {
   const p = resolve(APP, nome);

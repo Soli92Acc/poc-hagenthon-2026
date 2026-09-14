@@ -42,6 +42,30 @@ await ctx.route('**/*', (route) => {
   return route.abort('internetdisconnected');
 });
 
+/**
+ * Avanza rispondendo correttamente finche' non si arriva alla verifica finale.
+ * La risposta giusta la chiede all'engine invece di indovinarla dalla posizione:
+ * il numero di esercizi e l'ordine delle opzioni sono dati, non costanti.
+ */
+async function vaiAlTransfer(page) {
+  for (let i = 0; i < 12; i += 1) {
+    const titolo = await page.textContent('#question-text').catch(() => '');
+    if (/Prova questa/.test(titolo)) return true;
+    const id = await page.evaluate(
+      () => window.__engine?.getCurrentItem?.()?.distractors.find((d) => d.correct)?.id ?? null,
+    );
+    if (!id) return false;
+    await page.click(`[data-distractor-id="${id}"]`).catch(() => {});
+    await page.click('#btn-submit').catch(() => {});
+    await page.waitForTimeout(350);
+    const avanti = await page.$('#feedback-region button');
+    if (!avanti) return false;
+    await avanti.click();
+    await page.waitForTimeout(350);
+  }
+  return false;
+}
+
 const sbagliatiDi = (page, idx) => page.evaluate(async (i) => {
   const c = await (await fetch('data/curriculum-discalculia.json')).json();
   return c.steps[i].items[0].distractors.filter((d) => !d.correct).map((d) => d.id);
@@ -76,8 +100,9 @@ await page.click('#btn-submit');
 await page.waitForTimeout(400);
 const avanti = await page.$('#feedback-region button');
 if (avanti) { await avanti.click(); await page.waitForTimeout(400); }
+const arrivato = await vaiAlTransfer(page);
 const titolo = await page.textContent('#question-text').catch(() => '');
-/Prova questa/.test(titolo) ? ok('si arriva al transfer item ("Prova questa!")') : ko(`step inatteso dopo l avanzamento: "${titolo}"`);
+arrivato ? ok('si arriva al transfer item ("Prova questa!")') : ko(`step inatteso dopo l avanzamento: "${titolo}"`);
 
 const nlPresente = await page.$('.number-line');
 const nlVisibile = nlPresente ? await nlPresente.isVisible() : false;

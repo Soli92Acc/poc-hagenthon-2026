@@ -138,7 +138,7 @@ console.log('=== TSK-019 — contrasto WCAG 2.2 AA (4.5:1, 3:1 per testo grande)
   problemi = await page.evaluate(CONTRASTO);
   problemi.length === 0 ? ok('vista studente, feedback di errore') : ko(`feedback errore: ${problemi.map((p) => `${p.tag} "${p.testo}" ${p.ratio}:1`).join(' | ')}`);
 
-  for (const ruolo of ['teacher', 'parent']) {
+  for (const ruolo of ['home', 'teacher', 'parent']) {
     const p2 = await apri(ctx, `${BASE}/index.html?role=${ruolo}`);
     const pr = await p2.evaluate(CONTRASTO);
     pr.length === 0 ? ok(`vista ${ruolo}`) : ko(`vista ${ruolo}: ${pr.map((x) => `${x.tag} "${x.testo}" ${x.ratio}:1`).join(' | ')}`);
@@ -204,6 +204,24 @@ console.log('\n=== TSK-019 — cifre tabulari e nomi accessibili ===');
   gap === null ? ok('opzioni non presenti in questa schermata (nessun controllo da fare)')
     : gap >= 24 ? ok(`spazio fra le opzioni: ${Math.round(gap)}px (soglia 24)`)
     : ko(`opzioni troppo vicine: ${Math.round(gap)}px < 24`);
+
+  // La home e' la prima schermata che si incontra: vale le stesse regole.
+  const casa = await apri(ctx, `${BASE}/index.html`);
+  const fuoriCasa = await casa.evaluate(CIFRE_TABULARI);
+  fuoriCasa.length === 0 ? ok('home: ogni testo con cifre usa tabular-nums')
+                         : ko(`home senza tabular-nums: ${fuoriCasa.slice(0, 4).join(' | ')}`);
+  const mutiCasa = await casa.evaluate(NOMI_ACCESSIBILI);
+  mutiCasa.length === 0 ? ok('home: ogni controllo ha un nome accessibile')
+                        : ko(`home, controlli senza nome: ${mutiCasa.join(', ')}`);
+  const gapCasa = await casa.evaluate(() => {
+    const b = [...document.querySelectorAll('.profile-card')].map((x) => x.getBoundingClientRect());
+    if (b.length < 2) return null;
+    return Math.min(...b.slice(1).map((r, i) => r.top - b[i].bottom));
+  });
+  gapCasa !== null && gapCasa >= 8
+    ? ok(`home: spazio fra le card ${Math.round(gapCasa)}px`)
+    : ko(`home: card troppo vicine o assenti (${gapCasa})`);
+  await casa.close();
   await ctx.close();
 }
 
@@ -220,7 +238,10 @@ console.log('\n=== TSK-019 — feedback non veicolato dal solo colore (WCAG 1.4.
   await page.click('#btn-submit');
   await page.waitForTimeout(500);
   const marcatore = await page.textContent('#feedback-region');
-  /[✗✓×✔!]/.test(marcatore)
+  // Il glifo e' l'indicatore non cromatico richiesto da WCAG 1.4.1. Sull'errore
+  // la UI usa "↻" (riprova) invece di una croce: e' una scelta didattica, non un
+  // indebolimento — l'informazione resta nel glifo e nella parola, non nel colore.
+  /[✗✓×✔!↻]/.test(marcatore)
     ? ok('il feedback porta un indicatore testuale oltre al colore')
     : ko('il feedback sembra affidarsi al solo colore');
   await ctx.close();

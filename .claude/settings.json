@@ -15,7 +15,7 @@
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/analytics/show-session-tokens.py\" --from-hook 2>/dev/null || true",
             "timeout": 5,
-            "statusMessage": "\u25c9 Token ledger"
+            "statusMessage": "◉ Token ledger"
           }
         ]
       },
@@ -42,5 +42,16 @@
         ]
       }
     ]
+  },
+  "extraKnownMarketplaces": {
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "caveman@caveman": true
   }
 }

@@ -211,5 +211,33 @@ che nessuno strumento percorre. Accendere `semantic_check` non lo troverebbe.
 
 [^src: `.claude/skills/lint-checks-wiki-structure.md` §Check 4ag §Check 4af + `.claude/skills/semantic-drift-scan-protocol.md` §Fase 1 §Pagine non scansionate — verificato 2026-09-14; segnalazione iniziale da `poc-hagenthon-2026-dc`]
 
+### La lezione generale: stato vs decisione
+
+Osservazione di `poc-hagenthon-2026-dc`, con istanza verificata. Tutti gli artefatti
+di questo gap condividono una proprietà: **descrivono uno stato, non una decisione**.
+Un artefatto che registra *cosa fu deciso* resta vero per sempre. Un artefatto che
+registra *com'è il mondo* invecchia alla velocità con cui il mondo cambia.
+
+Il verbale della Tavola Rotonda non era sbagliato: diceva «useremo Anthropic», che era
+una decisione. Il danno è arrivato dai punti in cui descriveva lo stato previsto del
+sistema — quale modello *sarà* in uso — perché quello stato è cambiato due volte e la
+frase è rimasta.
+
+**Istanza fresca, misurata in minuti anziché in giorni.** Il commit `e9e4240` conteneva
+una nota di provenienza che rimandava a `248ef34` per il lavoro su `app/`. Era vera
+quando è stata scritta. Un `pull --rebase` di pochi minuti dopo ha riscritto `248ef34`
+in `0b8845e`, rendendo lo SHA irraggiungibile da qualunque ref: chi avesse seguito la
+nota non avrebbe trovato nulla — esattamente il lettore disorientato che la nota voleva
+aiutare. Corretto con un commit aggiuntivo (`41042e8`) invece che con un `--amend`,
+perché `e9e4240` era già pubblicato.
+
+**Regola pratica che ne deriva:** in un artefatto destinato a durare, preferire i
+riferimenti stabili (percorso di file, nome di simbolo, titolo di sezione) a quelli
+volatili (SHA di commit, numero di riga, conteggio di occorrenze). E quando lo stato
+va registrato per forza, datarlo e dichiararne la volatilità, come fa §Copertura reale
+in `wiki/sources/hagenthon-2026-demo-requirements.md`.
+
+[^src: `git log -1 e9e4240` + `git log -1 41042e8` — verificato 2026-09-14]
+
 **Resta aperto (maintainer):** ri-pinnare il modello in G_001 + runbook e sostituire il
 fallback array, di cui due anelli su tre sono noti non funzionanti.

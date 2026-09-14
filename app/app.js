@@ -11,6 +11,7 @@ import {
 
 // ── Module-level singletons (populated by init) ──────────────────────────────
 let engine, getSafeRemediation, initRouter, getRole, getPdpLevel, setPdpLevel, getSessionReport;
+let hasSessionData, clearSessionData;
 
 // ── Local state ───────────────────────────────────────────────────────────────
 let selectedDistractorId = null;
@@ -25,14 +26,16 @@ async function loadModules() {
       getRole: mockGetRole,
       getPdpLevel: mockGetPdpLevel,
       setPdpLevel: mockSetPdpLevel,
-      getSessionReport: mockGetSessionReportFn
+      getSessionReport: mockGetSessionReportFn,
+      hasSessionData: () => true,
+      clearSessionData: () => {}
     };
   }
   const [
     { QuizEngine },
     { getSafeRemediation: _gsr },
     { initRouter: _ir, getRole: _gr, getPdpLevel: _gpl, setPdpLevel: _spl },
-    { getSessionReport: _gsr2 }
+    { getSessionReport: _gsr2, hasSessionData: _hsd, clearSessionData: _csd }
   ] = await Promise.all([
     import('./engine.js'),
     import('./explainer.js'),
@@ -46,16 +49,11 @@ async function loadModules() {
     getRole: _gr,
     getPdpLevel: _gpl,
     setPdpLevel: _spl,
-    getSessionReport: _gsr2
+    getSessionReport: _gsr2,
+    hasSessionData: _hsd,
+    clearSessionData: _csd
   };
 }
-
-// ── Transfer outcome tracker ──────────────────────────────────────────────────
-const OutcomeTracker = {
-  recordTransferOutcome(isCorrect) {
-    localStorage.setItem('solvedWithoutScaffold', isCorrect ? 'true' : 'false');
-  }
-};
 
 // ── View switching ────────────────────────────────────────────────────────────
 function showView(viewId) {
@@ -109,12 +107,17 @@ function buildStackedFraction(fractionStr) {
   return span;
 }
 
+let fractionLabels = {};
+async function loadFractionLabels() {
+  try {
+    fractionLabels = (await (await fetch('data/fraction-labels.json')).json()).labels ?? {};
+  } catch {
+    fractionLabels = {}; // senza etichette si legge "1/3": degrado accettabile, non un blocco
+  }
+}
+
 function fractionAriaLabel(fractionStr) {
-  const map = {
-    '1/2': 'un mezzo', '1/3': 'un terzo', '1/4': 'un quarto',
-    '1/5': 'un quinto', '1/6': 'un sesto', '1/7': 'un settimo'
-  };
-  return map[fractionStr] || fractionStr;
+  return fractionLabels[fractionStr] || fractionStr;
 }
 
 // ── Option selection ──────────────────────────────────────────────────────────
@@ -168,10 +171,6 @@ async function handleSubmit() {
   const step = engine.getCurrentStep();
   const result = engine.submit(selectedDistractorId);
 
-  if (step.transfer) {
-    OutcomeTracker.recordTransferOutcome(result.correct);
-  }
-
   if (result.correct) {
     renderFeedback('Risposta corretta!', true);
 
@@ -187,21 +186,21 @@ async function handleSubmit() {
       document.getElementById('feedback-region').appendChild(nl);
     }
 
-    if (result.state === 'COMPLETION') {
-      localStorage.setItem('session_errors', JSON.stringify({ done: true }));
-      addActionButton('Fine sessione ✓', showCompletion);
-    } else {
-      addActionButton('Prossimo esercizio →', () => {
-        engine.nextStep();
-        renderStep(engine.getCurrentStep());
-      });
-    }
+    // submit() restituisce NEXT, mai COMPLETION: la fine sessione la dichiara nextStep().
+    const ultimo = Array.isArray(engine.steps) && engine.currentStepIdx >= engine.steps.length - 1;
+    addActionButton(ultimo ? 'Fine sessione ✓' : 'Prossimo esercizio →', () => {
+      if (engine.nextStep() === 'COMPLETION') showCompletion();
+      else renderStep(engine.getCurrentStep());
+    });
   } else {
     if (result.state === 'STOPPED') {
       renderStop(engine.getStopMessage());
     } else {
       // Single call site for getSafeRemediation — do NOT move elsewhere (US-011)
-      const { text } = await getSafeRemediation(step.step_id, step.level, result.misconcepto_slug);
+      // La chiave la costruisce l'engine: step.level vale "L1|L2" sul transfer e
+      // non risolverebbe nessuna fixture, facendo cadere sempre sul fallback generico.
+      const { step_id, level, slug } = engine.getRemediationKeyParts();
+      const { text } = await getSafeRemediation(step_id, level, slug);
       renderFeedback(text, false);
       // Reset selection for retry
       selectedDistractorId = null;
@@ -357,7 +356,10 @@ async function renderStudentView() {
 async function renderTeacherView() {
   showView('view-teacher');
   const view = document.getElementById('view-teacher');
-  if (localStorage.getItem('session_errors')) {
+  // Discriminante: esistono step affrontati. Prima si guardava `session_errors`,
+  // che l'engine scrive solo quando lo studente sbaglia: una sessione senza errori
+  // non mostrava mai il report.
+  if (hasSessionData()) {
     await renderTeacherReport(view);
   } else {
     renderPdpForm(view);
@@ -436,13 +438,20 @@ async function renderTeacherReport(view) {
         ${reportData.transferOutcome}
       </p>
 
-      <button
-        onclick="localStorage.clear();window.location.href='?role=teacher'"
-        class="underline text-[#1a1a1a] text-sm">
+      <button id="btn-new-session" type="button"
+        class="underline text-[#1a1a1a] text-sm focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2">
         Nuova sessione
       </button>
     </div>
   `;
+
+  // Handler vero invece di onclick inline: azzera solo i dati di sessione
+  // tramite il modulo che possiede quelle chiavi, non localStorage.clear().
+  document.getElementById('btn-new-session')?.addEventListener('click', () => {
+    clearSessionData();
+    localStorage.removeItem('pdpLevel');
+    window.location.href = '?role=teacher';
+  });
 }
 
 // ── Parent view (TSK-018, P2) ─────────────────────────────────────────────────
@@ -473,7 +482,7 @@ async function renderParentView() {
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 async function init() {
-  const mods = await loadModules();
+  const [mods] = await Promise.all([loadModules(), loadFractionLabels()]);
   engine = mods.engine;
   getSafeRemediation = mods.getSafeRemediation;
   initRouter = mods.initRouter;
@@ -481,6 +490,8 @@ async function init() {
   getPdpLevel = mods.getPdpLevel;
   setPdpLevel = mods.setPdpLevel;
   getSessionReport = mods.getSessionReport;
+  hasSessionData = mods.hasSessionData;
+  clearSessionData = mods.clearSessionData;
 
   initRouter({
     student: renderStudentView,

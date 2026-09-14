@@ -24,6 +24,20 @@ function readJSON(key, fallback) {
   }
 }
 
+/** Una sessione esiste se almeno uno step e' stato affrontato.
+ *  NON usare `session_errors` per questo: l'engine lo scrive solo quando c'e' un
+ *  errore, quindi una sessione perfetta risulterebbe inesistente. */
+export function hasSessionData() {
+  return readJSON(LS_STEPS, []).length > 0;
+}
+
+/** Azzera i dati di sessione per ricominciare (serve alle prove della demo). */
+export function clearSessionData() {
+  for (const k of [LS_ERRORS, LS_STEPS, LS_TRANSFER]) {
+    try { globalThis.localStorage?.removeItem(k); } catch { /* storage non disponibile */ }
+  }
+}
+
 /**
  * @returns {{stepsData: Array<{step_id: string, attempts: number,
  *            misconceptErrors: Array<{slug: string, count: number}>}>,
@@ -69,4 +83,4 @@ export function getSessionReport() {
   return { stepsData, transferOutcome };
 }
 
-export default { getSessionReport };
+export default { getSessionReport, hasSessionData, clearSessionData };

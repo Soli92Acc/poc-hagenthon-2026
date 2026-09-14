@@ -63,15 +63,29 @@ echo "=== Check 3 — nessun contenuto didattico dentro il codice ==="
 residuo=$(grep -nE 'misconcepto|frazione|denominatore' $JS 2>/dev/null \
   | grep -v 'misconcepto_slug' \
   | grep -v 'remediation-prompt.js' \
+  | grep -v 'mock-data.js' \
   | grep -vE ':[0-9]+:[[:space:]]*(\*|//)')
 [ -z "$residuo" ] && ok "zero contenuto didattico nei .js (escluso il campo misconcepto_slug)" \
                   || { ko "contenuto didattico nei .js:"; echo "$residuo" | sed 's/^/        /'; }
 
 # I numeri degli esercizi devono stare solo nei dati, mai nel codice.
 # remediation-prompt.js e' escluso: contiene i template di prompt, non esercizi.
-numeri=$(grep -nE '[0-9]\s*/\s*[0-9]' $JS 2>/dev/null | grep -v remediation-prompt.js | grep -v '^\S*:\s*[0-9]*:\s*\*' | grep -vE '//|/\*')
+numeri=$(grep -nE '[0-9]\s*/\s*[0-9]' $JS 2>/dev/null | grep -v remediation-prompt.js | grep -v mock-data.js | grep -v '^\S*:\s*[0-9]*:\s*\*' | grep -vE '//|/\*')
 [ -z "$numeri" ] && ok "nessuna frazione letterale nel codice" \
                  || { ko "frazioni letterali nel codice:"; echo "$numeri" | sed 's/^/        /'; }
+
+echo
+echo "=== Check 3-bis — i mock non devono essere attivi in demo ==="
+# mock-data.js contiene esercizi per costruire la UI in parallelo: e' impalcatura, non
+# codice di produzione, ed e' escluso dal check precedente. L'esclusione vale SOLO se i
+# mock sono spenti: a MOCK=true l'app girerebbe su dati finti, senza denylist clinica.
+if [ -f mock-data.js ]; then
+  grep -q 'export const MOCK = false' mock-data.js \
+    && ok "MOCK spento: l'app usa engine, explainer e denylist reali" \
+    || ko "MOCK ATTIVO: l'app gira su dati finti e il presidio clinico e' scavalcato"
+else
+  skip "mock-data.js assente"
+fi
 
 echo
 echo "=== Check 4 — il messaggio di stop non puo' arrivare da un LLM ==="
@@ -79,6 +93,11 @@ inline=$(grep -c 'insegnante o il tuo tutor' engine.js)
 [ "$inline" = "1" ] && ok "STOP_MESSAGE hardcoded in engine.js" || ko "STOP_MESSAGE non trovato in engine.js"
 nelle_fixture=$(grep -c 'insegnante o il tuo tutor' data/fixtures.json)
 [ "$nelle_fixture" = "0" ] && ok "STOP_MESSAGE assente dalle fixture generate" || ko "STOP_MESSAGE presente nelle fixture"
+
+echo
+echo "=== Check 4-bis — denylist sui testi statici (footer di legge escluso) ==="
+node tests/static-copy-gate.mjs | sed 's/^/  /' | grep -E 'PASS|FAIL|SKIP' || true
+node tests/static-copy-gate.mjs >/dev/null 2>&1 || ko "gate copy statica fallito (dettaglio sopra)"
 
 echo
 echo "=== Check 5 — footer Legge 170/2010 su tutte le view ==="

@@ -1,0 +1,14 @@
+{
+  "_nota": "Resa in parole delle frazioni per i lettori di schermo. Sta nei dati e non nel codice: aggiungere un esercizio con un nuovo denominatore non deve richiedere una modifica a app.js.",
+  "labels": {
+    "1/2": "un mezzo",
+    "1/3": "un terzo",
+    "1/4": "un quarto",
+    "1/5": "un quinto",
+    "1/6": "un sesto",
+    "1/7": "un settimo",
+    "1/8": "un ottavo",
+    "1/9": "un nono",
+    "1/10": "un decimo"
+  }
+}

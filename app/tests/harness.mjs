@@ -13,9 +13,13 @@ const APP = resolve(QUI, '..');
 export const rete = { chiamate: 0, consentita: false, ultimaUrl: null };
 
 const MAPPA_FILE = {
-  // In produzione l'engine legge il curriculum di P-B; nei test di P-A si usa il
-  // riferimento CT-1, cosi' i test non dipendono da un file che non e' nostro.
-  'data/curriculum-discalculia.json': resolve(QUI, 'fixtures/curriculum-sample.json'),
+  // Di default i test girano sul riferimento CT-1, cosi' non dipendono da un file
+  // che non e' nostro. Con CURRICULUM=prod si rigira la stessa suite sul curriculum
+  // reale di P-B: e' la verifica che i due lati combacino davvero.
+  'data/curriculum-discalculia.json':
+    process.env.CURRICULUM === 'prod'
+      ? resolve(APP, 'data/curriculum-discalculia.json')
+      : resolve(QUI, 'fixtures/curriculum-sample.json'),
   'data/pdp-levels.json': resolve(APP, 'data/pdp-levels.json'),
   'data/fixtures.json': resolve(APP, 'data/fixtures.json'),
   'data/clinical-denylist.json': resolve(APP, 'data/clinical-denylist.json'),

@@ -1,5 +1,5 @@
 // Mock layer — conforming to CT-1..CT-5. Set MOCK=false at integration (sync S2).
-export const MOCK = true;
+export const MOCK = false; // integrazione fatta: l'app gira sui moduli reali
 
 // Steps matching curriculum-discalculia.json exactly (CT-1)
 const STEPS = {
@@ -159,5 +159,8 @@ export function mockInitRouter({ student, teacher, parent }) {
   else student();
 }
 export const mockGetRole = () => new URLSearchParams(window.location.search).get('role') || 'student';
-export const mockGetPdpLevel = () => localStorage.getItem('pdpLevel');
-export const mockSetPdpLevel = (level) => localStorage.setItem('pdpLevel', level);
+// Il mock tiene il livello in memoria: scrivere la chiave reale creerebbe un
+// secondo writer di pdpLevel e romperebbe l'invariante single-writer (US-011).
+let _mockPdp = null;
+export const mockGetPdpLevel = () => _mockPdp;
+export const mockSetPdpLevel = (level) => { _mockPdp = level; };

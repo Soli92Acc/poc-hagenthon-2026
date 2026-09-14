@@ -118,3 +118,79 @@ file è di P-B.
    da passare a `getSafeRemediation()`.
 5. **Le fixture coprono tutte e 10 le chiavi raggiungibili**: qualunque distrattore la giuria
    clicchi, il testo è pre-validato. Il fallback generico non dovrebbe mai comparire.
+
+---
+
+# Integrazione con la metà di P-B (dopo il pull)
+
+Rebase pulito, nessun conflitto. P-B ha consegnato `index.html`, `app.js`, il curriculum,
+la scheda genitori e il deck. **Il curriculum è conforme a CT-1**: la mia suite completa
+gira su quello reale senza modifiche (32/32).
+
+## Verifiche sul codice integrato
+
+| Suite | Comando | Esito |
+|---|---|---|
+| E2E moduli (riferimento) | `node app/tests/e2e.mjs` | **32/32 PASS** |
+| E2E moduli (curriculum di P-B) | `CURRICULUM=prod node app/tests/e2e.mjs` | **32/32 PASS** |
+| Qualità contenuto | `node app/tests/content-gate.mjs` | **72/72 PASS** |
+| Confine clinico | `bash app/tests/clinical-gate.sh` | **PASS** (ora senza SKIP) |
+| Copy statica | `node app/tests/static-copy-gate.mjs` | **PASS** |
+| Prontezza offline | `CURRICULUM=prod node app/tests/offline-check.mjs` | **PASS** |
+| **Browser E2E reale** | `node app/tests/browser-e2e.mjs` | **PASS** — 15 check, zero eccezioni JS |
+
+Il browser E2E chiude le verifiche che nei TSK erano descritte come manuali: flusso L1
+errore con la tab Network (47 ms, zero richieste), scaffold dopo il primo errore, stop a
+3 tentativi con il submit rimosso, sessione L2 fino al completamento, report docente
+popolato senza percentuali, footer su tutte e tre le view.
+
+## Sette difetti trovati integrando, tutti corretti
+
+**1. `MOCK = true` era ancora attivo.** Il più grave: l'app girava interamente su dati
+finti — engine, explainer, router e report reali scollegati, **denylist clinica
+scavalcata**. Il flag andava girato al sync S2 e non è stato girato. Ora
+`clinical-gate.sh` fallisce se qualcuno lo riattiva, così non può succedere di nuovo.
+
+**2. A fine sessione veniva cancellato il report.**
+`localStorage.setItem('session_errors', JSON.stringify({done:true}))` sovrascriveva
+l'array dei misconcetti: il docente avrebbe visto una sessione vuota proprio dopo il
+completamento, cioè il momento in cui guarda.
+
+**3. La view docente non mostrava mai il report a chi non sbaglia.** Il discriminante
+era la presenza di `session_errors`, che l'engine scrive solo in caso di errore. Una
+sessione perfetta — lo scenario più probabile in una demo pilotata — finiva sulla form
+di configurazione. Sostituito con `hasSessionData()`, che guarda gli step affrontati.
+
+**4. La remediation del transfer cadeva sempre sul fallback generico.** `app.js` passava
+`step.level`, che sul transfer vale `"L1|L2"` e non corrisponde a nessuna chiave fixture.
+Ora la chiave la costruisce l'engine con `getRemediationKeyParts()`.
+
+**5. Vicolo cieco all'ultimo esercizio.** Il ramo di completamento si attivava su
+`submit() === 'COMPLETION'`, che non accade mai: `submit()` restituisce `NEXT`, è
+`nextStep()` a dichiarare la fine. Il pulsante avrebbe portato a `renderStep(null)`.
+
+**6. Doppio writer di `pdpLevel` e doppio `OutcomeTracker`.** `mock-data.js` scriveva la
+chiave reale (invariante single-writer di US-011 rotta) e `app.js` ridefiniva il tracker
+del transfer già implementato nell'engine.
+
+**7. Frazioni scritte nel codice.** La mappa frazione→parola per i lettori di schermo era
+inline in `app.js`: aggiungere un esercizio avrebbe richiesto una modifica al codice.
+Spostata in `data/fraction-labels.json`.
+
+## Un falso positivo che non ho corretto
+
+Il nuovo gate sulla copy statica segnalava il footer: *"studenti con diagnosi certificata
+di discalculia… non sostituisce la valutazione clinica"*. Quel paragrafo **deve** contenere
+quei termini — è l'enunciato che traccia il confine clinico, non una sua violazione. Il
+footer è escluso dalla scansione e al suo posto si verifica che esista e sia completo.
+
+## Cosa resta
+
+- **TSK-011** — dry run a rete fisicamente staccata (umano). La parte anticipabile è verde:
+  nessuna risorsa esterna, Tailwind vendorizzato da P-B, flusso completo senza rete.
+- **TSK-022 / TSK-023 / TSK-024** — blocco demo: script, rehearsal ×2, dry run. Da fare
+  insieme dopo le 4:00. Il pulsante *Nuova sessione* ora azzera davvero i dati di
+  sessione, quindi il rehearsal ×2 è eseguibile senza aprire DevTools.
+
+**22 TSK su 26 chiusi.** I 4 aperti sono i tre del blocco demo (TSK-022/023/024) e il
+dry run offline (TSK-011): tutte attività umane, nessuna riga di codice mancante.

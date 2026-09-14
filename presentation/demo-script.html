@@ -430,6 +430,8 @@ c.steps.filter(s =&gt; p.L1.includes_levels.includes(s.level)).forEach((s, i) =&
         </ol></div>
         <div class="box box--schermo"><h4>Cosa si vede</h4><ul>
           <li>Tre opzioni, una per riga, testo grande.</li>
+          <li>Sopra le opzioni una riga chiusa: «Se ti serve, qui compare un aiuto per vedere le parti».
+              <b>Non aprirla e non nominarla</b>: serve alla fase 3.</li>
           <li>L'opzione scelta resta marcata (non solo col colore).</li>
           <li>Dopo «Rispondo»: riquadro rosso con ✗ e la spiegazione.</li>
         </ul></div>
@@ -457,14 +459,15 @@ c.steps.filter(s =&gt; p.L1.includes_levels.includes(s.level)).forEach((s, i) =&
       <p class="battuta">
         Questa è la chiave con cui il testo è stato scelto: step uno, livello L1, denominator magnitude.
         Lo stesso errore a un livello diverso prende un testo diverso — qui la pizza, a L2 il metro.
-        E la linea delle frazioni compare adesso, al primo errore, perché lo dice il livello L1.
-        Riprova. Risposta giusta. Avanti.
+        E l'aiuto si apre adesso, al primo errore, perché lo dice il livello L1: due torte, la stessa
+        immagine di cui parla la spiegazione. Riprova. Risposta giusta. Avanti.
       </p>
-      <p class="battuta variante">
-        <b>[controllo obbligatorio al rehearsal]</b> Se la linea era già a schermo <em>prima</em> dell'errore,
-        la policy di scaffolding non è ancora collegata alla UI: sostituisci la terza frase con
-        «<b>la linea era lì, ma solo adesso ha un senso: la spiegazione le dà un significato</b>».
-        Cerchia la variante giusta prima di salire.
+      <p class="nota">
+        <b>La policy di livello arriva davvero a schermo</b> (verificato sul codice: <code>renderStep</code>
+        chiama <code>engine.getScaffoldVisible()</code>, non più <code>step.scaffold</code>). A L1 l'aiuto si
+        apre al <b>primo</b> errore con le <b>fette</b>, a L2 al <b>secondo</b> con la <b>striscia</b>, a L3 il
+        riquadro non viene nemmeno costruito. Se la giuria chiede «cosa cambia davvero fra i livelli?»,
+        questa è la risposta più corta: cambia quando arriva l'aiuto e che forma ha.
       </p>
       <div class="due">
         <div class="box"><h4>Sequenza click</h4><ol>
@@ -475,7 +478,8 @@ c.steps.filter(s =&gt; p.L1.includes_levels.includes(s.level)).forEach((s, i) =&
         </ol></div>
         <div class="box box--schermo"><h4>Cosa si vede</h4><ul>
           <li>«Quarto o terzo? Dipende dai pezzi» + l'analogia della pizza.</li>
-          <li>La linea 0 → 1 con i due marcatori.</li>
+          <li>La riga chiusa si apre in «Guarda le parti»: <b>due torte affiancate</b> con la fetta colorata —
+              1/3 visibilmente più grande di 1/4 — e sotto la linea 0 → 1.</li>
           <li>Il bottone cambia etichetta in «Riprovo».</li>
         </ul></div>
       </div>
@@ -736,6 +740,7 @@ c.steps.filter(s =&gt; p.L1.includes_levels.includes(s.level)).forEach((s, i) =&
       <li style="margin-bottom:6px"><b>«Che modello usate?»</b> — <span class="mono">nex-n2.5-mini</span>, tier gratuito via OpenRouter. Ne abbiamo provati sette: è l'unico che ha scritto italiano pulito senza infilare il proprio ragionamento dentro la risposta. Stesso modello per i testi pre-validati e per il live, altrimenti in demo si sentirebbe lo stacco di voce.</li>
       <li style="margin-bottom:6px"><b>«Chi valida i testi didattici?»</b> — Li abbiamo scritti e rivisti a mano contro una regola di leggibilità: frasi da massimo quindici parole, nessun termine tecnico. Nella versione reale è il docente a validarli.</li>
       <li style="margin-bottom:6px"><b>«Raccogliete dati sul bambino?»</b> — Niente esce dal browser. Gli errori di sessione stanno in <span class="mono">localStorage</span> e servono al report della docente.</li>
+      <li style="margin-bottom:6px"><b>«Come misurate il miglioramento?»</b> — C'è il report della docente: una riga per esercizio con i tentativi, se l'ha preso al primo colpo e se ha avuto bisogno dell'aiuto, più il confronto fra la prima e la seconda metà della sessione. Il transfer che avete visto è il punto finale di quella curva, non un aneddoto. Se volete, ve lo apro.</li>
       <li><b>«E l'accessibilità?»</b> — Cifre a larghezza fissa, nessuna animazione, feedback mai affidato al solo colore, frazioni lette per esteso dallo screen reader.</li>
     </ul>
   </div>
@@ -777,7 +782,6 @@ c.steps.filter(s =&gt; p.L1.includes_levels.includes(s.level)).forEach((s, i) =&
         <tr><td>La vista docente apre il report</td><td>Vedi «Sessione di L…» invece del menu</td><td><b>Nuova sessione</b>, poi riparti. Nessun commento.</td></tr>
         <tr><td>Tre errori consecutivi</td><td>Compare il messaggio di stop, il bottone sparisce</td><td>Raccontalo come garanzia voluta, <b>Cambia utente</b>, riparti dalla fase 1.</td></tr>
         <tr><td>Il proxy è spento</td><td>La pagina non carica affatto</td><td><code>python3 app/proxy.py</code>. Se non riparte in 20 s: demo tutta offline, fase 5 sostituita dal <code>delete fixtures[...]</code> con il testo di ripiego.</td></tr>
-        <tr><td>Si apre il report docente per sbaglio</td><td>Righe con scritto <span class="mono">step4</span> invece di «Esercizio 2»</td><td>Non fermarti a spiegarlo: chiudi e torna alla vista studente. È un'etichetta, non un dato sbagliato.</td></tr>
       </tbody>
     </table>
   </div>
@@ -816,7 +820,6 @@ c.steps.filter(s =&gt; p.L1.includes_levels.includes(s.level)).forEach((s, i) =&
       <li>Quattro risposte-giuria scritte (ne bastavano due).</li>
       <li>Lettura ad alta voce cronometrata: ≤ 4:00 obbligatorio, ≤ 3:00 con i tagli del §5.</li>
       <li>Sequenza esercizi verificata contro il curriculum <b>di oggi</b>, non contro quello di stamattina.</li>
-      <li>Scelta e cerchiata la variante giusta della battuta nella fase 3 (linea prima o dopo l'errore).</li>
       <li>Scheda B preparata e lasciata ferma su «Esercizio 6».</li>
     </ul>
   </div>

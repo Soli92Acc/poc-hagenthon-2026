@@ -52,10 +52,46 @@ Ogni tema richiede 3 deliverable specifici (numerati 01-03), tutti orientati a:
 
 ## Gap aperti
 
-Nessun gap aperto al momento dell'ingest (2026-09-14).
+Vedi `wiki/gaps.md` per lo stato corrente.
+
+## Aggiornamenti (v2026-09-14)
+
+### Tema scelto e nome prodotto
+
+La tavola rotonda `e3f2a1b4` ha scelto il **Tema 03 — Educazione Digitale Inclusiva**
+(4 partecipanti su 5; dissenso TPM registrato nel Round 1). La sessione si è svolta in
+**due round**:
+
+- **Round 1** (mattina): scelta Tema 03, prodotto "DigiStep" su alfabetizzazione
+  digitale, learner Mario 61 anni. *Superseded dal Round 2.*
+- **Round 2** (pomeriggio, vigente): re-scoping su **DSA — discalculia**. Prodotto
+  definitivo: **NumeriMiei** — coach di calcolo che spiega l'errore giusto allo studente
+  con discalculia (certificazione ASL, L. 170/2010). Learner: Luca, 11 anni, 1ª media,
+  misconcepto "denominator magnitude error". Tre audience: studente, docente, genitore.
+
+Invariato tra i round: Tema 03, stack HTML+Tailwind CDN+JS vanilla, piano B LLM
+(DEMO_MODE + fixtures.json + live slot), chiave composta fixtures per misconcepto.
+
+Vedere [[wiki/decisions/tavola-rotonda-e3f2a1b4-7c5d-4e8f-9a0b-2d6c3f1e4b7a-2026-09-14.md]]
+per il piano operativo completo (Round 2 da riga ~377: `### Posizioni Fase 1 — Round 2`).
+
+### Stack tecnico LLM
+
+La ricerca operativa ha identificato **OpenRouter** come gateway LLM. Il provider
+risolve D1 (key), D2 (CORS via mini-proxy Python stdlib), D3 (JSON schema strict).
+Rischio operativo identificato: rate limit tier free a 50 req/giorno sotto $10 di
+credito — due gap aperti (G_001 scelta modello, G_002 carica credito) monitorati in
+`wiki/gaps.md`.
+
+Risorse:
+- Concept: [[wiki/concepts/openrouter-gateway.md]]
+- Runbook operativo: [[wiki/runbooks/openrouter-setup-hagenthon.md]]
+
+[^src: raw/2026-09-14-openrouter-research.md §1. Cos'è OpenRouter e perché è rilevante per questo progetto]
 
 ## Fonti
 
 - [[wiki/sources/hagenthon-2026-temi-sfida.md]]
+- [[wiki/sources/openrouter-research.md]]
 
 [^src: raw/2026-09-14-hagenthon-temi-sfida.md §Hagenthon · Temi della sfida]

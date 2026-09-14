@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NumeriMiei — Hagenthon 2026 — Tema 03</title>
+<style>
+/* ── Reset & base ───────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #0d0d0d;
+  --surface:      #1a1a1a;
+  --surface2:     #242424;
+  --accent:       #7c3aed;
+  --accent-light: #a78bfa;
+  --accent-glow:  rgba(124, 58, 237, 0.15);
+  --text:         #f0f0f0;
+  --text-muted:   #888;
+  --text-dim:     #555;
+  --green:        #22c55e;
+  --red:          #ef4444;
+  --yellow:       #eab308;
+  --border:       #2a2a2a;
+  --slide-w:      1280px;
+  --slide-h:      720px;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: #000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  color: var(--text);
+  overflow: hidden;
+}
+
+/* ── Presentation container ─────────────────────────────────────────────── */
+.presentation {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Slide ──────────────────────────────────────────────────────────────── */
+.slide {
+  position: absolute;
+  width: var(--slide-w);
+  height: var(--slide-h);
+  background: var(--bg);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  /* scale to fit viewport */
+  transform-origin: center center;
+}
+.slide.active { display: flex; }
+
+.slide-inner {
+  flex: 1;
+  padding: 56px 72px 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Slide number badge (top-right) ──────────────────────────────────────── */
+.slide-num {
+  position: absolute;
+  top: 24px; right: 32px;
+  font-size: 13px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}
+
+/* ── Controls (bottom bar) ───────────────────────────────────────────────── */
+.controls {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 40px;
+  background: rgba(0,0,0,.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  z-index: 100;
+  border-top: 1px solid var(--border);
+}
+.controls button {
+  background: none; border: none;
+  color: var(--text-muted);
+  font-size: 18px; cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 4px;
+  transition: color .15s, background .15s;
+}
+.controls button:hover { color: var(--text); background: var(--surface); }
+#counter { font-size: 13px; color: var(--text-dim); font-variant-numeric: tabular-nums; min-width: 60px; text-align: center; }
+
+/* ── Progress bar ────────────────────────────────────────────────────────── */
+.progress {
+  position: fixed; top: 0; left: 0; height: 3px;
+  background: var(--accent);
+  transition: width .3s ease;
+  z-index: 101;
+}
+
+/* ── Typography ──────────────────────────────────────────────────────────── */
+.kicker {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .15em;
+  color: var(--accent-light); margin-bottom: 16px;
+}
+h1.display {
+  font-size: 64px; font-weight: 800; line-height: 1.0;
+  letter-spacing: -.02em; color: var(--text);
+}
+h2.title {
+  font-size: 38px; font-weight: 700; line-height: 1.15;
+  letter-spacing: -.01em;
+}
+h3.section-title {
+  font-size: 13px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .12em;
+  color: var(--accent-light); margin-bottom: 12px;
+}
+p.lead {
+  font-size: 22px; color: var(--text-muted);
+  line-height: 1.5; font-weight: 400;
+}
+p.body { font-size: 17px; color: var(--text); line-height: 1.6; }
+.muted { color: var(--text-muted); }
+.accent { color: var(--accent-light); }
+.bold { font-weight: 700; }
+
+/* ── Accent underline ────────────────────────────────────────────────────── */
+.underline-accent {
+  border-bottom: 3px solid var(--accent);
+  padding-bottom: 4px;
+  display: inline-block;
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px 28px;
+}
+.card-accent {
+  border-left: 4px solid var(--accent);
+  background: var(--accent-glow);
+  border-radius: 0 8px 8px 0;
+  padding: 16px 20px;
+}
+
+/* ── Grid helpers ────────────────────────────────────────────────────────── */
+.cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.cols-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+.gap-8  { gap: 8px; }
+.gap-16 { gap: 16px; }
+.mt-4   { margin-top: 4px; }
+.mt-8   { margin-top: 8px; }
+.mt-12  { margin-top: 12px; }
+.mt-16  { margin-top: 16px; }
+.mt-24  { margin-top: 24px; }
+.mt-32  { margin-top: 32px; }
+
+/* ── Bullet list ─────────────────────────────────────────────────────────── */
+.bullet-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.bullet-list li {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 17px; color: var(--text); line-height: 1.5;
+}
+.bullet-list li::before {
+  content: '›';
+  color: var(--accent);
+  font-weight: 700; font-size: 20px;
+  flex-shrink: 0; line-height: 1.3;
+}
+.bullet-list.sm li { font-size: 15px; gap: 8px; }
+
+/* ── Stacked fraction ────────────────────────────────────────────────────── */
+.frac {
+  display: inline-flex; flex-direction: column; align-items: center;
+  font-size: 28px; font-weight: 700; line-height: 1; vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+.frac .num { border-bottom: 3px solid currentColor; padding: 0 4px 3px; line-height: 1.2; }
+.frac .den { padding: 3px 4px 0; line-height: 1.2; }
+.frac.lg { font-size: 40px; }
+
+/* ── Number line ─────────────────────────────────────────────────────────── */
+.nl-wrap {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 14px; color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.nl {
+  flex: 1; position: relative; height: 56px;
+  border-bottom: 2px solid #444;
+}
+.nl-marker {
+  position: absolute;
+  top: 4px; transform: translateX(-50%);
+  font-size: 13px; font-weight: 600;
+  padding: 4px 8px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.nl-marker::after {
+  content: '';
+  position: absolute;
+  top: 100%; left: 50%;
+  transform: translateX(-50%);
+  width: 2px; height: 10px;
+  background: #555;
+}
+.nl-marker.correct {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+  color: var(--accent-light);
+}
+
+/* ── Quote ───────────────────────────────────────────────────────────────── */
+.quote {
+  border-left: 4px solid var(--accent);
+  padding: 12px 20px;
+  background: var(--surface);
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--text);
+}
+
+/* ── Flow diagram ────────────────────────────────────────────────────────── */
+.flow {
+  display: flex; align-items: center; gap: 0;
+  flex-wrap: nowrap;
+}
+.flow-step {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  text-align: center;
+  flex: 1;
+  min-width: 0;
+}
+.flow-step.highlight {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+.flow-step .label {
+  font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px;
+}
+.flow-step .sublabel {
+  font-size: 11px; color: var(--text-muted);
+}
+.flow-arrow {
+  color: var(--text-dim); font-size: 20px; padding: 0 6px; flex-shrink: 0;
+}
+
+/* ── Code block ──────────────────────────────────────────────────────────── */
+.code {
+  background: #111;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 14px;
+  color: #a5f3fc;
+  line-height: 1.6;
+  white-space: pre;
+}
+.code .comment { color: #4b5563; }
+.code .ok { color: var(--green); }
+
+/* ── Tag / badge ─────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 3px 10px;
+  font-size: 12px; font-weight: 600; color: var(--text-muted);
+  font-family: 'SF Mono', monospace;
+}
+.badge.purple { background: var(--accent-glow); border-color: var(--accent); color: var(--accent-light); }
+
+/* ── Before/After ────────────────────────────────────────────────────────── */
+.before-after { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.before-after .col {
+  padding: 24px 28px;
+  background: var(--surface);
+}
+.before-after .col:first-child {
+  border-radius: 12px 0 0 12px;
+  border-right: 1px solid var(--border);
+}
+.before-after .col:last-child { border-radius: 0 12px 12px 0; }
+.before-after .col-label {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .1em;
+  margin-bottom: 12px;
+}
+.col-label.red  { color: var(--red); }
+.col-label.green { color: var(--green); }
+
+/* ── Risk tag ────────────────────────────────────────────────────────────── */
+.risk-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface); border-radius: 8px;
+  font-size: 15px;
+}
+.risk-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  margin-top: 6px; flex-shrink: 0;
+}
+.risk-dot.yellow { background: var(--yellow); }
+.risk-dot.green  { background: var(--green); }
+
+/* ── Cover slide ─────────────────────────────────────────────────────────── */
+.cover-slide {
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+.cover-slide::before {
+  content: '';
+  position: absolute;
+  top: -200px; right: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(124,58,237,.3) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.cover-slide::after {
+  content: '';
+  position: absolute;
+  bottom: -150px; left: -100px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(124,58,237,.12) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+/* ── EP table ────────────────────────────────────────────────────────────── */
+.ep-row {
+  display: flex; align-items: center; gap: 16px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.ep-row:last-child { border-bottom: none; }
+.ep-num {
+  font-size: 11px; font-weight: 800; color: var(--accent);
+  min-width: 28px; text-align: center;
+  font-family: 'SF Mono', monospace;
+}
+
+/* ── Section divider ─────────────────────────────────────────────────────── */
+.divider {
+  height: 1px; background: var(--border);
+  margin: 20px 0;
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="presentation" id="presentation">
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       SLIDE 1 — COPERTINA
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <section class="slide cover-slide active">
+    <div class="slide-num">1 / 6</div>
+    <div class="slide-inner" style="justify-content:center; gap:0; position:relative; z-index:1;">
+
+      <div class="kicker">Hagenthon 2026 &nbsp;·&nbsp; Tema 03 &nbsp;·&nbsp; Sprint 01</div>
+
+      <h1 class="display" style="margin-bottom:20px;">
+        Numeri<span style="color:var(--accent)">Miei</span>
+      </h1>
+
+      <p class="lead" style="max-width:700px; font-size:26px; font-weight:300; color:var(--text);">
+        Coach di calcolo che spiega l'errore giusto<br>
+        allo studente con discalculia
+      </p>
+
+      <div class="divider" style="margin:36px 0 28px; max-width:480px;"></div>
+
+      <div style="display:flex; gap:32px; align-items:center;">
+        <div>
+          <div style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.1em; margin-bottom:4px;">Tecnologie</div>
+          <div style="font-size:15px; color:var(--text-muted);">OpenRouter · Claude · ES Modules · Tailwind</div>
+        </div>
+        <div style="width:1px; height:32px; background:var(--border);"></div>
+        <div>
+          <div style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.1em; margin-bottom:4px;">Destinatari</div>
+          <div style="font-size:15px; color:var(--text-muted);">Studenti con PDP &nbsp;·&nbsp; Docenti &nbsp;·&nbsp; Famiglie</div>
+        </div>
+      </div>
+
+      <!-- demo checklist pill -->
+      <div style="position:absolute; bottom:40px; right:0;">
+        <div style="font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;">Demo coprirà</div>
+        <div style="display:flex; flex-direction:column; gap:5px;">
+          <div style="font-size:13px; color:var(--text-muted);">① Problema &nbsp; ② Utente &nbsp; ③ Soluzione</div>
+          <div style="font-size:13px; color:var(--text-muted);">④ Intervento AI &nbsp; ⑤ Miglioramento &nbsp; ⑥ Rischi</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       SLIDE 2 — PROBLEMA + UTENTE  [demo points ① ②]
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <section class="slide">
+    <div class="slide-num">2 / 6</div>
+    <div class="slide-inner">
+
+      <div class="kicker">① Il problema scelto &nbsp;&nbsp; ② L'utente / scenario di riferimento</div>
+      <h2 class="title" style="margin-bottom:28px;">Un errore sistematico, non una lacuna generica</h2>
+
+      <div class="cols-2" style="flex:1; align-items:start;">
+
+        <!-- Left: il problema -->
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <h3 class="section-title">Il problema</h3>
+
+          <div class="card" style="padding:16px 20px;">
+            <div style="font-size:13px; color:var(--text-muted); margin-bottom:10px; text-transform:uppercase; letter-spacing:.08em;">Misconcepto: denominator magnitude</div>
+            <div style="display:flex; align-items:center; gap:20px; margin-bottom:12px;">
+              <span style="color:var(--red); font-size:15px; font-weight:600;">Risposta sbagliata</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:16px;">
+              <span class="frac" style="color:var(--red);">
+                <span class="num">1</span><span class="den">4</span>
+              </span>
+              <span style="color:var(--text-muted); font-size:20px;">&gt;</span>
+              <span class="frac">
+                <span class="num">1</span><span class="den">3</span>
+              </span>
+              <span style="color:var(--text-dim); font-size:14px; margin-left:8px;">perché 4 &gt; 3</span>
+            </div>
+          </div>
+
+          <div class="card" style="padding:16px 20px; border-left:3px solid var(--green);">
+            <div style="font-size:13px; color:var(--text-muted); margin-bottom:10px; text-transform:uppercase; letter-spacing:.08em;">La realtà</div>
+            <div style="display:flex; align-items:center; gap:16px;">
+              <span class="frac" style="color:var(--green);">
+                <span class="num">1</span><span class="den">3</span>
+              </span>
+              <span style="color:var(--text-muted); font-size:20px;">&gt;</span>
+              <span class="frac">
+                <span class="num">1</span><span class="den">4</span>
+              </span>
+              <span style="color:var(--text-dim); font-size:14px; margin-left:8px;">più pezzi = pezzi più piccoli</span>
+            </div>
+          </div>
+
+          <p class="body" style="font-size:15px; color:var(--text-muted);">
+            Gli strumenti esistenti spiegano <em>le frazioni</em>.<br>
+            NumeriMiei spiega <strong style="color:var(--text);">quell'errore specifico</strong>.
+          </p>
+        </div>
+
+        <!-- Right: LPS Luca -->
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <h3 class="section-title">L'utente — LPS Luca</h3>
+
+          <div class="card" style="border-color:var(--accent); position:relative; overflow:hidden;">
+            <div style="position:absolute; top:0; right:0; background:var(--accent); padding:4px 12px; font-size:11px; font-weight:700; border-radius:0 12px 0 8px;">Persona</div>
+            <div style="font-size:22px; font-weight:700; margin-bottom:16px; padding-right:60px;">Luca, 11 anni<span style="font-weight:400; color:var(--text-muted); font-size:16px;">&nbsp;— 1ª media</span></div>
+            <ul class="bullet-list sm">
+              <li>Discalculia certificata <span class="badge" style="margin-left:6px;">PDP 2025</span></li>
+              <li>Difficoltà: confronto frazioni con denominatori diversi</li>
+              <li>Misconcepto attivo: <span class="badge purple">denominator_magnitude</span></li>
+            </ul>
+          </div>
+
+          <div class="quote">"La 1/4 è più grande perché 4 è più grande di 3"</div>
+
+          <div class="nl-wrap" style="margin-top:4px;">
+            <span style="font-size:12px; color:var(--text-dim);">0</span>
+            <div class="nl">
+              <div class="nl-marker" style="left:25%; border-color:var(--red); color:var(--red);">1/4 <span style="font-size:10px; opacity:.6;">Luca dice: più grande</span></div>
+              <div class="nl-marker correct" style="left:33.3%;">1/3 ← corretto</div>
+            </div>
+            <span style="font-size:12px; color:var(--text-dim);">1</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       SLIDE 3 — COME FUNZIONA + AI  [demo points ③ ④]
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <section class="slide">
+    <div class="slide-num">3 / 6</div>
+    <div class="slide-inner">
+
+      <div class="kicker">③ Come funziona la soluzione &nbsp;&nbsp; ④ Dove interviene l'agente AI</div>
+      <h2 class="title" style="margin-bottom:28px;">Adaptive MCQ + LLM explainer con confine clinico</h2>
+
+      <!-- Flow diagram -->
+      <div class="flow" style="margin-bottom:28px;">
+        <div class="flow-step">
+          <div class="label">Docente</div>
+          <div class="sublabel">imposta livello PDP<br>L1 / L2 / L3</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="label">MCQ Studente</div>
+          <div class="sublabel">domanda + opzioni<br>+ linea delle frazioni</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step highlight">
+          <div class="label" style="color:var(--accent-light);">🤖 AI Explainer</div>
+          <div class="sublabel" style="color:var(--accent-light); opacity:.7;">fixture lookup<br>+ denylist clinico</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="label">Remediation</div>
+          <div class="sublabel">spiegazione adattiva<br>specifica per misconcepto</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="label">Transfer Task</div>
+          <div class="sublabel">1/5 vs 1/6<br>senza scaffolding</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- AI detail -->
+      <div class="cols-2" style="gap:24px; margin-top:16px;">
+
+        <div>
+          <h3 class="section-title">Dove interviene l'AI</h3>
+          <ul class="bullet-list sm" style="gap:8px;">
+            <li>L'engine rileva il <span class="badge purple">misconcepto_slug</span> dalla risposta sbagliata</li>
+            <li>Lookup fixture con chiave <span class="badge">step1-L1-denominator_magnitude</span></li>
+            <li>Se fixture mancante → fallback LLM via OpenRouter (Claude)</li>
+            <li>Output passa per <span class="badge purple">getSafeRemediation()</span> — unico entry point</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="section-title">Adaptive evidence — stesso errore, livello diverso</h3>
+          <div class="card" style="padding:0; overflow:hidden;">
+            <div style="display:grid; grid-template-columns:1fr 1fr;">
+              <div style="padding:14px 16px; border-right:1px solid var(--border);">
+                <div style="font-size:11px; color:var(--text-dim); margin-bottom:8px; font-weight:700;">L1</div>
+                <p style="font-size:14px; color:var(--text); line-height:1.5;">"Attenzione: un denominatore più grande significa pezzi più piccoli! Guarda la linea."</p>
+              </div>
+              <div style="padding:14px 16px;">
+                <div style="font-size:11px; color:var(--accent-light); margin-bottom:8px; font-weight:700;">L2</div>
+                <p style="font-size:14px; color:var(--text); line-height:1.5;">"Guarda i pezzi, non solo il numero in basso. Più pezzi uguali = pezzi più piccoli."</p>
+              </div>
+            </div>
+          </div>
+          <p style="font-size:12px; color:var(--text-dim); margin-top:8px;">Stessa domanda · Stesso tipo di errore · Spiegazione calibrata per livello PDP</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       SLIDE 4 — MIGLIORAMENTO  [demo point ⑤]
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <section class="slide">
+    <div class="slide-num">4 / 6</div>
+    <div class="slide-inner">
+
+      <div class="kicker">⑤ Quale miglioramento viene prodotto</div>
+      <h2 class="title" style="margin-bottom:28px;">Learning Outcome Note — il transfer task misura il risultato</h2>
+
+      <div class="before-after" style="margin-bottom:24px;">
+        <div class="col">
+          <div class="col-label red">Prima</div>
+          <p class="body" style="margin-bottom:12px;">Luca risponde guardando il denominatore più grande.</p>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span class="frac" style="color:var(--red); font-size:32px;">
+              <span class="num">1</span><span class="den">4</span>
+            </span>
+            <span style="font-size:14px; color:var(--red);">→ "più grande" (sbagliato)</span>
+          </div>
+        </div>
+        <div class="col">
+          <div class="col-label green">Dopo — Transfer Task</div>
+          <p class="body" style="margin-bottom:12px;">Usa la linea delle frazioni <strong>su un item mai visto</strong>.</p>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span class="frac" style="color:var(--green); font-size:32px;">
+              <span class="num">1</span><span class="den">5</span>
+            </span>
+            <span style="font-size:20px; color:var(--text-muted);">&gt;</span>
+            <span class="frac" style="font-size:32px;">
+              <span class="num">1</span><span class="den">6</span>
+            </span>
+            <span style="font-size:14px; color:var(--green);">→ autonomo ✓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Number line transfer demo -->
+      <div class="card" style="margin-bottom:20px;">
+        <div style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.08em; margin-bottom:12px;">Transfer task — linea delle frazioni rivelata dopo la risposta corretta</div>
+        <div class="nl-wrap">
+          <span style="font-size:12px; color:var(--text-dim);">0</span>
+          <div class="nl" style="height:64px;">
+            <div class="nl-marker" style="left:16.7%; color:var(--text-muted);">1/6 <span style="font-size:10px; opacity:.6;">= 0.167</span></div>
+            <div class="nl-marker correct" style="left:20%;">1/5 ← più grande <span style="font-size:10px; opacity:.7;">= 0.200</span></div>
+          </div>
+          <span style="font-size:12px; color:var(--text-dim);">1</span>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
+        <div class="card" style="text-align:center; padding:16px;">
+          <div style="font-size:28px; font-weight:800; color:var(--accent-light); margin-bottom:4px;">30s</div>
+          <div style="font-size:13px; color:var(--text-muted);">tempo medio transfer<br>con risposta corretta</div>
+        </div>
+        <div class="card" style="text-align:center; padding:16px;">
+          <div style="font-size:28px; font-weight:800; color:var(--green); margin-bottom:4px;">L1 → L2</div>
+          <div style="font-size:13px; color:var(--text-muted);">spiegazioni diverse<br>stesso misconcepto</div>
+        </div>
+        <div class="card" style="text-align:center; padding:16px;">
+          <div style="font-size:28px; font-weight:800; color:var(--text); margin-bottom:4px;">PDP</div>
+          <div style="font-size:13px; color:var(--text-muted);">potenzia strumenti<br>già nel piano didattico</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       SLIDE 5 — LIMITI E RISCHI  [demo point ⑥]
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <section class="slide">
+    <div class="slide-num">5 / 6</div>
+    <div class="slide-inner">
+
+      <div class="kicker">⑥ Quali limiti o rischi sono stati considerati</div>
+      <h2 class="title" style="margin-bottom:24px;">Confine clinico + copertura + verificabilità</h2>
+
+      <div class="cols-2" style="gap:28px; flex:1; align-items:start;">
+
+        <!-- Risks -->
+        <div>
+          <h3 class="section-title">Rischi considerati</h3>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+
+            <div class="risk-item">
+              <div class="risk-dot yellow"></div>
+              <div>
+                <div style="font-weight:700; font-size:15px; margin-bottom:2px;">Copertura limitata</div>
+                <div style="font-size:14px; color:var(--text-muted);">Sprint 01: 2 misconcepit, frazioni con numeratore 1.<br>
+                <span style="color:var(--text-dim); font-size:13px;">Mitigazione: JSON curriculum estendibile senza codice.</span></div>
+              </div>
+            </div>
+
+            <div class="risk-item">
+              <div class="risk-dot yellow"></div>
+              <div>
+                <div style="font-weight:700; font-size:15px; margin-bottom:2px;">LLM non deterministico in fallback</div>
+                <div style="font-size:14px; color:var(--text-muted);">Risposta varia tra sessioni se fixture mancante.<br>
+                <span style="color:var(--text-dim); font-size:13px;">Mitigazione: denylist clinico deterministico + wasCleaned flag.</span></div>
+              </div>
+            </div>
+
+            <div class="risk-item">
+              <div class="risk-dot green"></div>
+              <div>
+                <div style="font-weight:700; font-size:15px; margin-bottom:2px;">Confine riabilitazione/strumento</div>
+                <div style="font-size:14px; color:var(--text-muted);">NumeriMiei potenzia uno strumento già nel PDP,<br>
+                non prescrive diagnosi né percorso clinico.<br>
+                <span style="color:var(--green); font-size:13px;">⟵ verificabile con grep, non fiducia.</span></div>
+              </div>
+            </div>
+
+            <div class="risk-item">
+              <div class="risk-dot green"></div>
+              <div>
+                <div style="font-weight:700; font-size:15px; margin-bottom:2px;">Linguaggio accessibile garantito</div>
+                <div style="font-size:14px; color:var(--text-muted);">Frasi ≤15 parole, zero termini clinici nel curriculum JSON.<br>
+                <span style="color:var(--text-dim); font-size:13px;">Verificato: grep -rni 'diagnosi|disturbo|deficit' data/*.json → 0</span></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Verifiable boundary -->
+        <div>
+          <h3 class="section-title">Confine clinico — verificabile con grep</h3>
+
+          <div class="code" style="margin-bottom:16px;"><span class="comment"># Unico call site LLM → DOM</span>
+grep -c "getSafeRemediation" app.js
+<span class="ok">→ 1</span>
+
+<span class="comment"># Unico writer del livello PDP</span>
+grep -c "setItem.*pdpLevel" app.js
+<span class="ok">→ 1</span>
+
+<span class="comment"># Zero termini clinici nel curriculum</span>
+grep -rni "diagnosi|deficit" data/*.json
+<span class="ok">→ 0</span></div>
+
+          <div style="margin-top:16px;">
+            <h3 class="section-title">Extension points per la roadmap</h3>
+            <div class="card" style="padding:0; overflow:hidden;">
+              <div class="ep-row"><span class="ep-num">EP-1</span><span style="font-size:14px; color:var(--text);">Nuovo misconcepto → aggiungi <span class="badge purple">misconcepto_slug</span> al JSON</span></div>
+              <div class="ep-row"><span class="ep-num">EP-2</span><span style="font-size:14px; color:var(--text);">Nuovo distractor → modifica JSON → reload → appare <span style="color:var(--text-muted);">(30s)</span></span></div>
+              <div class="ep-row"><span class="ep-num">EP-3</span><span style="font-size:14px; color:var(--text);">Nuova area matematica → nuovo <span class="badge">curriculum-*.json</span></span></div>
+              <div class="ep-row"><span class="ep-num">EP-4</span><span style="font-size:14px; color:var(--text);">Nuova lingua → nuovi label nei distractors</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       SLIDE 6 — DEMO LIVE + NEXT STEPS
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <section class="slide">
+    <div class="slide-num">6 / 6</div>
+    <div class="slide-inner" style="justify-content:center; gap:0;">
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start; flex:1;">
+
+        <!-- Demo script -->
+        <div>
+          <div class="kicker">Script demo — 4 minuti</div>
+          <h2 class="title" style="font-size:28px; margin-bottom:20px;">Sequenza live</h2>
+
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; gap:14px; align-items:flex-start;">
+              <span style="font-size:11px; color:var(--accent); font-weight:700; font-family:monospace; padding-top:3px; min-width:28px;">00:00</span>
+              <span style="font-size:15px; color:var(--text);">Docente → <code style="font-family:monospace; background:var(--surface2); padding:1px 6px; border-radius:4px;">?role=teacher</code> → selezione <strong>L1</strong> → conferma</span>
+            </div>
+            <div style="display:flex; gap:14px; align-items:flex-start;">
+              <span style="font-size:11px; color:var(--accent); font-weight:700; font-family:monospace; padding-top:3px; min-width:28px;">00:30</span>
+              <span style="font-size:15px; color:var(--text);">Studente → <code style="font-family:monospace; background:var(--surface2); padding:1px 6px; border-radius:4px;">?role=student</code> → step 1 (1/3 vs 1/4)</span>
+            </div>
+            <div style="display:flex; gap:14px; align-items:flex-start;">
+              <span style="font-size:11px; color:var(--accent); font-weight:700; font-family:monospace; padding-top:3px; min-width:28px;">01:00</span>
+              <span style="font-size:15px; color:var(--text);">Risposta sbagliata <strong>(denominator_magnitude)</strong> → remediation L1</span>
+            </div>
+            <div style="display:flex; gap:14px; align-items:flex-start;">
+              <span style="font-size:11px; color:var(--accent); font-weight:700; font-family:monospace; padding-top:3px; min-width:28px;">01:30</span>
+              <span style="font-size:15px; color:var(--text);">Risposta corretta → avanza → transfer task (1/5 vs 1/6, senza linea)</span>
+            </div>
+            <div style="display:flex; gap:14px; align-items:flex-start;">
+              <span style="font-size:11px; color:var(--accent); font-weight:700; font-family:monospace; padding-top:3px; min-width:28px;">02:00</span>
+              <span style="font-size:15px; color:var(--text);">Transfer corretto → linea revealed → <code style="font-family:monospace; background:var(--surface2); padding:1px 6px; border-radius:4px;">solvedWithoutScaffold=true</code></span>
+            </div>
+            <div style="display:flex; gap:14px; align-items:flex-start;">
+              <span style="font-size:11px; color:var(--accent); font-weight:700; font-family:monospace; padding-top:3px; min-width:28px;">02:30</span>
+              <span style="font-size:15px; color:var(--text);">Docente → <code style="font-family:monospace; background:var(--surface2); padding:1px 6px; border-radius:4px;">?role=teacher</code> → report: misconcepit + esito transfer</span>
+            </div>
+            <div style="display:flex; gap:14px; align-items:flex-start;">
+              <span style="font-size:11px; color:var(--accent); font-weight:700; font-family:monospace; padding-top:3px; min-width:28px;">03:00</span>
+              <span style="font-size:15px; color:var(--text);">Extension point live: modifica JSON → reload → appare (30s)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Next steps -->
+        <div>
+          <div class="kicker">Roadmap post-sprint</div>
+          <h2 class="title" style="font-size:28px; margin-bottom:20px;">Cosa faremmo dopo</h2>
+
+          <ul class="bullet-list" style="gap:12px; margin-bottom:24px;">
+            <li>Espandere a moltiplicazione e numeri decimali<br><span style="font-size:14px; color:var(--text-muted);">nuovo curriculum JSON, stessi misconcepit rilevabili</span></li>
+            <li>Onboarding famiglie — vista <code style="font-family:monospace; background:var(--surface2); padding:1px 5px; border-radius:3px; font-size:13px;">?role=parent</code> in plain language<br><span style="font-size:14px; color:var(--text-muted);">dati sessione senza terminologia clinica</span></li>
+            <li>Fixture crowd-sourced da docenti certificati<br><span style="font-size:14px; color:var(--text-muted);">stesso schema CT-1, review obbligatoria prima di merge</span></li>
+          </ul>
+
+          <div class="card-accent">
+            <div style="font-size:12px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.1em; margin-bottom:6px;">Caveat invariante</div>
+            <p style="font-size:15px; color:var(--text); line-height:1.5;">NumeriMiei potenzia l'uso di uno strumento già previsto dal PDP — la linea delle frazioni. Non è riabilitazione clinica. Non prescrive diagnosi.</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+</div><!-- /presentation -->
+
+<!-- ── Controls ─────────────────────────────────────────────────────────── -->
+<div class="controls">
+  <button id="prev" title="Slide precedente (←)">←</button>
+  <span id="counter">1 / 6</span>
+  <button id="next" title="Slide successiva (→ / Spazio)">→</button>
+</div>
+
+<script>
+(function () {
+  const slides = document.querySelectorAll('.slide');
+  const counter = document.getElementById('counter');
+  const progress = document.getElementById('progress');
+  const total = slides.length;
+  let current = 0;
+
+  function go(n) {
+    slides[current].classList.remove('active');
+    current = (n + total) % total;
+    slides[current].classList.add('active');
+    counter.textContent = `${current + 1} / ${total}`;
+    progress.style.width = `${((current + 1) / total) * 100}%`;
+  }
+
+  document.getElementById('next').addEventListener('click', () => go(current + 1));
+  document.getElementById('prev').addEventListener('click', () => go(current - 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'ArrowDown')  { e.preventDefault(); go(current + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); go(current - 1); }
+    if (e.key === 'Home') go(0);
+    if (e.key === 'End')  go(total - 1);
+  });
+
+  // Scale slide to fit viewport (letterbox)
+  function scale() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight - 40; // leave room for controls
+    const sw = 1280, sh = 720;
+    const s = Math.min(vw / sw, vh / sh);
+    document.querySelectorAll('.slide').forEach(sl => {
+      sl.style.transform = `scale(${s})`;
+    });
+  }
+  window.addEventListener('resize', scale);
+  scale();
+
+  // Init progress bar
+  progress.style.width = `${(1 / total) * 100}%`;
+})();
+</script>
+</body>
+</html>

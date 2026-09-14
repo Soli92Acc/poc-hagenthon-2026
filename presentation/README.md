@@ -7,8 +7,9 @@ Registrata in `factory.config.yaml` come code_path `presentation` (layer `docs`)
 
 | File | TSK | Quando |
 |---|---|---|
-| `numerimiei-deck.md` → export PPT | TSK-025 (slide 1-2), TSK-026 (slide 3-5) | slide 1-2 a 0:10-0:15; slide 3-5 nel buffer 3:30-4:00 |
-| `demo-script.md` | TSK-022 | blocco demo prep, 4:00-4:15 |
+| `numerimiei-deck.html` — deck proiettabile, 6 slide | TSK-025 (slide 1-2), TSK-026 (slide 3-6) | slide 1-2 a 0:10-0:15; slide 3-6 nel buffer 3:30-4:00 |
+| `numerimiei-deck.md` — controparte testuale, sorgente per l'export PPT | come sopra | va tenuta allineata all'HTML |
+| `demo-script.html` | TSK-022 | blocco demo prep, 4:00-4:15 |
 
 Qui va anche il resto della documentazione di progetto prodotta durante l'hackathon.
 
@@ -21,3 +22,16 @@ Qui va anche il resto della documentazione di progetto prodotta durante l'hackat
   pronto, si presenta senza deck.
 - Nessun termine clinico nei materiali: vale la stessa denylist del prodotto.
   NumeriMiei e' uno strumento didattico compensativo, mai diagnostico.
+  (Nota: nessun gate automatico scandisce `presentation/` — il vincolo e' redazionale.
+  Le occorrenze di «diagnosi» / «riabilitazione clinica» nel deck sono ammesse solo
+  dove *dichiarano il confine*, mai dove descrivono il prodotto.)
+
+## Brand
+
+Deck brandizzato Accenture: viola core `#A100FF` come accento, marchio in basso a
+destra su ogni slide interna e in alto a sinistra sulla copertina.
+
+Il marchio e' una **ricostruzione tipografica** (`accenture` in sans di sistema +
+chevron viola sopra la «t»), non l'asset ufficiale: il repo non contiene file di brand.
+Per sostituirlo, in `numerimiei-deck.html` cerca il commento `NOTA:` sopra la regola
+`.acn-mark` — indica il punto esatto in cui innestare l'SVG ufficiale.

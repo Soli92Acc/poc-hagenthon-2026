@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hagenthon 2026 — Decisione tema e piano operativo</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f4f6f8;
+  --bg-card: #ffffff;
+  --ink: #16191d;
+  --ink-soft: #4a525c;
+  --line: #d7dce2;
+  --accent: #0b6b6b;
+  --accent-soft: #e2f1f1;
+  --go: #1a6b33;
+  --go-soft: #e3f3e8;
+  --warn: #8a5000;
+  --warn-soft: #fdf0dc;
+  --stop: #9b1c1c;
+  --stop-soft: #fbe6e6;
+  --radius: 10px;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171a;
+    --bg-soft: #1c2024;
+    --bg-card: #1c2024;
+    --ink: #eceff2;
+    --ink-soft: #a9b2bc;
+    --line: #363c43;
+    --accent: #5fd4d4;
+    --accent-soft: #16302f;
+    --go: #6ede91;
+    --go-soft: #15291b;
+    --warn: #f0b45e;
+    --warn-soft: #2e2312;
+    --stop: #f58a8a;
+    --stop-soft: #2e1717;
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 1.5rem; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 1.5rem 6rem; }
+
+/* ---------- header ---------- */
+header.masthead {
+  border-bottom: 1px solid var(--line);
+  padding: 3rem 0 2rem;
+  margin-bottom: 2.5rem;
+}
+.eyebrow {
+  font-size: .78rem; letter-spacing: .13em; text-transform: uppercase;
+  color: var(--accent); font-weight: 700; margin: 0 0 .7rem;
+}
+h1 { font-size: clamp(1.9rem, 4.2vw, 2.7rem); line-height: 1.15; margin: 0 0 1rem; letter-spacing: -.02em; }
+.sub { color: var(--ink-soft); font-size: 1.06rem; margin: 0 0 1.5rem; max-width: 62ch; }
+.meta { display: flex; flex-wrap: wrap; gap: .5rem; }
+.chip {
+  font-size: .82rem; padding: .3rem .7rem; border-radius: 999px;
+  background: var(--bg-soft); border: 1px solid var(--line); color: var(--ink-soft);
+}
+.chip strong { color: var(--ink); font-weight: 600; }
+.chip.ok { background: var(--go-soft); border-color: transparent; color: var(--go); }
+.chip.ok strong { color: var(--go); }
+
+/* ---------- layout ---------- */
+.layout { display: grid; grid-template-columns: 210px 1fr; gap: 3rem; align-items: start; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; gap: 1.5rem; } }
+
+nav.toc { position: sticky; top: 1.5rem; font-size: .92rem; }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--bg-soft); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.2rem; }
+}
+nav.toc h2 { font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 .8rem; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc; }
+nav.toc li { counter-increment: toc; margin-bottom: .1rem; }
+nav.toc a {
+  display: block; padding: .38rem .6rem; border-radius: 6px;
+  color: var(--ink-soft); text-decoration: none; border-left: 2px solid transparent;
+}
+nav.toc a::before { content: counter(toc) ". "; color: var(--accent); font-variant-numeric: tabular-nums; }
+nav.toc a:hover, nav.toc a:focus-visible { background: var(--bg-soft); color: var(--ink); border-left-color: var(--accent); }
+@media (max-width: 900px) { nav.toc a:hover { background: var(--bg); } }
+
+/* ---------- sections ---------- */
+section { margin-bottom: 4rem; scroll-margin-top: 1.5rem; }
+section > h2 {
+  font-size: 1.45rem; letter-spacing: -.01em; margin: 0 0 1.2rem;
+  padding-bottom: .6rem; border-bottom: 2px solid var(--line);
+  display: flex; align-items: baseline; gap: .7rem;
+}
+section > h2 .num {
+  font: 700 .82rem/1 var(--mono); color: var(--accent);
+  background: var(--accent-soft); padding: .38rem .5rem; border-radius: 5px; flex: none;
+}
+h3 { font-size: 1.06rem; margin: 2rem 0 .7rem; letter-spacing: -.005em; }
+h4 { font-size: .95rem; margin: 1.3rem 0 .5rem; color: var(--ink-soft); }
+p { margin: 0 0 1rem; }
+ul, ol { margin: 0 0 1rem; padding-left: 1.3rem; }
+li { margin-bottom: .4rem; }
+code { font: .88em var(--mono); background: var(--bg-soft); padding: .13em .4em; border-radius: 4px; border: 1px solid var(--line); }
+strong { font-weight: 650; }
+
+/* ---------- verdict ---------- */
+.verdict {
+  background: var(--go-soft); border: 1px solid transparent; border-left: 4px solid var(--go);
+  border-radius: var(--radius); padding: 1.5rem 1.7rem; margin-bottom: 1.8rem;
+}
+.verdict .label { font-size: .76rem; letter-spacing: .12em; text-transform: uppercase; color: var(--go); font-weight: 700; margin: 0 0 .4rem; }
+.verdict .headline { font-size: 1.5rem; font-weight: 700; margin: 0 0 .6rem; letter-spacing: -.015em; }
+.verdict p:last-child { margin: 0; color: var(--ink); }
+
+.callout {
+  background: var(--accent-soft); border-left: 4px solid var(--accent);
+  border-radius: var(--radius); padding: 1.2rem 1.4rem; margin: 1.4rem 0;
+}
+.callout p:last-child { margin: 0; }
+.callout .label { font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0 0 .5rem; }
+.callout.key .headline { font-size: 1.1rem; font-weight: 650; line-height: 1.45; margin: 0 0 .8rem; }
+
+/* ---------- cards ---------- */
+.cards { display: grid; gap: 1rem; margin: 1.2rem 0; }
+.cards.three { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.cards.two { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.card {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 1.2rem 1.3rem;
+}
+.card h3 { margin: 0 0 .5rem; font-size: 1rem; }
+.card p:last-child, .card ul:last-child { margin-bottom: 0; }
+.card .tag {
+  display: inline-block; font-size: .72rem; letter-spacing: .09em; text-transform: uppercase;
+  font-weight: 700; padding: .22rem .5rem; border-radius: 4px; margin-bottom: .6rem;
+}
+.tag.no { background: var(--stop-soft); color: var(--stop); }
+.tag.yes { background: var(--go-soft); color: var(--go); }
+.tag.mid { background: var(--warn-soft); color: var(--warn); }
+
+/* ---------- scope columns ---------- */
+.scope { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 760px) { .scope { grid-template-columns: 1fr; } }
+.scope > div { border-radius: var(--radius); padding: 1.2rem 1.4rem; border: 1px solid var(--line); }
+.scope .in { background: var(--go-soft); border-color: transparent; }
+.scope .out { background: var(--stop-soft); border-color: transparent; }
+.scope h3 { margin-top: 0; display: flex; align-items: center; gap: .5rem; }
+.scope .in h3 { color: var(--go); }
+.scope .out h3 { color: var(--stop); }
+.scope ul { list-style: none; padding: 0; margin: 0; }
+.scope li { padding-left: 1.5rem; position: relative; margin-bottom: .55rem; font-size: .95rem; }
+.scope .in li::before { content: "✓"; position: absolute; left: 0; color: var(--go); font-weight: 700; }
+.scope .out li::before { content: "✕"; position: absolute; left: 0; color: var(--stop); font-weight: 700; }
+
+/* ---------- tables ---------- */
+.table-scroll { overflow-x: auto; margin: 1.2rem 0; border: 1px solid var(--line); border-radius: var(--radius); }
+table { border-collapse: collapse; width: 100%; font-size: .93rem; }
+th, td { text-align: left; padding: .75rem .9rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+thead th { background: var(--bg-soft); font-size: .78rem; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
+tbody tr:last-child td { border-bottom: none; }
+td.slot { font: 600 .9rem/1.5 var(--mono); white-space: nowrap; color: var(--accent); }
+tr.checkpoint td { background: var(--warn-soft); font-weight: 650; color: var(--warn); }
+tr.checkpoint td.slot { color: var(--warn); }
+
+/* ---------- timeline bar ---------- */
+.bar { display: flex; height: 42px; border-radius: 8px; overflow: hidden; margin: 1.2rem 0 .6rem; border: 1px solid var(--line); }
+.bar div { display: flex; align-items: center; justify-content: center; font-size: .74rem; font-weight: 700; color: #fff; padding: 0 .3rem; text-align: center; line-height: 1.2; }
+.bar .b1 { flex: 150; background: #0b6b6b; }
+.bar .b2 { flex: 60;  background: #14807f; }
+.bar .b3 { flex: 30;  background: #8a5000; }
+.bar .b4 { flex: 60;  background: #3d5a80; }
+.bar-legend { display: flex; justify-content: space-between; font: .78rem var(--mono); color: var(--ink-soft); }
+
+/* ---------- risks ---------- */
+.risk { border: 1px solid var(--line); border-left: 4px solid var(--warn); border-radius: var(--radius); padding: 1.1rem 1.3rem; margin-bottom: 1rem; background: var(--bg-card); }
+.risk.fatal { border-left-color: var(--stop); }
+.risk h3 { margin: 0 0 .5rem; font-size: 1rem; display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
+.risk .id { font: 700 .8rem var(--mono); background: var(--warn-soft); color: var(--warn); padding: .2rem .45rem; border-radius: 4px; }
+.risk.fatal .id { background: var(--stop-soft); color: var(--stop); }
+.risk p:last-child { margin: 0; }
+.risk .prob { font-size: .86rem; color: var(--ink-soft); margin-top: .6rem; }
+
+/* ---------- checklist ---------- */
+.checklist { list-style: none; padding: 0; margin: 1rem 0 0; }
+.checklist li {
+  display: flex; gap: .8rem; align-items: flex-start;
+  padding: .85rem 1rem; background: var(--bg-soft); border: 1px solid var(--line);
+  border-radius: 8px; margin-bottom: .55rem;
+}
+.checklist .box { flex: none; width: 20px; height: 20px; border: 2px solid var(--accent); border-radius: 4px; margin-top: .15rem; }
+
+/* ---------- deps ---------- */
+.deps { display: grid; gap: .6rem; margin: 1rem 0; }
+.dep { display: grid; grid-template-columns: 52px 1fr auto; gap: 1rem; align-items: center;
+       padding: .7rem 1rem; background: var(--bg-soft); border: 1px solid var(--line); border-radius: 8px; font-size: .93rem; }
+@media (max-width: 620px) { .dep { grid-template-columns: 46px 1fr; } .dep .due { grid-column: 2; font-size: .85rem; } }
+.dep .id { font: 700 .88rem var(--mono); color: var(--accent); }
+.dep .due { font: 600 .82rem var(--mono); color: var(--warn); background: var(--warn-soft); padding: .2rem .5rem; border-radius: 4px; white-space: nowrap; }
+
+footer.doc { border-top: 1px solid var(--line); margin-top: 4rem; padding-top: 1.8rem; font-size: .88rem; color: var(--ink-soft); }
+footer.doc a { color: var(--accent); }
+footer.doc code { font-size: .85em; }
+
+@media print {
+  nav.toc, .bar { display: none; }
+  .layout { grid-template-columns: 1fr; }
+  body { font-size: 11pt; }
+  section { page-break-inside: avoid; margin-bottom: 2rem; }
+  a { text-decoration: none; color: inherit; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Tavola Rotonda · sessione e3f2a1b4 · 14 settembre 2026</p>
+  <h1>Hagenthon 2026 — scelta del tema e piano operativo</h1>
+  <p class="sub">Esito della deliberazione multi-agente su quale tema scegliere, quale web app costruire e come portarla in demo in 4 ore con un team di 2 persone.</p>
+  <div class="meta">
+    <span class="chip ok">Esito: <strong>consenso</strong> · round 1 di 3</span>
+    <span class="chip">Partecipanti: <strong>PM · Tutor · A11y · Architect · TPM</strong> + Critico</span>
+    <span class="chip">Budget tempo: <strong>4 ore</strong></span>
+    <span class="chip">Team: <strong>2 persone</strong></span>
+  </div>
+</header>
+
+<div class="layout">
+
+<nav class="toc" aria-label="Indice del documento">
+  <h2>Indice</h2>
+  <ol>
+    <li><a href="#verdetto">Verdetto sul tema</a></li>
+    <li><a href="#proposta">La proposta</a></li>
+    <li><a href="#scope">Scope</a></li>
+    <li><a href="#stack">Stack e piano B</a></li>
+    <li><a href="#piano">Piano 4 ore</a></li>
+    <li><a href="#rischi">Rischi</a></li>
+    <li><a href="#prima">Da fare prima</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<!-- ========== 1 ========== -->
+<section id="verdetto">
+  <h2><span class="num">01</span> Verdetto sulla scelta del tema</h2>
+
+  <div class="verdict">
+    <p class="label">Decisione</p>
+    <p class="headline">Tema 03 — Educazione Digitale Inclusiva</p>
+    <p>Confermato. Ma <strong>non</strong> perché è la vostra preferenza: la conferma arriva dal confronto dei profili di rischio dei tre temi sotto il vincolo delle 4 ore.</p>
+  </div>
+
+  <div class="cards three">
+    <div class="card">
+      <span class="tag no">Scartato</span>
+      <h3>01 · Accessibilità Digitale</h3>
+      <p>Richiede un <strong>servizio digitale reale</strong> come punto di partenza. In 4h costruite due cose: il mock credibile del servizio PA <em>e</em> il wrapper assistivo.</p>
+      <p><strong>Rischio esterno e non controllabile</strong>: autenticazione, DOM che cambia, policy CORS impreviste.</p>
+    </div>
+    <div class="card">
+      <span class="tag mid">Scartato (con dissenso)</span>
+      <h3>02 · Inclusione Finanziaria</h3>
+      <p>Proposto dal TPM come più pianificabile — e <strong>sulla complessità ha ragione</strong>. Il dissenso è registrato agli atti.</p>
+      <p>Ma ha lo stesso problema di T03 («capability = riscrittura di testi», esclusa da tutti i temi) <strong>più</strong> un rischio in più: ogni numero semplificato dall'LLM può essere sbagliato, ed è falsificabile da un giurato in 10 secondi.</p>
+    </div>
+    <div class="card" style="border-color: var(--go); border-width: 2px;">
+      <span class="tag yes">Scelto</span>
+      <h3>03 · Educazione Digitale Inclusiva</h3>
+      <p>L'unico <strong>auto-contenuto</strong>: controllate l'intera superficie applicativa.</p>
+      <p>Il rischio è <strong>progettuale</strong>, quindi mitigabile da voi — non dipende da un sistema di terzi che può rompersi il giorno della demo.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p class="label">Il dissenso ha cambiato il piano</p>
+    <p>La posizione del TPM non è stata archiviata: la sua disciplina di pianificazione è stata adottata dentro il Tema 03 — <strong>checkpoint GO/NO-GO a 2:30h</strong>, 45 minuti blindati per la demo, dipendenze critiche esplicite, scope tagliato da 5 a 3 step.</p>
+  </div>
+</section>
+
+<!-- ========== 2 ========== -->
+<section id="proposta">
+  <h2><span class="num">02</span> La proposta: DigiStep — Adaptive Misconception Coach</h2>
+
+  <h3>Deliverable 01 · Learner Profile Statement</h3>
+  <div class="card">
+    <p><strong>Mario, 61 anni</strong>, ex operaio metalmeccanico in cassa integrazione. Deve caricare la lettera di licenziamento sul portale regionale per avviare il percorso di riqualificazione professionale.</p>
+    <p>Usa WhatsApp da 3 anni per i messaggi vocali, ma <strong>non ha mai caricato un file su un sito web</strong>. Ha uno smartphone Android. Davanti al bottone «Allega documento» si blocca: non sa cosa significhi «file» nel contesto del telefono, e non ha mai aperto la galleria con l'intenzione di <em>trovare un documento</em>.</p>
+  </div>
+
+  <h3>La capability agentica — il punto che regge tutto il progetto</h3>
+  <div class="callout key">
+    <p class="label">Formulazione irriducibile</p>
+    <p class="headline">La tripletta <code>(step_id, level, distractor_id)</code> mappa su un prompt che identifica il <strong>misconcepto specifico</strong> rivelato dall'errore, e genera la spiegazione che corregge <em>quel</em> misconcepto.</p>
+    <p>Non è «adattamento al livello dell'utente». Quella formulazione non supera la domanda della giuria.</p>
+  </div>
+
+  <div class="cards two">
+    <div class="card">
+      <h4>L'utente sceglie «lo cerco nell'email ricevuta»</h4>
+      <p>Misconcepto riconosciuto: <strong>confonde storage locale con allegati email</strong>.</p>
+      <p>Output: <em>«Un file sul telefono è come una lettera già nella tua cartella a casa. Un allegato email è come una lettera ancora nella busta che il postino tiene: devi prima salvarla tu.»</em></p>
+    </div>
+    <div class="card">
+      <h4>L'utente sceglie «non posso aprire file senza internet»</h4>
+      <p>Misconcepto riconosciuto: <strong>confonde storage locale con accesso cloud</strong>.</p>
+      <p>Prompt diverso → <strong>analogia diversa</strong>. È questo delta che dimostra che il motore ragiona sull'errore, non sul livello.</p>
+    </div>
+  </div>
+
+  <h4>Dettaglio implementativo non negoziabile</h4>
+  <p><code>fixtures.json</code> usa <strong>chiave composta</strong> <code>{step_id}-{level}-{distractor_id}</code>.</p>
+  <ul>
+    <li><strong>Chiave piatta</strong> = stessa risposta per qualsiasi errore = riscrittura generica = <em>violazione del regolamento</em>.</li>
+    <li><strong>Chiave composta</strong> = risposta diversa per ogni misconcepto = capability irriducibile.</li>
+  </ul>
+  <p>Con 3 step × 2 livelli × 2–3 distractori si ottengono <strong>12–18 combinazioni</strong>. Quando la giuria chiede «e se sbaglia l'opzione C invece della B?», mostrate l'output diverso in 10 secondi. Questa è la prova di non-hardcodabilità.</p>
+
+  <h3>Deliverable 02 · Adaptive Evidence</h3>
+  <p>Demo affiancata sulla <strong>stessa domanda</strong> dello step 2:</p>
+  <div class="cards two">
+    <div class="card">
+      <span class="tag yes">Colonna L2</span>
+      <p>Risponde correttamente → il progress indicator avanza direttamente → nessuna remediation.</p>
+    </div>
+    <div class="card">
+      <span class="tag mid">Colonna L1</span>
+      <p>Sceglie il distractore «email» → headline <em>«Sembra che tu pensi che il file sia nella email»</em> → testo di remediation con analogia della cartella fisica → pulsante «Riprova» (44px) → risponde correttamente → avanza.</p>
+    </div>
+  </div>
+  <p>Il delta è <strong>visivo e qualitativo</strong>: la biforcazione del percorso è esplicita, non è «testo più corto».</p>
+
+  <h3>Deliverable 03 · Learning Outcome Note — il transfer task</h3>
+  <div class="card">
+    <p><strong>Cosa Mario sa fare dopo:</strong> trovare un file PDF nella galleria del telefono e caricarlo in un form web.</p>
+    <p><strong>Come lo misurate:</strong> dopo i 3 step sul portale A, Mario affronta <code>mock-form-2.html</code> — portale B, <strong>layout diverso</strong> (bottone in posizione diversa, colori diversi), stessa skill richiesta.</p>
+    <p><strong>Metrica osservabile in 30 secondi:</strong> «portale A: 2 tentativi con rimediazione → portale B: 1 tentativo senza aiuto».</p>
+    <p>Non è attaccabile con «ha solo memorizzato la risposta», perché il layout è cambiato: se trova il bottone al primo colpo, la skill è <strong>generalizzata</strong>.</p>
+  </div>
+
+  <h3>Demo narrativa — 3 minuti</h3>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Tempo</th><th>Momento</th><th>Cosa si vede</th></tr></thead>
+    <tbody>
+      <tr><td class="slot">0:00–0:30</td><td><strong>Prima</strong></td><td>Screenshot del portale reale. Mario davanti a «Allega documento», bloccato. «Questo è il blocco che gli impedisce di accedere alla riqualificazione.»</td></tr>
+      <tr><td class="slot">0:30–2:00</td><td><strong>Durante</strong></td><td>Profiling (3 MCQ → L1). Step 1 corretto → avanza. Step 2 sceglie «email» → headline misconcepto → remediation → riprova → avanza. Step 3 → completion. Poi transfer task: portale B, bottone trovato al primo tentativo.</td></tr>
+      <tr><td class="slot">2:00–3:00</td><td><strong>Dopo + live probe</strong></td><td>«Vi mostro cosa succede con un errore che Mario non ha incontrato.» Si seleziona un distractore <em>non</em> in fixtures → <code>DEMO_MODE</code> off per quella singola chiamata → loader 1–2s → output LLM live che centra quel misconcepto. «Questo è il motore che adatta in tempo reale.»</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Le due alternative scartate</h3>
+  <div class="cards two">
+    <div class="card">
+      <span class="tag no">Eliminata in setup</span>
+      <h3>Tutor conversazionale aperto sul digitale</h3>
+      <p>Esplicitamente <strong>vietata</strong> dal Tema 03: «tutor conversazionali aperti senza percorso strutturato». È il pattern da evitare, non da costruire.</p>
+    </div>
+    <div class="card">
+      <span class="tag no">Scartata</span>
+      <h3>Quiz sul vocabolario digitale</h3>
+      <p>«Sai cosa è un URL / un browser / una password» non ha uno scenario di apprendimento concreto. Il before/after è debole: la giuria non vede un cambio di comportamento, vede un <strong>glossario interattivo</strong>. Non supera il filtro «capability concreta e misurabile».</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 3 ========== -->
+<section id="scope">
+  <h2><span class="num">03</span> Scope — il taglio è brutale e va difeso</h2>
+  <div class="scope">
+    <div class="in">
+      <h3>Dentro le 4 ore</h3>
+      <ul>
+        <li>Profiling quiz: 3 MCQ → assegnazione L1/L2 deterministica</li>
+        <li><strong>3 step</strong> del percorso (tagliati da 5), ciascuno con istruzione livello-appropriata + 1 MCQ checkpoint</li>
+        <li>AdaptiveEngine: routing deterministico (se errore → remediation) + chiamata LLM a chiave composta</li>
+        <li><code>fixtures.json</code> pre-generate (12–18 chiavi) come piano B architetturale</li>
+        <li>Live slot: 1 distractore fuori fixtures per dimostrare la capability dal vivo</li>
+        <li><code>mock-form-1</code> (portale A) e <code>mock-form-2</code> (portale B, transfer task)</li>
+        <li>Completion score</li>
+        <li>Flag <code>DEMO_MODE</code> con fallback automatico su testo pre-scritto</li>
+        <li>I 7 requisiti a11y minimi</li>
+      </ul>
+    </div>
+    <div class="out">
+      <h3>Fuori — non negoziabile</h3>
+      <ul>
+        <li>Più di 3 step</li>
+        <li>Domande generate dinamicamente da LLM (tutte hardcoded in JSON)</li>
+        <li>Autenticazione, login, sessioni persistenti</li>
+        <li>Backend o database (<code>localStorage</code> per lo stato intra-sessione)</li>
+        <li>Mobile responsive completo oltre quel che dà Tailwind gratis</li>
+        <li>ARIA / screen reader completo</li>
+        <li>Multilingua</li>
+        <li>Integrazione vera con un portale PA reale</li>
+        <li>Dashboard analytics, storico multi-utente</li>
+        <li>TTS / STT / input vocale</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 4 ========== -->
+<section id="stack">
+  <h2><span class="num">04</span> Stack tecnico e piano B</h2>
+
+  <div class="cards two">
+    <div class="card">
+      <h3>Stack</h3>
+      <p><strong>HTML + Tailwind CDN + JavaScript vanilla.</strong> Uno o al massimo 3 file (<code>index.html</code>, <code>engine.js</code>, <code>data/</code>). Demo con <code>python3 -m http.server 8080</code> sul laptop di chi presenta.</p>
+      <p>Zero npm, zero build step, zero infrastruttura. Se qualcuno conosce React <em>e</em> il setup è testato in 10 minuti esatti, ok — altrimenti HTML+JS è la scelta sicura.</p>
+    </div>
+    <div class="card">
+      <h3>LLM e persistenza</h3>
+      <p>API Anthropic, <strong>Haiku</strong> per latenza ~1s e costo basso. La key <strong>non va esposta dal browser</strong>: mini-proxy Python da 30 righe (10 minuti di setup) o proxy del dev server.</p>
+      <p>Persistenza: <code>localStorage</code> per livello, step corrente e score. Nessuna persistenza cross-sessione.</p>
+    </div>
+  </div>
+
+  <h3>Il piano B è architetturale, non improvvisato</h3>
+  <div class="cards three">
+    <div class="card">
+      <span class="tag yes">Livello 1 — default</span>
+      <h3><code>DEMO_MODE = true</code></h3>
+      <p>Legge da <code>fixtures.json</code>, zero chiamate di rete: <strong>la demo gira con il cavo staccato</strong>.</p>
+      <p>Le risposte in fixtures sono output reali di Claude, pre-validati dal team. In demo lo dichiarate: «generate da Claude, validate durante lo sviluppo, messe in cache per affidabilità». È onesto, non è un trucco — l'AI ha generato, voi avete supervisionato.</p>
+    </div>
+    <div class="card">
+      <span class="tag mid">Livello 2 — dimostrazione</span>
+      <h3>Live slot</h3>
+      <p>Un distractore <em>non</em> presente in fixtures resta come chiamata live, previsto nella narrazione: <code>DEMO_MODE</code> off per quella singola chiamata → loader → risposta generata sul momento.</p>
+      <p>Dimostra che il motore funziona al di là del pre-cache.</p>
+    </div>
+    <div class="card">
+      <span class="tag no">Livello 3 — se cade</span>
+      <h3>Fallback del live slot</h3>
+      <p>Testo pre-scritto: «La connessione è temporaneamente non disponibile. Ecco la spiegazione già preparata: […]». <strong>Nessun crash visibile, nessuno spinner infinito.</strong></p>
+      <p>Chi narra dice: «stiamo avendo un problema di rete — vi mostro il codice del prompt che questa chiamata avrebbe eseguito».</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p class="label">Regola operativa non negoziabile</p>
+    <p>A <strong>3:30h staccate il cavo di rete</strong> e rifate il flusso principale. Se crasha, lo risolvete prima della demo. Non si arriva alla presentazione senza aver testato il flusso offline.</p>
+  </div>
+
+  <h3>I 7 requisiti a11y minimi — ~75 minuti allocati su P-B</h3>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Requisito</th><th>Stima</th><th>Verifica pass/fail</th></tr></thead>
+    <tbody>
+      <tr><td>Font ≥18px, sans-serif, line-height 1.5</td><td>5 min</td><td>Il testo sembra «da libro», non «da computer»</td></tr>
+      <tr><td>Contrasto testo ≥4.5:1 (AA), testo grande ≥3:1</td><td>10 min</td><td>Chrome DevTools → Accessibility → Contrast</td></tr>
+      <tr><td>Touch target ≥44×44px, spaziatura 8px</td><td>10 min</td><td>Un tap impreciso su mobile non manca il target</td></tr>
+      <tr><td>Una sola azione per schermata</td><td>0 min se progettato subito<br>30 min se retrofit</td><td>L'utente sa dove guardare senza cercare</td></tr>
+      <tr><td>Plain language: frasi max 15 parole, nessun termine tecnico non spiegato</td><td>30 min</td><td>Lettura ad alta voce: suona comprensibile a Mario</td></tr>
+      <tr><td>Indicatore di progresso visibile («Passo 2 di 3»)</td><td>15 min</td><td>L'utente sa quanto manca</td></tr>
+      <tr><td>Nessun timeout, nessun avanzamento automatico</td><td>5 min</td><td>Nessun <code>setTimeout</code> nel flusso</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h4>Le trappole che la giuria vede in 5 secondi</h4>
+  <ul>
+    <li>Font 14px su un profilo anziano</li>
+    <li>Palette grigio chiaro su bianco (contrasto 2.5:1 — fail WCAG visibile a occhio nudo)</li>
+    <li>Demo fatta col mouse su un profilo che usa lo smartphone</li>
+    <li>Istruzioni tipo «clicca sull'icona del profilo» invece di «tocca la tua foto in basso a destra»</li>
+    <li>Più di 4 elementi interattivi contemporaneamente sulla stessa schermata</li>
+  </ul>
+</section>
+
+<!-- ========== 5 ========== -->
+<section id="piano">
+  <h2><span class="num">05</span> Piano operativo — 4 ore, 2 persone</h2>
+
+  <p>Coding effettivo stimato: <strong>2h30</strong>. Tolti setup (20 min), deliverable testuali (30 min), demo e rehearsal (40–45 min), buffer imprevisti (~15 min).</p>
+
+  <div class="bar" role="img" aria-label="Ripartizione delle 4 ore: 2h30 di sviluppo, 1h di demo e rehearsal, checkpoint a 2h30">
+    <div class="b1">Sviluppo · 2h30</div>
+    <div class="b2">Deliverable + script · 30'</div>
+    <div class="b3">Rehearsal · 30'</div>
+    <div class="b4">Dry run offline + buffer · 30'</div>
+  </div>
+  <div class="bar-legend"><span>0:00</span><span>2:30 ◀ checkpoint</span><span>4:00</span></div>
+
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Slot</th><th>P-A · logica, engine, LLM</th><th>P-B · UI, contenuto, a11y</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="slot">0:00–0:20</td>
+        <td>Test API key + proxy CORS (30 righe Python). Schema <code>fixtures.json</code> definito con chiave composta e <strong>condiviso con P-B subito</strong>.</td>
+        <td><code>index.html</code> + Tailwind CDN. Palette AA definita (#1a1a1a su #fff). Font 18px globale. Struttura HTML semantica.</td>
+      </tr>
+      <tr>
+        <td class="slot">0:20–0:50</td>
+        <td><code>quiz-engine.js</code>: state machine PROFILING→STEP→CHECKPOINT→REMEDIATION→NEXT→COMPLETION. Profiling 3 MCQ → flag L1/L2 deterministico.</td>
+        <td><code>mario-content.json</code>: 3 step × 1 MCQ × 2–3 distractori, con campo <code>misconcepto</code> per ciascuno. Frasi max 15 parole.</td>
+      </tr>
+      <tr>
+        <td class="slot">0:50–1:15</td>
+        <td><code>explainer.js</code>: <code>resolveRemediation(step, level, distractor)</code> → cerca in fixtures → se manca chiama l'API → se l'API cade ritorna il fallback pre-scritto.</td>
+        <td>Componente spiegazione adattiva: headline «Sembra che tu pensi che…», testo remediation, pulsante Riprova ≥44px.</td>
+      </tr>
+      <tr>
+        <td class="slot">1:15–2:00</td>
+        <td><strong>Genera <code>fixtures.json</code></strong>: 12–18 chiamate API. Identifica il live slot (1 distractore non salvato). Testa <code>DEMO_MODE</code> on/off.</td>
+        <td><strong>A11y pass — 45 min non comprimibili.</strong> Contrasto, touch target, una-azione-per-schermata, plain language review, progress indicator, <code>&lt;button&gt;</code> non <code>&lt;div&gt;</code>.</td>
+      </tr>
+      <tr>
+        <td class="slot">2:00–2:20</td>
+        <td>Integration: engine + content + explainer + fixtures. <code>DEMO_MODE=true</code> di default. Test del live slot.</td>
+        <td><code>mock-form-2.html</code>: stesso task, layout diverso. Stessa struttura a11y.</td>
+      </tr>
+      <tr>
+        <td class="slot">2:20–2:30</td>
+        <td>E2E: (1) flusso L2 nominale, (2) flusso L1 con errore + rimediazione + riprova, (3) live slot, (4) <strong>test offline a rete staccata</strong>.</td>
+        <td>Fix dei bug visivi e a11y emersi durante l'E2E.</td>
+      </tr>
+      <tr class="checkpoint">
+        <td class="slot">2:30</td>
+        <td colspan="2">◆ CHECKPOINT GO / NO-GO — quattro scenari già decisi, vedi sotto</td>
+      </tr>
+      <tr>
+        <td class="slot">2:30–3:00</td>
+        <td>Script narrativo della demo (2 min), con il live slot posizionato nella sequenza. Adaptive Evidence: 2 screenshot affiancati L1 vs L2.</td>
+        <td>3 slide deliverable: Learner Profile · Adaptive Evidence (screenshot biforcazione) · Learning Outcome (completion + transfer).</td>
+      </tr>
+      <tr>
+        <td class="slot">3:00–3:30</td>
+        <td>Rehearsal ×3 col cronometro (target ≤4 min). Accordo su chi parla e chi clicca. Risposta preparata a «è hardcodato?».</td>
+        <td>Checklist a11y 7 punti, esito pass/fail. Partecipa al rehearsal.</td>
+      </tr>
+      <tr>
+        <td class="slot">3:30–4:00</td>
+        <td colspan="2">Dry run col cavo staccato sul flusso più lungo. Buffer per un solo bug critico visibile. <strong>Stop sviluppo a 4:00 netto — nessuna feature aggiuntiva.</strong></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>I quattro scenari del checkpoint — decisi <em>adesso</em>, non alle 2:30</h3>
+  <div class="cards two">
+    <div class="card">
+      <span class="tag yes">GO</span>
+      <h3>Tutti e 3 i flussi E2E passano + offline funziona</h3>
+      <p>Si passa al polish. Nessuna nuova feature.</p>
+    </div>
+    <div class="card">
+      <span class="tag mid">PARZIALE-A</span>
+      <h3>Flusso ok, live slot instabile</h3>
+      <p><code>DEMO_MODE</code> puro per tutta la demo. Nella narrazione: «output Claude pre-validati — ed ecco il codice del prompt live» (mostrate il sorgente, non lo eseguite). <strong>Nessun impatto sulla valutazione del prodotto</strong>: le fixtures sono comunque generate da Claude.</p>
+    </div>
+    <div class="card">
+      <span class="tag mid">PARZIALE-B</span>
+      <h3>Transfer task non pronto</h3>
+      <p>Si elimina. Il Learning Outcome si misura sul completamento dello step 3 (binario), e il deliverable descrive quella metrica.</p>
+    </div>
+    <div class="card">
+      <span class="tag no">NO-GO</span>
+      <h3>Meno di 2 step E2E funzionanti</h3>
+      <p>Si presenta quello che c'è e lo si dichiara: «abbiamo implementato 2 step su 3; la capability di targeting del misconcepto è dimostrabile su questi». <strong>Non si improvvisa.</strong></p>
+    </div>
+  </div>
+
+  <h3>Dipendenze critiche</h3>
+  <div class="deps">
+    <div class="dep"><span class="id">D1</span><span>API key funzionante. Se rossa: cambio provider, oppure <code>DEMO_MODE</code> puro senza live slot.</span><span class="due">entro 0:20</span></div>
+    <div class="dep"><span class="id">D2</span><span>CORS / proxy risolto. Se rosso: <code>file://</code> + mock fetch che legge <code>fixtures.json</code> direttamente.</span><span class="due">entro 0:30</span></div>
+    <div class="dep"><span class="id">D3</span><span>Schema <code>fixtures.json</code> condiviso tra P-A e P-B. <strong>È il contratto fra voi due.</strong></span><span class="due">entro 0:20</span></div>
+    <div class="dep"><span class="id">D4</span><span>Almeno 6 chiavi in fixtures (2 distractori per step). Se rosso: i 3 più probabili (1 per step), gli altri dopo.</span><span class="due">entro 1:15</span></div>
+    <div class="dep"><span class="id">D5</span><span>Flusso E2E che passa, anche solo offline.</span><span class="due">entro 2:30</span></div>
+  </div>
+</section>
+
+<!-- ========== 6 ========== -->
+<section id="rischi">
+  <h2><span class="num">06</span> Rischi principali</h2>
+
+  <div class="risk fatal">
+    <h3><span class="id">R1</span> La giuria percepisce la capability come «riscrittura» <span class="tag no" style="margin:0">squalifica</span></h3>
+    <p>Vi chiedono «cos'è esattamente la capability agentica» e la risposta non convince: o perché l'adattamento è cosmetico (solo tono diverso fra livelli), o perché usate <code>DEMO_MODE</code> senza mai mostrare il live slot.</p>
+    <p><strong>Mitigazione:</strong> (a) fixtures a chiave composta per misconcepto, non per step generico; (b) live slot obbligatorio nella narrazione; (c) risposta preparata — <em>«il prodotto non rileva che l'utente ha sbagliato, rileva che confonde X con Y, e genera la spiegazione che corregge quel misconcepto. Ecco due risposte diverse per due errori diversi sullo stesso step.»</em></p>
+    <p class="prob">Probabilità senza mitigazione: <strong>alta</strong> → con mitigazione: bassa-media.</p>
+  </div>
+
+  <div class="risk fatal">
+    <h3><span class="id">R2</span> Classificati come «tutor conversazionale aperto» <span class="tag no" style="margin:0">squalifica</span></h3>
+    <p>È il pattern esplicitamente vietato dal Tema 03. È facile scivolarci dentro durante lo sviluppo.</p>
+    <p><strong>Mitigazione — architetturale, quindi verificabile aprendo il codice:</strong> zero input testuale libero lato utente (solo MCQ) · curricolo fisso in 3 step sequenziali non saltabili · l'utente non sceglie cosa imparare · il percorso è guidato dall'app, non dall'utente.</p>
+    <p class="prob">Probabilità senza mitigazione: <strong>media</strong> → con le scelte architetturali sopra: minima.</p>
+  </div>
+
+  <div class="risk">
+    <h3><span class="id">R3</span> Demo failure per LLM instabile nel live slot</h3>
+    <p>La chiamata live fallisce o supera i 5 secondi durante la presentazione.</p>
+    <p><strong>Mitigazione:</strong> il live slot è una dimostrazione opzionale, non il percorso portante — tutto il resto gira in <code>DEMO_MODE</code>. Fallback testuale senza crash. Test offline a 3:30h obbligatorio.</p>
+    <p class="prob">Probabilità residua: <strong>bassa</strong> (il fallback è architetturale).</p>
+  </div>
+
+  <div class="risk">
+    <h3><span class="id">R4</span> Overrun a11y → demo non credibile davanti a una giuria sull'inclusione</h3>
+    <p>I 75–90 minuti di a11y non vengono allocati: font 14px, contrasto basso, istruzioni tecniciste. La giuria vede un prodotto che Mario non potrebbe usare.</p>
+    <p><strong>Mitigazione:</strong> slot P-B dedicato 1:15–2:00 · palette AA definita a 0:00, mai retrofittata · plain language review fatta <em>mentre</em> si scrive il contenuto (0:20–0:50), non alla fine · checklist a 7 punti con esito pass/fail, non «sembra ok a occhio».</p>
+    <p class="prob">Probabilità senza mitigazione: <strong>alta</strong> → con mitigazione: bassa.</p>
+  </div>
+
+  <div class="risk">
+    <h3><span class="id">R5</span> Checkpoint NO-GO senza piano dichiarato</h3>
+    <p>Alle 2:30 l'E2E non funziona, non c'è un fallback deciso, si improvvisa in demo.</p>
+    <p><strong>Mitigazione:</strong> i 4 scenari sono definiti <em>prima</em> dell'hackathon. In ognuno sapete cosa mostrare e cosa dichiarare. Si smette di sviluppare a 4:00 netto.</p>
+    <p class="prob">Probabilità intrinseca: <strong>presente</strong> → gestita.</p>
+  </div>
+</section>
+
+<!-- ========== 7 ========== -->
+<section id="prima">
+  <h2><span class="num">07</span> Da fare prima dell'hackathon</h2>
+
+  <p>Nessun punto aperto decisionale. Restano due cose da verificare <strong>stasera</strong>, non la mattina stessa — sono D1 e D2, e vi costano 30 minuti dei 240 se le scoprite rotte in sala.</p>
+
+  <ul class="checklist">
+    <li><span class="box" aria-hidden="true"></span><div><strong>Testare la API key</strong> con una chiamata reale. Se non funziona, avete tutta la sera per cambiare provider.</div></li>
+    <li><span class="box" aria-hidden="true"></span><div><strong>Testare il proxy CORS</strong> (30 righe Python). Verificate che il browser riesca a chiamare l'LLM senza esporre la key.</div></li>
+    <li><span class="box" aria-hidden="true"></span><div><strong>Verificare la quota API</strong> per il burst di generazione fixtures: 12–18 chiamate in ~30–50 secondi con Haiku. Se il rate limit è stretto (account free tier), scendete a 6 fixtures prioritarie.</div></li>
+    <li><span class="box" aria-hidden="true"></span><div><strong>Concordare chi è P-A e chi è P-B</strong>, e leggere entrambi il piano orario.</div></li>
+  </ul>
+
+  <div class="callout">
+    <p class="label">Sulla differenza 4 ore / 5 ore</p>
+    <p>Il wiki dell'evento riporta <strong>5 ore</strong>, voi ne avete dichiarate <strong>4</strong>. Tutto il piano qui sopra è calibrato su 4. Se in sala scoprite di averne 5, quella è <strong>un'ora di buffer, non un'ora di feature in più</strong>.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer class="doc">
+  <p><strong>Provenienza.</strong> Sessione Tavola Rotonda <code>e3f2a1b4</code> del 14 settembre 2026 — terminata per consenso al round 1 di 3. Partecipanti: <code>product-manager</code>, <code>tutor</code>, <code>a11y-specialist</code>, <code>lead-architect</code>, <code>tpm</code>, più il Critico anti-compiacenza. Dissenso registrato: il TPM ha raccomandato il Tema 02 per pianificabilità superiore.</p>
+  <p><strong>Audit trail completo:</strong> <a href="../wiki/decisions/tavola-rotonda-e3f2a1b4-7c5d-4e8f-9a0b-2d6c3f1e4b7a-2026-09-14.md"><code>wiki/decisions/tavola-rotonda-e3f2a1b4-…-2026-09-14.md</code></a> — contiene le posizioni iniziali di ciascun agente, il confronto e gli accordi.</p>
+  <p><strong>Fonti wiki:</strong> <code>wiki/concepts/educazione-digitale-inclusiva.md</code> · <code>wiki/concepts/accessibilita-digitale.md</code> · <code>wiki/concepts/inclusione-finanziaria.md</code> · <code>wiki/syntheses/hagenthon-2026-overview.md</code></p>
+</footer>
+
+</div>
+</body>
+</html>

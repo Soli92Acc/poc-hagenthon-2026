@@ -188,13 +188,28 @@ risolto. Verificato su `.claude/skills/lint-checks-wiki-structure.md`:
 | Check | Cosa misura | Perché non vede questo difetto |
 |---|---|---|
 | **4ag** — staleness (always-on, WARNING) | **età** della pagina (soglie 180/365 giorni) | Il verbale ha un giorno. Sul contenuto non dice nulla. L'unico segnale che può emettere su questo file è `MISSING-DATE` (il frontmatter ha `started_at` ma non `created:`/`updated:`) — igiene dei metadati, non il fatto che nomini un modello morto. |
-| **4af** — embedding similarity (opt-in, INFO, mai gate) | deriva della pagina rispetto a **`PATTERN.md`** | Due motivi indipendenti: (a) salta in silenzio ogni pagina senza `pattern_section:` nel frontmatter, e il verbale non ce l'ha; (b) anche se ce l'avesse, confronta wiki ↔ meta-pattern, non wiki ↔ codice. |
+| **4af** — embedding similarity (opt-in, INFO, mai gate) | deriva della pagina rispetto a **`PATTERN.md`** | Due motivi indipendenti: (a) esclude ogni pagina senza `pattern_section:` nel frontmatter, e il verbale non ce l'ha; (b) anche se ce l'avesse, confronta wiki ↔ meta-pattern, non wiki ↔ codice. Correggerne uno non basta. |
+
+**Sull'esclusione: i due entry point non si comportano allo stesso modo.** Dettaglio
+emerso da un controllo incrociato con `poc-hagenthon-2026-dc` e verificato su entrambe
+le skill — avevamo ragione tutti e due, su file diversi:
+
+| Entry point | Trattamento delle pagine senza `pattern_section:` |
+|---|---|
+| `/lint` → Check 4af | **skip silenzioso**, dichiarato due volte in `lint-checks-wiki-structure.md` (§Algoritmo passo 1 e §Invarianti). Il verbale non compare da nessuna parte nell'output. |
+| `/semantic-drift-scan` → `semantic-drift-scan-protocol.md` | **esclusione dichiarata**: passo 2 le raccoglie in una lista «non scansionati» e il report ha la sezione §Pagine non scansionate, con raccomandazione n. 2 ad aggiungere il campo. |
+
+La conclusione non cambia — il verbale resta fuori dalla detection per due motivi
+indipendenti — ma cambia la qualità del buco a seconda di come ci si arriva. Dal comando
+manuale l'esclusione è **visibile**, ed è la forma peggiore: una riga «non scansionata»
+si scorre senza fermarsi, e un'esclusione dichiarata dà l'impressione che qualcuno
+l'abbia decisa. Da `/lint` non è visibile affatto.
 
 Il punto non è la configurazione: è la **direzione**. Il drift detection di questa
 factory misura wiki contro PATTERN. Il difetto qui vive sull'asse wiki contro `app/`,
 che nessuno strumento percorre. Accendere `semantic_check` non lo troverebbe.
 
-[^src: `.claude/skills/lint-checks-wiki-structure.md` §Check 4ag §Check 4af — verificato 2026-09-14; segnalazione iniziale da `poc-hagenthon-2026-dc`]
+[^src: `.claude/skills/lint-checks-wiki-structure.md` §Check 4ag §Check 4af + `.claude/skills/semantic-drift-scan-protocol.md` §Fase 1 §Pagine non scansionate — verificato 2026-09-14; segnalazione iniziale da `poc-hagenthon-2026-dc`]
 
 **Resta aperto (maintainer):** ri-pinnare il modello in G_001 + runbook e sostituire il
 fallback array, di cui due anelli su tre sono noti non funzionanti.

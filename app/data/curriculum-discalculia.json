@@ -1,0 +1,115 @@
+{
+  "steps": [
+    {
+      "step_id": "step1",
+      "level": "L1",
+      "scaffold": true,
+      "transfer": false,
+      "question": "Quale è più grande: 1/3 o 1/4?",
+      "items": [
+        {
+          "fraction_a": "1/3",
+          "fraction_b": "1/4",
+          "correct": "d1",
+          "distractors": [
+            {
+              "id": "d1",
+              "label": "1/3",
+              "misconcepto_slug": null,
+              "position_pct": 0.333,
+              "correct": true
+            },
+            {
+              "id": "d2",
+              "label": "1/4, perché 4 è più grande di 3",
+              "misconcepto_slug": "denominator_magnitude",
+              "position_pct": 0.25,
+              "correct": false
+            },
+            {
+              "id": "d3",
+              "label": "Sono uguali, il numeratore è 1 in tutte e due",
+              "misconcepto_slug": "numerator_focus",
+              "position_pct": 0.25,
+              "correct": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "step_id": "step2",
+      "level": "L2",
+      "scaffold": true,
+      "transfer": false,
+      "question": "Quale è più grande: 1/4 o 1/7?",
+      "items": [
+        {
+          "fraction_a": "1/4",
+          "fraction_b": "1/7",
+          "correct": "d1",
+          "distractors": [
+            {
+              "id": "d1",
+              "label": "1/4",
+              "misconcepto_slug": null,
+              "position_pct": 0.25,
+              "correct": true
+            },
+            {
+              "id": "d2",
+              "label": "1/7, perché 7 è più grande di 4",
+              "misconcepto_slug": "denominator_magnitude",
+              "position_pct": 0.143,
+              "correct": false
+            },
+            {
+              "id": "d3",
+              "label": "Sono uguali, il numeratore è lo stesso",
+              "misconcepto_slug": "numerator_focus",
+              "position_pct": 0.143,
+              "correct": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "step_id": "step3",
+      "level": "L1|L2",
+      "scaffold": false,
+      "transfer": true,
+      "question": "Quale è più grande: 1/5 o 1/6?",
+      "items": [
+        {
+          "fraction_a": "1/5",
+          "fraction_b": "1/6",
+          "correct": "d1",
+          "distractors": [
+            {
+              "id": "d1",
+              "label": "1/5",
+              "misconcepto_slug": null,
+              "position_pct": 0.2,
+              "correct": true
+            },
+            {
+              "id": "d2",
+              "label": "1/6, perché 6 è più grande di 5",
+              "misconcepto_slug": "denominator_magnitude",
+              "position_pct": 0.167,
+              "correct": false
+            },
+            {
+              "id": "d3",
+              "label": "Sono uguali, il numeratore è lo stesso",
+              "misconcepto_slug": "numerator_focus",
+              "position_pct": 0.167,
+              "correct": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

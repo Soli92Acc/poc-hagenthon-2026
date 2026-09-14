@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NumeriMiei — Script demo 3 minuti (TSK-022)</title>
+<style>
+/* ── Base ────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:        #16161a;
+  --ink-soft:   #5c5c68;
+  --paper:      #ffffff;
+  --paper-alt:  #f7f7fa;
+  --line:       #e2e2ea;
+  --accent:     #7c3aed;
+  --accent-bg:  #f4efff;
+  --pa:         #0f766e;
+  --pa-bg:      #e6f4f2;
+  --pb:         #b45309;
+  --pb-bg:      #fdf2e3;
+  --warn:       #b91c1c;
+  --warn-bg:    #fdeceb;
+  --ok:         #15803d;
+  --ok-bg:      #eaf6ed;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  background: var(--paper-alt);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.55;
+  padding-bottom: 80px;
+}
+
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+h1 { font-size: 30px; line-height: 1.2; letter-spacing: -0.02em; }
+h2 {
+  font-size: 13px; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--accent); font-weight: 800; margin-bottom: 14px;
+}
+h3 { font-size: 21px; line-height: 1.25; margin-bottom: 10px; }
+h4 {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--ink-soft); font-weight: 800; margin-bottom: 8px;
+}
+
+code, .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.88em;
+}
+code {
+  background: var(--paper-alt); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px; overflow-wrap: anywhere;
+}
+pre {
+  background: #1b1b20; color: #f0f0f0; border-radius: 8px;
+  padding: 12px 14px; overflow-x: auto; font-size: 13.5px; line-height: 1.5;
+}
+pre code { background: none; border: none; color: inherit; padding: 0; }
+
+section { margin-top: 44px; }
+
+/* ── Barra di controllo ──────────────────────────────────────────────────── */
+.controlbar {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--ink); color: #fff;
+  border-bottom: 3px solid var(--accent);
+}
+.controlbar__in {
+  max-width: 1080px; margin: 0 auto; padding: 10px 24px;
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+}
+.clock {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums;
+  min-width: 96px;
+}
+.clock.over { color: #fca5a5; }
+.crono-stato { font-size: 14px; color: #b9b9c6; flex: 1; min-width: 200px; }
+.crono-stato b { color: #fff; }
+.btn {
+  font: inherit; font-size: 14px; font-weight: 700;
+  background: #2a2a33; color: #fff; border: 1px solid #43434f;
+  border-radius: 6px; padding: 7px 14px; cursor: pointer;
+}
+.btn:hover { background: #37373f; }
+.btn--go { background: var(--accent); border-color: var(--accent); }
+.btn:focus-visible { outline: 3px solid #a78bfa; outline-offset: 2px; }
+
+/* ── Testata ─────────────────────────────────────────────────────────────── */
+.testata { background: var(--paper); border-bottom: 1px solid var(--line); padding: 34px 0 30px; }
+.kicker { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+.sottotitolo { color: var(--ink-soft); margin-top: 8px; max-width: 66ch; }
+
+.meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-top: 24px; }
+.meta > div { background: var(--paper); padding: 12px 14px; }
+.meta dt { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); font-weight: 700; }
+.meta dd { font-size: 16px; font-weight: 600; margin-top: 3px; }
+
+/* ── Card generica ───────────────────────────────────────────────────────── */
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; }
+.card + .card { margin-top: 14px; }
+
+/* ── Fase ────────────────────────────────────────────────────────────────── */
+.fase {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+  display: grid; grid-template-columns: 172px 1fr; gap: 0;
+  margin-bottom: 16px; overflow: hidden;
+}
+.fase.attiva { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+.fase.opz { border-style: dashed; background: #fcfcfe; }
+
+.rail { background: var(--paper-alt); border-right: 1px solid var(--line); padding: 18px 16px; }
+.rail .num {
+  width: 34px; height: 34px; border-radius: 50%; background: var(--ink); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 16px; margin-bottom: 12px;
+}
+.fase.opz .rail .num { background: var(--ink-soft); }
+.finestra { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.durata { font-size: 13px; color: var(--ink-soft); margin-bottom: 12px; }
+.badge {
+  display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.06em;
+  border-radius: 5px; padding: 4px 8px; margin-bottom: 6px; text-transform: uppercase;
+}
+.badge--parla-pa { background: var(--pa-bg); color: var(--pa); border: 1px solid #b9ded8; }
+.badge--parla-pb { background: var(--pb-bg); color: var(--pb); border: 1px solid #f0d8ab; }
+.badge--clicca { background: var(--accent-bg); color: var(--accent); border: 1px solid #d9c9fb; }
+.stima { font-size: 11.5px; color: var(--ink-soft); margin-top: 10px; line-height: 1.35; }
+.stima.over { color: var(--warn); font-weight: 700; }
+
+.corpo { padding: 18px 22px 20px; min-width: 0; }
+
+.battuta {
+  font-size: 19px; line-height: 1.5; border-left: 4px solid var(--accent);
+  padding: 4px 0 4px 16px; margin: 12px 0;
+}
+.battuta em { color: var(--ink-soft); font-style: normal; font-size: 15px; }
+.variante { border-left-color: var(--line); font-size: 17px; color: var(--ink-soft); }
+.variante b { color: var(--ink); }
+
+.due { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+.box { background: var(--paper-alt); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+.box ol, .box ul { margin: 0; padding-left: 20px; }
+.box li { font-size: 15px; margin-bottom: 5px; }
+.box li:last-child { margin-bottom: 0; }
+.box--schermo { background: var(--ok-bg); border-color: #cfe6d6; }
+
+.nota { font-size: 14.5px; color: var(--ink-soft); margin-top: 14px; padding-left: 16px; border-left: 3px solid var(--line); }
+.nota b { color: var(--ink); }
+.nota--rischio { border-left-color: var(--warn); background: var(--warn-bg); padding: 10px 14px; border-radius: 0 6px 6px 0; color: var(--ink); }
+
+/* ── Tabelle ─────────────────────────────────────────────────────────────── */
+table { width: 100%; border-collapse: collapse; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); font-size: 15px; vertical-align: top; }
+th { background: var(--paper-alt); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); font-weight: 800; }
+tr:last-child td { border-bottom: none; }
+td.mono { font-variant-numeric: tabular-nums; }
+
+/* ── Q&A ─────────────────────────────────────────────────────────────────── */
+.qa { background: var(--paper); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 16px 20px; margin-bottom: 12px; }
+.qa .q { font-weight: 800; font-size: 17px; margin-bottom: 8px; }
+.qa .a { font-size: 17px; }
+.qa .chi { font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 6px; }
+
+/* ── Checklist ───────────────────────────────────────────────────────────── */
+.check { list-style: none; padding: 0; columns: 2; column-gap: 28px; }
+.check li { break-inside: avoid; margin-bottom: 9px; padding-left: 28px; position: relative; font-size: 15.5px; }
+.check li::before {
+  content: ''; position: absolute; left: 0; top: 2px;
+  width: 17px; height: 17px; border: 2px solid var(--ink); border-radius: 3px;
+}
+
+footer.piede { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--ink-soft); }
+
+/* ── Stampa ──────────────────────────────────────────────────────────────── */
+@media print {
+  @page { margin: 12mm; size: A4; }
+  body { background: #fff; font-size: 11.5pt; padding: 0; }
+  .controlbar, .no-print { display: none !important; }
+  .wrap { max-width: none; padding: 0; }
+  .testata { padding: 0 0 12px; border-bottom: 2px solid #000; }
+  section { margin-top: 20px; }
+  .fase, .card, .qa, table, .box { break-inside: avoid; border-color: #999; box-shadow: none; }
+  .fase { margin-bottom: 10px; }
+  .battuta { font-size: 12.5pt; border-left-color: #000; }
+  pre { background: #fff; color: #000; border: 1px solid #999; }
+  h2 { color: #000; }
+  .kicker { color: #000; }
+}
+
+@media (max-width: 820px) {
+  .meta { grid-template-columns: repeat(2, 1fr); }
+  .fase { grid-template-columns: 1fr; }
+  .rail { border-right: none; border-bottom: 1px solid var(--line); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .rail .num, .durata { margin-bottom: 0; }
+  .badge { display: inline-block; margin-bottom: 0; }
+  .due, .check { grid-template-columns: 1fr; columns: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Cronometro ──────────────────────────────────────────────────────────── -->
+<div class="controlbar no-print">
+  <div class="controlbar__in">
+    <span class="clock" id="clock">0:00</span>
+    <span class="crono-stato" id="crono-stato">Cronometro fermo. <b>Avvia</b> all'inizio dell'apertura, poi <b>Fase successiva</b> a ogni passaggio.</span>
+    <button class="btn btn--go" id="btn-go" type="button">Avvia</button>
+    <button class="btn" id="btn-next" type="button" disabled>Fase successiva</button>
+    <button class="btn" id="btn-reset" type="button">Azzera</button>
+    <button class="btn" id="btn-print" type="button">Stampa</button>
+  </div>
+</div>
+
+<header class="testata">
+  <div class="wrap">
+    <p class="kicker">TSK-022 · US-012 · EP-004 — Hagenthon 2026, Tema 03</p>
+    <h1>NumeriMiei — script demo, 3 minuti</h1>
+    <p class="sottotitolo">
+      Copione da leggere, non da improvvisare. Ogni fase dice chi parla e chi clicca.
+      Il testo in riquadro viola è la battuta: si legge com'è scritta. Tutto il resto è regia.
+    </p>
+    <dl class="meta">
+      <div><dt>Durata target</dt><dd>≤ 3:00 <span style="font-weight:400;color:var(--ink-soft)">(stop a 4:00)</span></dd></div>
+      <div><dt>Parla</dt><dd>P-A · P-B, mai insieme</dd></div>
+      <div><dt>Clicca</dt><dd>P-B (fasi 1–4) · P-A (fase 5)</dd></div>
+      <div><dt>App</dt><dd class="mono">localhost:8080</dd></div>
+    </dl>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ── 1. Prima di salire ──────────────────────────────────────────────────── -->
+<section>
+  <h2>1 · Prima di salire — 8 minuti, insieme</h2>
+  <div class="card">
+    <h3 style="font-size:17px;margin-bottom:10px">Scheda A — la demo (P-B guida)</h3>
+    <ul class="check">
+      <li><code>python3 app/proxy.py</code> attivo: serve sia i file sia il live slot.</li>
+      <li>Console: <code>localStorage.clear()</code> — con un <code>pdpLevel</code> vecchio la vista docente apre il report invece del form.</li>
+      <li><code>http://localhost:8080/?role=home</code> aperta sulle tre schede profilo.</li>
+      <li>Zoom 125–150%, notifiche di sistema spente, barra dei preferiti nascosta.</li>
+      <li>Sequenza esercizi ri-verificata col comando del §2 (obbligatorio dopo ogni modifica al curriculum).</li>
+    </ul>
+    <h3 style="font-size:17px;margin:20px 0 10px">Scheda B — il live probe (P-A guida)</h3>
+    <ul class="check">
+      <li>Seconda scheda sullo stesso <code>localhost:8080</code>, <b>aperta e mai più ricaricata</b>.</li>
+      <li>Vista docente → livello <b>L3</b> → <b>Conferma e inizia sessione</b>.</li>
+      <li>Rispondi <b>giusto</b> ai primi cinque esercizi e fermati sul sesto, <b>«Esercizio 6 — 1/8 o 1/10?»</b>. Non rispondere.</li>
+      <li>Le cinque risposte giuste, in ordine: <b>1/3 · 1/2 · 1/3 · 1/4 · 1/4</b>. Sempre per testo, mai per posizione.</li>
+      <li>Console della scheda B: <code>await (await import('./explainer.js')).loadFixtures()</code> → carica la cache ispezionabile.</li>
+      <li>Verifica: <code>Object.keys(fixtures).length</code> → <b>22</b>. E <code>Object.keys(fixtures).filter(k =&gt; k.startsWith('step7'))</code> → <b>[]</b>.</li>
+      <li>DevTools agganciati a destra, font della console ingrandito: in fase 5 la giuria deve leggere l'output.</li>
+      <li>Comandi della fase 5 già battuti una volta: sullo stage si richiamano con ↑.</li>
+      <li>Poi torna alla scheda A. <b>Un Cmd+R sulla scheda B costa cinque esercizi di recupero.</b></li>
+    </ul>
+    <h3 style="font-size:17px;margin:20px 0 10px">In sala</h3>
+    <ul class="check">
+      <li>Wi-Fi acceso: serve <b>solo</b> alla fase 5, tutto il resto gira offline.</li>
+      <li>Budget OpenRouter: 16/50 consumate, la demo ne prevede <b>1</b>. Aggiorna il post-it.</li>
+      <li>Questo script stampato o su un secondo schermo: lo vedete entrambi senza dividere la finestra.</li>
+      <li>Deciso chi tiene il tempo: chi non parla guarda il cronometro, non lo schermo.</li>
+    </ul>
+    <p class="nota" style="margin-top:18px">
+      <b>Perché due schede.</b> Il livello PDP si legge una volta sola, all'avvio della sessione: la scheda B
+      resta a L3 anche dopo che la scheda A imposta L1, perché non viene mai ricaricata (nessuna sincronizzazione
+      fra schede, è una scelta di progetto). È l'unico modo per avere il percorso L1 corto davanti alla giuria
+      <em>e</em> l'esercizio L3 senza fixture per il live probe, senza attraversare cinque esercizi sullo stage.
+    </p>
+  </div>
+</section>
+
+<!-- ── 2. Sequenza esercizi ────────────────────────────────────────────────── -->
+<section>
+  <h2>2 · Che esercizi vedrà la giuria</h2>
+  <div class="card">
+    <p style="margin-bottom:14px">
+      Il percorso non lo decide lo script: lo decide <code>data/curriculum-discalculia.json</code> filtrato
+      per livello (<code>includes_levels</code> in <code>data/pdp-levels.json</code>). L'ordine dell'array
+      <b>è</b> l'ordine di gioco.
+    </p>
+    <table>
+      <thead><tr><th style="width:72px">Step</th><th style="width:66px">Livello</th><th>Confronto</th><th>Risposta giusta</th><th style="width:210px">Nella demo</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">step1</td><td class="mono">L1</td><td>1/3 o 1/4?</td><td>«1/3» — <b>1ª</b> opzione</td><td><b>Fasi 2–3</b>: qui Luca sbaglia</td></tr>
+        <tr><td class="mono">step4</td><td class="mono">L1</td><td>1/2 o 1/5?</td><td>«1/2» — <b>2ª</b> opzione</td><td>raccordo</td></tr>
+        <tr><td class="mono">step5</td><td class="mono">L1</td><td>1/3 o 1/6?</td><td>«1/3» — <b>3ª</b> opzione</td><td>raccordo</td></tr>
+        <tr><td class="mono">step6</td><td class="mono">L1</td><td>1/4 o 1/5?</td><td>«1/4» — <b>2ª</b> opzione</td><td>raccordo</td></tr>
+        <tr style="opacity:.55"><td class="mono">step2</td><td class="mono">L2</td><td>1/4 o 1/7?</td><td>«1/4» — 1ª opzione</td><td>non caricato a L1</td></tr>
+        <tr style="background:var(--accent-bg)"><td class="mono">step7</td><td class="mono">L3</td><td>1/8 o 1/10?</td><td>«1/8» — <b>2ª</b> opzione</td><td><b>Fase 5</b>: live probe, scheda B</td></tr>
+        <tr><td class="mono">step3</td><td class="mono">L1|L2</td><td>1/5 o 1/6?</td><td>«1/5» — <b>3ª</b> opzione</td><td><b>Fase 4</b>: «Prova questa!»</td></tr>
+      </tbody>
+    </table>
+    <p class="nota nota--rischio" style="margin-top:16px">
+      <b>La risposta giusta non è più sempre il primo bottone.</b> Era un pattern visibile, ed è stato tolto
+      apposta. Sullo stage si clicca <b>per testo</b>, mai per posizione: in questo script le opzioni sono
+      sempre citate con la loro etichetta esatta.
+    </p>
+    <p style="margin:18px 0 10px"><b>Percorsi effettivi:</b></p>
+    <table>
+      <thead><tr><th style="width:90px">Livello</th><th>Sequenza</th><th style="width:230px">Supporto visivo (linea)</th></tr></thead>
+      <tbody>
+        <tr><td class="mono"><b>L1</b> ← demo</td><td class="mono">step1 · step4 · step5 · step6 · step3</td><td>dal 1° errore</td></tr>
+        <tr><td class="mono">L2</td><td class="mono">step1 · step4 · step5 · step6 · step2 · step3</td><td>dal 2° errore</td></tr>
+        <tr><td class="mono"><b>L3</b> ← scheda B</td><td class="mono">step1 · step4 · step5 · step6 · step2 · <b>step7</b> · step3</td><td>mai</td></tr>
+      </tbody>
+    </table>
+    <p class="nota" style="margin-top:16px">
+      <b>Da rifare a ogni modifica del curriculum.</b> Incolla in console e leggi la sequenza vera,
+      non quella che ricordi:
+    </p>
+<pre><code>const c = await (await fetch('data/curriculum-discalculia.json')).json();
+const p = await (await fetch('data/pdp-levels.json')).json();
+c.steps.filter(s =&gt; p.L1.includes_levels.includes(s.level)).forEach((s, i) =&gt;
+  console.log(`${i+1}. ${s.step_id} ${s.items[0].fraction_a} vs ${s.items[0].fraction_b}`
+    + ` — giusta: "${s.items[0].distractors.find(d =&gt; d.correct).label}"`
+    + (s.transfer ? ' [TRANSFER]' : '')));</code></pre>
+    <p class="nota nota--rischio" style="margin-top:14px">
+      <b>Il curriculum è cresciuto: il tempo pieno è 3:30, sopra il target di 3:00.</b>
+      I tre esercizi di raccordo costano da soli mezzo minuto. I tagli sono già scritti e ordinati nel §5:
+      si applicano in quell'ordine, e si arriva a 3:00 netti. Non si accelera il parlato — si tolgono parole.
+    </p>
+  </div>
+</section>
+
+<!-- ── 3. Lo script ────────────────────────────────────────────────────────── -->
+<section>
+  <h2>3 · Lo script — fase per fase</h2>
+
+  <!-- Apertura -->
+  <article class="fase" data-budget="12" data-nome="Apertura">
+    <div class="rail">
+      <div class="num">0</div>
+      <div class="finestra">0:00 → 0:12</div>
+      <div class="durata">12 secondi</div>
+      <span class="badge badge--parla-pa">Parla · P-A</span>
+      <span class="badge badge--clicca">Clicca · nessuno</span>
+      <div class="stima"></div>
+    </div>
+    <div class="corpo">
+      <h3>Apertura — chi è Luca</h3>
+      <p class="battuta">
+        NumeriMiei. Luca ha undici anni e una diagnosi di discalculia. Quando confronta due frazioni
+        sceglie sempre quella col numero più grande sotto. Vi mostriamo cosa succede, in tre minuti.
+      </p>
+      <p class="battuta variante">
+        <b>[variante breve — taglio 1]</b> NumeriMiei. Luca, undici anni, discalculia certificata:
+        sceglie sempre la frazione col numero più grande sotto. Guardate.
+      </p>
+      <div class="due">
+        <div class="box"><h4>Sequenza click</h4><ol>
+          <li>Nessun click. Schermo già fermo sulla home, scheda A.</li>
+        </ol></div>
+        <div class="box box--schermo"><h4>Cosa si vede</h4><ul>
+          <li>«Chi sta entrando?» con le schede Studente / Docente / Genitore.</li>
+          <li>In fondo il footer Legge 170/2010, presente su ogni schermata.</li>
+        </ul></div>
+      </div>
+      <p class="nota">Il footer non si legge ad alta voce adesso: serve alla chiusura, quando si parla di limiti.</p>
+    </div>
+  </article>
+
+  <!-- Fase 1 -->
+  <article class="fase" data-budget="20" data-nome="Fase 1 — configurazione L1">
+    <div class="rail">
+      <div class="num">1</div>
+      <div class="finestra">0:12 → 0:32</div>
+      <div class="durata">20 secondi</div>
+      <span class="badge badge--parla-pb">Parla · P-B</span>
+      <span class="badge badge--clicca">Clicca · P-B</span>
+      <div class="stima"></div>
+    </div>
+    <div class="corpo">
+      <h3>La docente configura il livello L1</h3>
+      <p class="battuta">
+        Si parte dalla docente, non dall'algoritmo. Apre la sua schermata e imposta il livello scritto nel
+        PDP di Luca: L1. Questo è l'unico punto del sistema in cui quel livello viene deciso — un solo writer,
+        in tutto il codice. NumeriMiei non lo deduce mai dalle risposte del ragazzo.
+      </p>
+      <div class="due">
+        <div class="box"><h4>Sequenza click</h4><ol>
+          <li>Scheda <b>Docente</b> nella home.</li>
+          <li>Menu <b>Livello PDP</b> → <b>L1</b>.</li>
+          <li><b>Conferma e inizia sessione</b> → porta da solo alla vista studente.</li>
+        </ol></div>
+        <div class="box box--schermo"><h4>Cosa si vede</h4><ul>
+          <li>Intestazione con il badge <b>Vista docente</b>.</li>
+          <li>«Impostazione sessione» + menu a tre voci L1 / L2 / L3.</li>
+          <li>Il bottone resta spento finché non scegli: è voluto.</li>
+          <li>Dopo la conferma: primo esercizio, <b>1/3 o 1/4?</b></li>
+        </ul></div>
+      </div>
+      <p class="nota">
+        <b>Se compare un report invece del form:</b> la sessione precedente non è stata pulita.
+        Clicca <b>Nuova sessione</b> e riparti. Ti costa tre secondi: non commentarlo.
+      </p>
+    </div>
+  </article>
+
+  <!-- Fase 2 -->
+  <article class="fase" data-budget="25" data-nome="Fase 2 — l'errore">
+    <div class="rail">
+      <div class="num">2</div>
+      <div class="finestra">0:32 → 0:57</div>
+      <div class="durata">25 secondi</div>
+      <span class="badge badge--parla-pa">Parla · P-A</span>
+      <span class="badge badge--clicca">Clicca · P-B</span>
+      <div class="stima"></div>
+    </div>
+    <div class="corpo">
+      <h3>Luca sbaglia — <span class="mono">denominator_magnitude</span></h3>
+      <p class="battuta">
+        Ora è Luca a rispondere. Un terzo o un quarto? Sceglie un quarto, perché quattro è più di tre.
+        È l'errore che ci aspettavamo, e ha un nome preciso: denominator magnitude. Il sistema non dice
+        «sbagliato»: riconosce <em>quale</em> dei due errori possibili ha appena fatto.
+      </p>
+      <div class="due">
+        <div class="box"><h4>Sequenza click</h4><ol>
+          <li>Opzione <b>«1/4, perché 4 è più grande di 3»</b> (2ª).</li>
+          <li><b>Rispondo</b>.</li>
+          <li>Fermati: non cliccare altro mentre P-A parla.</li>
+        </ol></div>
+        <div class="box box--schermo"><h4>Cosa si vede</h4><ul>
+          <li>Tre opzioni, una per riga, testo grande.</li>
+          <li>L'opzione scelta resta marcata (non solo col colore).</li>
+          <li>Dopo «Rispondo»: riquadro rosso con ✗ e la spiegazione.</li>
+        </ul></div>
+      </div>
+      <p class="nota">
+        La terza opzione — «Sono uguali, il numero sopra è 1 in tutte e due» — è l'altro misconcetto,
+        <span class="mono">numerator_focus</span>. Non si clicca in demo, ma è pronta se la giuria chiede
+        «e se sbagliasse in un altro modo?».
+      </p>
+    </div>
+  </article>
+
+  <!-- Fase 3 -->
+  <article class="fase" data-budget="35" data-nome="Fase 3 — remediation e riprova">
+    <div class="rail">
+      <div class="num">3</div>
+      <div class="finestra">0:57 → 1:32</div>
+      <div class="durata">35 secondi</div>
+      <span class="badge badge--parla-pa">Parla · P-A</span>
+      <span class="badge badge--clicca">Clicca · P-B</span>
+      <div class="stima"></div>
+    </div>
+    <div class="corpo">
+      <h3>Spiegazione mirata, linea delle frazioni, riprova, avanzamento</h3>
+      <p class="battuta">
+        Questa è la chiave con cui il testo è stato scelto: step uno, livello L1, denominator magnitude.
+        Lo stesso errore a un livello diverso prende un testo diverso — qui la pizza, a L2 il metro.
+        E la linea delle frazioni compare adesso, al primo errore, perché lo dice il livello L1.
+        Riprova. Risposta giusta. Avanti.
+      </p>
+      <p class="battuta variante">
+        <b>[controllo obbligatorio al rehearsal]</b> Se la linea era già a schermo <em>prima</em> dell'errore,
+        la policy di scaffolding non è ancora collegata alla UI: sostituisci la terza frase con
+        «<b>la linea era lì, ma solo adesso ha un senso: la spiegazione le dà un significato</b>».
+        Cerchia la variante giusta prima di salire.
+      </p>
+      <div class="due">
+        <div class="box"><h4>Sequenza click</h4><ol>
+          <li>Lascia il testo a schermo <b>5 secondi in silenzio</b>: la giuria lo sta leggendo.</li>
+          <li>Opzione <b>«1/3»</b> (1ª).</li>
+          <li><b>Riprovo</b> → riquadro verde ✓ «Risposta corretta!».</li>
+          <li><b>Prossimo esercizio →</b></li>
+        </ol></div>
+        <div class="box box--schermo"><h4>Cosa si vede</h4><ul>
+          <li>«Quarto o terzo? Dipende dai pezzi» + l'analogia della pizza.</li>
+          <li>La linea 0 → 1 con i due marcatori.</li>
+          <li>Il bottone cambia etichetta in «Riprovo».</li>
+        </ul></div>
+      </div>
+      <p class="nota nota--rischio">
+        <b>Mai sbagliare tre volte di fila.</b> Al terzo errore consecutivo parte il messaggio di stop
+        («Questo esercizio è meglio affrontarlo con il tuo insegnante o il tuo tutor di riferimento») e il
+        bottone sparisce dal DOM: la sessione è chiusa davvero. È una garanzia di progetto, non un bug —
+        ma non è la strada della demo. Se succede: dillo come scelta voluta, poi <b>Cambia utente</b> e
+        riparti dalla fase 1.
+      </p>
+    </div>
+  </article>
+
+  <!-- Raccordo -->
+  <article class="fase" data-budget="28" data-nome="Raccordo — esercizi 2, 3, 4">
+    <div class="rail">
+      <div class="num">3<span style="font-size:11px">bis</span></div>
+      <div class="finestra">1:32 → 2:00</div>
+      <div class="durata">28 secondi</div>
+      <span class="badge badge--parla-pa">Parla · P-A</span>
+      <span class="badge badge--clicca">Clicca · P-B</span>
+      <div class="stima"></div>
+    </div>
+    <div class="corpo">
+      <h3>Raccordo — i tre esercizi nuovi</h3>
+      <p style="color:var(--ink-soft);font-size:15.5px;margin-bottom:6px">
+        Una sola battuta per tutti e tre. Gli altri due si attraversano in silenzio, cliccando.
+      </p>
+      <p class="battuta">
+        Il percorso non è la stessa domanda ripetuta: a ogni passo la distanza fra i due pezzi cambia.
+        Questi tre esercizi li abbiamo aggiunti oggi, e sono entrati nel percorso senza toccare una riga
+        di codice. Torna utile fra un minuto.
+      </p>
+      <div class="due">
+        <div class="box"><h4>Sequenza click — per testo, mai per posizione</h4><ol>
+          <li><b>Esercizio 2</b> — 1/2 o 1/5? → <b>«1/2»</b> → Rispondo → Prossimo esercizio</li>
+          <li><b>Esercizio 3</b> — 1/3 o 1/6? → <b>«1/3»</b> → Rispondo → Prossimo esercizio</li>
+          <li><b>Esercizio 4</b> — 1/4 o 1/5? → <b>«1/4»</b> → Rispondo → Prossimo esercizio</li>
+        </ol></div>
+        <div class="box box--schermo"><h4>Cosa si vede</h4><ul>
+          <li>Stesso layout della fase 2, frazioni diverse.</li>
+          <li>Nessuna spiegazione: qui non si sbaglia di proposito.</li>
+          <li>Dopo il terzo «Prossimo esercizio»: <b>«Prova questa!»</b></li>
+        </ul></div>
+      </div>
+      <p class="nota">
+        <b>Scelta deliberata:</b> l'errore da mostrare è uno solo, all'inizio. Sbagliare una seconda volta
+        raddoppia il tempo e non aggiunge niente — la giuria ha già visto il meccanismo.
+      </p>
+      <p class="nota nota--rischio">
+        <b>Taglio 2 (−8 s):</b> niente battuta, tre passaggi muti. La frase «li abbiamo aggiunti oggi»
+        non si perde: si recupera nella risposta-giuria sulla scalabilità.
+      </p>
+    </div>
+  </article>
+
+  <!-- Fase 4 -->
+  <article class="fase" data-budget="30" data-nome="Fase 4 — transfer">
+    <div class="rail">
+      <div class="num">4</div>
+      <div class="finestra">2:00 → 2:30</div>
+      <div class="durata">30 secondi</div>
+      <span class="badge badge--parla-pb">Parla · P-B</span>
+      <span class="badge badge--clicca">Clicca · P-B</span>
+      <div class="stima"></div>
+    </div>
+    <div class="corpo">
+      <h3>Transfer — «Prova questa!», senza linea</h3>
+      <p class="battuta">
+        Ultimo esercizio del percorso. Si chiama «Prova questa!» e cambia due cose: le frazioni non le ha
+        mai viste, e la linea non c'è. Se risponde giusto qui, non ha imparato a memoria una risposta —
+        ha imparato la strategia. Un quinto. E adesso la linea compare: a conferma, non come aiuto.
+      </p>
+      <div class="due">
+        <div class="box"><h4>Sequenza click</h4><ol>
+          <li>Opzione <b>«1/5»</b> (3ª, ultima).</li>
+          <li><b>Rispondo</b>.</li>
+          <li>Lascia la linea a schermo 3 secondi, poi fermati: la parola passa a P-A.</li>
+        </ol></div>
+        <div class="box box--schermo"><h4>Cosa si vede</h4><ul>
+          <li>Titolo «Prova questa!», sotto la domanda 1/5 o 1/6.</li>
+          <li><b>Nessuna linea</b> e nessuna frazione impilata prima della risposta.</li>
+          <li>Dopo la risposta: ✓ verde e la linea che appare con 1/5 evidenziato.</li>
+        </ul></div>
+      </div>
+      <p class="nota">
+        Questo è il Deliverable 03, la nota di apprendimento: l'unico punto in trenta secondi in cui si
+        vede la differenza fra «ha indovinato» e «ha trasferito». L'esito finisce nel report della docente.
+      </p>
+      <p class="nota nota--rischio">
+        <b>Taglio 3 (−5 s):</b> si toglie la frase «Se risponde giusto qui… la strategia» e si tiene solo
+        «le frazioni non le ha mai viste, e la linea non c'è».
+      </p>
+    </div>
+  </article>
+
+  <!-- Fase 5 -->
+  <article class="fase" data-budget="40" data-nome="Fase 5 — live probe">
+    <div class="rail">
+      <div class="num">5</div>
+      <div class="finestra">2:30 → 3:10</div>
+      <div class="durata">40 secondi</div>
+      <span class="badge badge--parla-pa">Parla · P-A</span>
+      <span class="badge badge--clicca">Clicca · P-A</span>
+      <div class="stima"></div>
+    </div>
+    <div class="corpo">
+      <h3>Live probe — un esercizio per cui non abbiamo scritto niente</h3>
+      <p class="battuta">
+        Fin qui avete letto testi che avevamo scritto prima. Adesso no. Passo a una sessione di livello L3,
+        sesto esercizio: un ottavo o un decimo? Per questo esercizio non esiste nessun testo pre-scritto —
+        guardate, la lista è vuota. Tolgo la modalità demo. Luca sceglie un decimo «perché dieci è un numero
+        tondo»: è un terzo tipo di errore. La spiegazione che leggete adesso la sta scrivendo il modello,
+        ora, sul contesto di questo esercizio.
+      </p>
+      <div class="due">
+        <div class="box"><h4>Sequenza click — scheda B</h4><ol>
+          <li>Passa alla <b>scheda B</b> (già ferma su «Esercizio 6 — 1/8 o 1/10?»).</li>
+          <li>Console: <code>Object.keys(fixtures).filter(k =&gt; k.startsWith('step7'))</code> → <code>[]</code></li>
+          <li>Console: <code>DEMO_MODE = false</code></li>
+          <li>Opzione <b>«1/10, perché 10 è un numero tondo»</b> (1ª).</li>
+          <li><b>Rispondo</b> → attesa ~1–2 secondi → testo generato dal vivo.</li>
+        </ol></div>
+        <div class="box box--schermo"><h4>Cosa si vede</h4><ul>
+          <li>Console: parentesi quadre vuote. È la prova, mostrala grande.</li>
+          <li>Spiegazione in riquadro rosso, <b>diversa a ogni esecuzione</b>.</li>
+          <li>Parla dei pezzi e del numero tondo: è mirata su <span class="mono">round_number_bias</span>,
+              non è un testo generico.</li>
+        </ul></div>
+      </div>
+      <p class="nota">
+        <b>Perché step7 è davvero scoperto.</b> Le fixture hanno 22 chiavi, nessuna che inizi per
+        <code>step7</code>. Non funziona nemmeno il degrado per livello, che cerca lo stesso step negli
+        altri livelli: per step7 non esiste da nessuna parte. La catena arriva al modello per costruzione,
+        non perché l'abbiamo forzata.
+      </p>
+      <p class="nota nota--rischio">
+        <b>Se non risponde entro tre secondi</b> compare il testo di ripiego fisso, ed è corretto e pulito.
+        Battuta pronta, da dire con calma: «il timeout ha fatto il suo lavoro: tre secondi e cade su un
+        testo validato. La demo non si rompe mai — al massimo diventa più generica». Poi si tira dritto:
+        <b>è già la risposta alla domanda sui rischi</b>.
+      </p>
+      <p class="nota">
+        Dopo questo esercizio, a L3, resta ancora la verifica finale: il transfer è l'ultima cosa in tutti e
+        tre i livelli. Se lo chiedono, la risposta è una riga — «poi arriva la verifica, come a ogni livello».
+        Non serve mostrarla: l'avete già fatta nella fase 4.
+      </p>
+      <p class="nota nota--rischio">
+        <b>Se la scheda B si perde</b> (ricaricata per sbaglio): non ricostruirla sullo stage.
+        <b>Le fasi 4 e 5 si scambiano</b> e il probe si fa sulla scheda A, sull'<b>Esercizio 4</b> del raccordo.
+        Parola in chiaro di P-A: «<em>e qui mi fermo un attimo</em>» → P-B <b>non risponde</b> all'Esercizio 4 e
+        lascia la tastiera. P-A digita:<br>
+        <code>delete fixtures['step6-L1-denominator_magnitude']; delete fixtures['step6-L2-denominator_magnitude']; DEMO_MODE = false</code><br>
+        poi clicca <b>«1/5, perché 5 è più grande di 4»</b> → <b>Rispondo</b>. Stessa dimostrazione, un grado
+        in meno di eleganza: dichiaralo — «il testo pronto per questo esercizio lo sto togliendo io, adesso» —
+        e non fingere che fosse già scoperto. Poi si prosegue con la fase 4, che diventa la chiusura.
+      </p>
+    </div>
+  </article>
+
+  <!-- Chiusura -->
+  <article class="fase" data-budget="20" data-nome="Chiusura">
+    <div class="rail">
+      <div class="num">6</div>
+      <div class="finestra">3:10 → 3:30</div>
+      <div class="durata">20 secondi</div>
+      <span class="badge badge--parla-pb">Parla · P-B</span>
+      <span class="badge badge--clicca">Clicca · nessuno</span>
+      <div class="stima"></div>
+    </div>
+    <div class="corpo">
+      <h3>Chiusura — il limite dichiarato</h3>
+      <p class="battuta">
+        Tre deliverable: il profilo di Luca, la prova che il livello cambia la spiegazione, la nota di
+        apprendimento sul transfer. E un limite, che diciamo noi: NumeriMiei allena uno strumento già
+        previsto dal PDP. Non è riabilitazione clinica, e il footer lo dice in ogni schermata.
+      </p>
+      <p class="battuta variante">
+        <b>[variante breve — taglio 4]</b> Profilo, evidenza adattiva, nota di apprendimento. E un limite
+        che diciamo noi: NumeriMiei non è riabilitazione clinica. Il footer lo dice in ogni schermata.
+      </p>
+      <div class="due">
+        <div class="box"><h4>Sequenza click</h4><ol>
+          <li>Nessuno. Si resta sull'ultima schermata.</li>
+        </ol></div>
+        <div class="box box--schermo"><h4>Cosa si vede</h4><ul>
+          <li>Il footer Legge 170/2010, che è lì da tre minuti senza che nessuno lo abbia nominato.</li>
+        </ul></div>
+      </div>
+      <p class="nota">Fermarsi qui. Il silenzio dopo l'ultima frase è parte della demo: dà il turno alla giuria.</p>
+    </div>
+  </article>
+</section>
+
+<!-- ── 4. Risposte alla giuria ─────────────────────────────────────────────── -->
+<section>
+  <h2>4 · Risposte alla giuria — scritte, non improvvisate</h2>
+
+  <div class="qa">
+    <p class="chi">Risponde P-A</p>
+    <p class="q">«Cos'è la capability agentica? Sotto non è solo un chatbot?»</p>
+    <p class="a">
+      Il sistema non sceglie una spiegazione a caso. Legge <em>quale</em> errore ha prodotto quella risposta,
+      lo combina con il livello PDP e va a prendere — o a generare — il testo per quella coppia. La chiave è
+      letterale: <span class="mono">step1-L1-denominator_magnitude</span>. Stesso errore a un altro livello,
+      altro testo. E l'avete appena visto sull'esercizio scoperto: lì nessuno aveva scritto niente, e la
+      spiegazione arrivata dal vivo parlava del numero tondo, non di frazioni in generale.
+      Non è un chatbot sopra un quiz: è una decisione su tre variabili, leggibile nel codice.
+    </p>
+  </div>
+
+  <div class="qa">
+    <p class="chi">Risponde P-B</p>
+    <p class="q">«Come si scala a nuovi contenuti?»</p>
+    <p class="a">
+      Si aggiunge un oggetto al JSON del curriculum. Oggi ne abbiamo aggiunti quattro, e tre li avete appena
+      visti nel percorso: zero JavaScript, nessun rebuild, basta ricaricare la pagina. Il grep sui file
+      <span class="mono">.js</span> non trova nessun testo di esercizio: stanno tutti nei dati. Una nuova area
+      della matematica è un altro <span class="mono">curriculum-*.json</span>; un altro disturbo è la stessa
+      cosa, perché l'engine non sa di cosa sta parlando.
+      <br><br>
+      <b>Se incalzano — «davvero zero codice?»:</b> per un esercizio con un tipo di errore già modellato, sì,
+      zero. Per un tipo di errore <em>nuovo</em>, come quello del numero tondo, si aggiunge una riga a un
+      dizionario di descrizioni che serve al modello. Una riga, in un solo punto: preferiamo dirlo che
+      farvelo scoprire.
+    </p>
+  </div>
+
+  <div class="qa">
+    <p class="chi">Risponde P-A</p>
+    <p class="q">«Come gestite il confine clinico?»</p>
+    <p class="a">
+      Tre presidi, tutti verificabili senza eseguire niente. Primo: il livello PDP lo scrive solo la docente —
+      un solo writer in tutto il codice, e nessun percorso che lo calcoli dalle risposte. Secondo: ogni testo
+      che arriva allo schermo passa da una sola funzione, <span class="mono">getSafeRemediation</span>, che se
+      trova un termine clinico scarta la risposta <em>intera</em> — non la ripulisce a pezzi, la butta e mette
+      il testo di ripiego. Terzo: dopo tre errori consecutivi il sistema si ferma e rimanda all'insegnante,
+      con una frase scritta a mano nel codice che nessun modello può riscrivere.
+    </p>
+  </div>
+
+  <div class="qa">
+    <p class="chi">Risponde P-A</p>
+    <p class="q">«E se il modello dice una sciocchezza a un bambino?»</p>
+    <p class="a">
+      In classe la modalità normale è quella che avete visto per tre minuti: testi pre-validati, letti da un
+      file, zero rete. Il modello dal vivo l'abbiamo acceso noi, in un punto solo, per mostrarvi che esiste.
+      Anche lì il testo passa dalla stessa denylist, e se non risponde in tre secondi si cade su un testo
+      fisso. Il modello è una comodità per coprire i casi nuovi, non è nel percorso critico.
+    </p>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h4>Se chiedono altro — risposte in una riga</h4>
+    <ul style="padding-left:20px;font-size:15.5px">
+      <li style="margin-bottom:6px"><b>«Funziona offline?»</b> — Tutto tranne i quaranta secondi di poco fa. L'abbiamo provato con la rete staccata.</li>
+      <li style="margin-bottom:6px"><b>«Quanto è costato?»</b> — Sedici chiamate a un modello gratuito per generare i testi, una in demo. Il resto è un file statico.</li>
+      <li style="margin-bottom:6px"><b>«Che modello usate?»</b> — <span class="mono">nex-n2.5-mini</span>, tier gratuito via OpenRouter. Ne abbiamo provati sette: è l'unico che ha scritto italiano pulito senza infilare il proprio ragionamento dentro la risposta. Stesso modello per i testi pre-validati e per il live, altrimenti in demo si sentirebbe lo stacco di voce.</li>
+      <li style="margin-bottom:6px"><b>«Chi valida i testi didattici?»</b> — Li abbiamo scritti e rivisti a mano contro una regola di leggibilità: frasi da massimo quindici parole, nessun termine tecnico. Nella versione reale è il docente a validarli.</li>
+      <li style="margin-bottom:6px"><b>«Raccogliete dati sul bambino?»</b> — Niente esce dal browser. Gli errori di sessione stanno in <span class="mono">localStorage</span> e servono al report della docente.</li>
+      <li><b>«E l'accessibilità?»</b> — Cifre a larghezza fissa, nessuna animazione, feedback mai affidato al solo colore, frazioni lette per esteso dallo screen reader.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ── 5. Tempo e piano B ──────────────────────────────────────────────────── -->
+<section>
+  <h2>5 · Tempo e piano B</h2>
+
+  <div class="card">
+    <h4>I tagli, in quest'ordine</h4>
+    <table style="margin-top:10px">
+      <thead><tr><th style="width:70px">Taglio</th><th>Dove</th><th style="width:80px">Recupero</th><th style="width:90px">Totale</th></tr></thead>
+      <tbody>
+        <tr><td>—</td><td>Testo pieno</td><td class="mono">—</td><td class="mono"><b>3:30</b></td></tr>
+        <tr><td class="mono">1</td><td>Apertura, variante breve</td><td class="mono">≈ −5 s</td><td class="mono">3:25</td></tr>
+        <tr><td class="mono">2</td><td>Raccordo muto (niente battuta sui tre esercizi)</td><td class="mono">≈ −8 s</td><td class="mono">3:17</td></tr>
+        <tr><td class="mono">3</td><td>Fase 4, via la frase sulla strategia</td><td class="mono">≈ −5 s</td><td class="mono">3:12</td></tr>
+        <tr><td class="mono">4</td><td>Chiusura, variante breve</td><td class="mono">≈ −10 s</td><td class="mono">3:02</td></tr>
+        <tr><td class="mono">5</td><td>Fase 3, pausa di lettura da 5 a 3 secondi</td><td class="mono">−2 s</td><td class="mono"><b>3:00</b></td></tr>
+        <tr style="background:var(--warn-bg)"><td class="mono">6</td><td><b>Solo se al rehearsal si sfora ancora:</b> fase 2, via «È l'errore che ci aspettavamo»</td><td class="mono">≈ −4 s</td><td class="mono">2:56</td></tr>
+      </tbody>
+    </table>
+    <p class="nota" style="margin-top:14px">
+      Quello che <b>non</b> si taglia mai: la fase 5 (è il cuore della dimostrazione), la frase sul limite
+      clinico in chiusura (è il criterio 6 del brief), i cinque secondi di silenzio sul testo di remediation
+      (se nessuno lo legge, la fase 3 non è successa).
+    </p>
+  </div>
+
+  <div class="card">
+    <h4>Piano B — cosa fare senza pensarci</h4>
+    <table style="margin-top:10px">
+      <thead><tr><th style="width:30%">Se succede</th><th style="width:22%">Come te ne accorgi</th><th>Mossa</th></tr></thead>
+      <tbody>
+        <tr><td>Il live slot non risponde</td><td>Dopo 3 s compare il testo di ripiego, sempre lo stesso</td><td><b>P-A:</b> «il timeout ha fatto il suo lavoro». Si prosegue: è già la risposta sui rischi.</td></tr>
+        <tr><td>Il testo dal vivo esce fuori tema</td><td>Parla di frazioni in generale, non del numero tondo</td><td><b>P-A:</b> non leggerlo ad alta voce. «Più generico dei nostri testi pre-validati: è il motivo per cui in classe si gira in modalità offline.»</td></tr>
+        <tr><td>Scheda B persa o ricaricata</td><td>Riparte da «Esercizio 1»</td><td>Ripiego sulla scheda A col <code>delete fixtures[...]</code> della fase 5. Dichiara che stai forzando tu.</td></tr>
+        <tr><td>La vista docente apre il report</td><td>Vedi «Sessione di L…» invece del menu</td><td><b>Nuova sessione</b>, poi riparti. Nessun commento.</td></tr>
+        <tr><td>Tre errori consecutivi</td><td>Compare il messaggio di stop, il bottone sparisce</td><td>Raccontalo come garanzia voluta, <b>Cambia utente</b>, riparti dalla fase 1.</td></tr>
+        <tr><td>Il proxy è spento</td><td>La pagina non carica affatto</td><td><code>python3 app/proxy.py</code>. Se non riparte in 20 s: demo tutta offline, fase 5 sostituita dal <code>delete fixtures[...]</code> con il testo di ripiego.</td></tr>
+        <tr><td>Si apre il report docente per sbaglio</td><td>Righe con scritto <span class="mono">step4</span> invece di «Esercizio 2»</td><td>Non fermarti a spiegarlo: chiudi e torna alla vista studente. È un'etichetta, non un dato sbagliato.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── 6. Copertura del brief ──────────────────────────────────────────────── -->
+<section>
+  <h2>6 · I sei punti obbligatori del brief</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th style="width:34%">La demo deve mostrare…</th><th style="width:22%">Dove</th><th>Con quali parole</th></tr></thead>
+      <tbody>
+        <tr><td>il problema scelto</td><td>Apertura</td><td>«sceglie sempre quella col numero più grande sotto»</td></tr>
+        <tr><td>l'utente o lo scenario</td><td>Apertura + fase 1</td><td>«Luca, undici anni» · «il livello scritto nel PDP»</td></tr>
+        <tr><td>come funziona la soluzione</td><td>Fasi 2–3</td><td>«riconosce quale dei due errori ha fatto»</td></tr>
+        <tr><td>dove interviene l'agente AI</td><td>Fase 3 + fase 5</td><td>«step uno, livello L1, denominator magnitude» · «la sta scrivendo il modello, ora»</td></tr>
+        <tr><td>quale miglioramento produce</td><td>Fase 4</td><td>«non ha imparato a memoria una risposta, ha imparato la strategia»</td></tr>
+        <tr><td>quali limiti o rischi</td><td>Fase 5 + chiusura</td><td>«al massimo diventa più generica» · «non è riabilitazione clinica»</td></tr>
+      </tbody>
+    </table>
+    <p class="nota" style="margin-top:14px">
+      Tutti e sei vengono <b>detti a voce</b>, non solo mostrati nelle slide. Se un taglio fa sparire una di
+      queste frasi, il taglio è sbagliato: rifallo altrove.
+    </p>
+  </div>
+</section>
+
+<!-- ── 7. Definition of Done ───────────────────────────────────────────────── -->
+<section>
+  <h2>7 · Definition of Done — TSK-022</h2>
+  <div class="card">
+    <ul class="check">
+      <li>Lo script sta su un supporto condiviso: questo file, stampato o su secondo schermo.</li>
+      <li>Le cinque fasi obbligatorie ci sono, nell'ordine previsto.</li>
+      <li>Ogni fase dice chi parla e chi clicca, e non parlano mai insieme.</li>
+      <li>Quattro risposte-giuria scritte (ne bastavano due).</li>
+      <li>Lettura ad alta voce cronometrata: ≤ 4:00 obbligatorio, ≤ 3:00 con i tagli del §5.</li>
+      <li>Sequenza esercizi verificata contro il curriculum <b>di oggi</b>, non contro quello di stamattina.</li>
+      <li>Scelta e cerchiata la variante giusta della battuta nella fase 3 (linea prima o dopo l'errore).</li>
+      <li>Scheda B preparata e lasciata ferma su «Esercizio 6».</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="piede">
+  <p>
+    <b>NumeriMiei</b> — script demo · TSK-022 · US-012 · EP-004 · sprint 01 · Hagenthon 2026, Tema 03.
+    Dati verificati su <span class="mono">app/data/curriculum-discalculia.json</span> (7 step),
+    <span class="mono">fixtures.json</span> (22 chiavi, nessuna per step7),
+    <span class="mono">pdp-levels.json</span> (L1/L2/L3).
+    Rigenerare il §2 a ogni modifica del curriculum.
+  </p>
+</footer>
+
+</div><!-- /wrap -->
+
+<script>
+(function () {
+  'use strict';
+
+  var PAROLE_AL_MINUTO = 150; // ritmo di lettura a voce alta, italiano, tono di presentazione
+  var fasi = Array.prototype.slice.call(document.querySelectorAll('.fase'));
+
+  // ── Stima di lettura per fase ─────────────────────────────────────────────
+  // Conta solo le battute principali: le varianti sono alternative, non aggiunte.
+  fasi.forEach(function (fase) {
+    var testo = Array.prototype.slice
+      .call(fase.querySelectorAll('.battuta:not(.variante)'))
+      .map(function (p) { return p.textContent; })
+      .join(' ');
+    var parole = testo.trim().split(/\s+/).filter(Boolean).length;
+    var secondi = Math.round((parole / PAROLE_AL_MINUTO) * 60);
+    var budget = parseInt(fase.dataset.budget, 10) || 0;
+    var slot = fase.querySelector('.stima');
+    if (!slot) return;
+    if (!parole) { slot.textContent = 'nessuna battuta'; return; }
+    slot.textContent = parole + ' parole · ≈' + secondi + ' s di parlato';
+    // Il budget include click e pause: il parlato che lo supera è un problema.
+    if (secondi > budget) {
+      slot.classList.add('over');
+      slot.textContent += ' · oltre il budget di ' + budget + ' s';
+    }
+  });
+
+  // ── Cronometro con passaggi di fase ───────────────────────────────────────
+  var clock = document.getElementById('clock');
+  var stato = document.getElementById('crono-stato');
+  var btnGo = document.getElementById('btn-go');
+  var btnNext = document.getElementById('btn-next');
+  var btnReset = document.getElementById('btn-reset');
+  var t0 = null, tick = null, idx = -1;
+
+  var cumulati = (function () {
+    var somma = 0;
+    return fasi.map(function (f) { somma += parseInt(f.dataset.budget, 10) || 0; return somma; });
+  })();
+  var totale = cumulati.length ? cumulati[cumulati.length - 1] : 0;
+
+  function mmss(s) {
+    var m = Math.floor(s / 60);
+    return m + ':' + String(s % 60).padStart(2, '0');
+  }
+
+  function trascorsi() { return t0 === null ? 0 : Math.floor((Date.now() - t0) / 1000); }
+
+  function aggiorna() {
+    var s = trascorsi();
+    clock.textContent = mmss(s);
+    clock.classList.toggle('over', s > totale);
+  }
+
+  function evidenzia(i) {
+    fasi.forEach(function (f, k) { f.classList.toggle('attiva', k === i); });
+    if (fasi[i]) fasi[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function avvia() {
+    t0 = Date.now();
+    idx = 0;
+    tick = setInterval(aggiorna, 250);
+    btnGo.disabled = true;
+    btnNext.disabled = false;
+    evidenzia(0);
+    stato.innerHTML = 'In corso: <b>' + fasi[0].dataset.nome + '</b> — budget totale ' + mmss(totale) + '.';
+  }
+
+  function prossima() {
+    var s = trascorsi();
+    var atteso = cumulati[idx];
+    var delta = s - atteso;
+    var segno = delta > 0 ? '+' : '';
+    var chiusa = fasi[idx].dataset.nome;
+    idx += 1;
+    if (idx >= fasi.length) {
+      clearInterval(tick);
+      btnNext.disabled = true;
+      fasi.forEach(function (f) { f.classList.remove('attiva'); });
+      stato.innerHTML = 'Fine. Totale <b>' + mmss(s) + '</b> su un budget di ' + mmss(totale) +
+        ' (' + segno + delta + ' s). ' + (s > 240 ? '<b>Oltre i 4:00: va accorciato il testo.</b>' : 'Dentro il limite dei 4:00.');
+      return;
+    }
+    evidenzia(idx);
+    stato.innerHTML = '<b>' + chiusa + '</b> chiusa a ' + mmss(s) + ' (' + segno + delta + ' s). ' +
+      'Ora: <b>' + fasi[idx].dataset.nome + '</b>.';
+  }
+
+  function azzera() {
+    clearInterval(tick);
+    t0 = null; idx = -1; tick = null;
+    clock.textContent = '0:00';
+    clock.classList.remove('over');
+    btnGo.disabled = false;
+    btnNext.disabled = true;
+    fasi.forEach(function (f) { f.classList.remove('attiva'); });
+    stato.innerHTML = 'Cronometro fermo. <b>Avvia</b> all\'inizio dell\'apertura, poi <b>Fase successiva</b> a ogni passaggio.';
+  }
+
+  btnGo.addEventListener('click', avvia);
+  btnNext.addEventListener('click', prossima);
+  btnReset.addEventListener('click', azzera);
+  document.getElementById('btn-print').addEventListener('click', function () { window.print(); });
+
+  // Barra spaziatrice = passaggio di fase: durante il rehearsal si legge, non si punta il mouse.
+  document.addEventListener('keydown', function (e) {
+    if (e.code !== 'Space' || e.target.tagName === 'BUTTON' || e.target.isContentEditable) return;
+    e.preventDefault();
+    if (t0 === null) avvia(); else if (!btnNext.disabled) prossima();
+  });
+})();
+</script>
+
+</body>
+</html>

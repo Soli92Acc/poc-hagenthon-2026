@@ -412,6 +412,17 @@ footer Legge 170/2010 permanente, i must-have a11y restanti, il dry run offline.
 
 ## 12. Checklist di consegna (verifica prima delle 4:00)
 
+**Prima di tutto, un comando solo:**
+
+```bash
+bash app/tests/run-all.sh
+```
+
+8 suite, nessun costo API: logica, contenuto, confine clinico, offline, browser E2E e
+accessibilita' WCAG 2.2 AA. Se e' tutto verde, i punti qui sotto sono gia' verificati
+tranne quelli visivi.
+
+
 - [ ] La pagina si carica e funziona **con il wifi staccato** (Tailwind locale, zero CDN).
 - [ ] `?role=student` senza `pdpLevel` mostra il messaggio di configurazione, non un errore JS.
 - [ ] `?role=teacher` → form PDP → salva → `?role=student` parte con il livello giusto.

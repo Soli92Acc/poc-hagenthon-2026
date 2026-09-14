@@ -7,7 +7,12 @@
   <!-- Tailwind local — obbligatorio per dry run offline (TSK-024) -->
   <script src="./vendor/tailwind.js"></script>
   <style>
-    /* ── Numerics: tabular-nums su tutti gli elementi con cifre ── */
+    /* ── Numerics: tabular-nums su tutto il contenuto dell'app ──
+       font-variant-numeric si eredita, quindi `main` copre domanda, opzioni,
+       feedback, number line e report senza inseguire una lista di classi.
+       Il footer resta fuori: e' prosa legale, le sue cifre non si leggono
+       in colonna. ── */
+    main,
     .numeric,
     .option-btn,
     .fraction-marker,

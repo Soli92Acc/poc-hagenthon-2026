@@ -4,30 +4,10 @@
  * Prerequisito: proxy attivo (python3 app/proxy.py).
  * Esegue: npx playwright test non serve — basta  node app/tests/browser-e2e.mjs
  */
-// Playwright non e' una dipendenza del progetto (niente package.json in un PoC da 4h):
-// si risolve dove si trova. Con PLAYWRIGHT=<path> si forza una copia specifica.
-async function caricaChromium() {
-  const candidati = [process.env.PLAYWRIGHT, 'playwright'].filter(Boolean);
-  const { execSync } = await import('node:child_process');
-  try {
-    const trovati = execSync(
-      "find \"$HOME/.npm/_npx\" \"$HOME/Documents\" -maxdepth 6 -type d -name playwright -path '*/node_modules/*' 2>/dev/null | head -5",
-      { shell: '/bin/bash', encoding: 'utf8' },
-    ).trim().split('\n').filter(Boolean);
-    candidati.push(...trovati.map((d) => `${d}/index.js`));
-  } catch { /* la ricerca e' opzionale */ }
-
-  for (const c of candidati) {
-    try {
-      const m = await import(c.startsWith('/') ? `file://${c}` : c);
-      return m.chromium ?? m.default?.chromium;
-    } catch { /* prossimo candidato */ }
-  }
-  console.log('  SKIP  playwright non disponibile: verifiche browser da eseguire a mano');
-  process.exit(0);
-}
+import { caricaChromium, esci } from './_playwright.mjs';
 
 const chromium = await caricaChromium();
+esci(chromium, 'browser-e2e');
 
 const BASE = 'http://localhost:8080';
 let esito = 0;

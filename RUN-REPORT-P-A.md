@@ -194,3 +194,57 @@ footer è escluso dalla scansione e al suo posto si verifica che esista e sia co
 
 **22 TSK su 26 chiusi.** I 4 aperti sono i tre del blocco demo (TSK-022/023/024) e il
 dry run offline (TSK-011): tutte attività umane, nessuna riga di codice mancante.
+
+---
+
+# Automazione completa delle verifiche
+
+Un comando esegue tutto:
+
+```bash
+bash app/tests/run-all.sh            # 8 suite, zero costo API
+bash app/tests/run-all.sh --quick    # salta le suite che aprono un browser
+bash app/tests/run-all.sh --live     # aggiunge il live slot reale (1 richiesta)
+```
+
+Avvia il proxy se non e' gia' in ascolto e lo ferma a fine corsa solo se e' stato lui ad
+avviarlo. Exit code 1 se una suite fallisce: verificato simulando un guasto reale
+(riattivando `MOCK`), non assumendolo.
+
+| Suite | Copre | Durata |
+|---|---|---|
+| Moduli, curriculum di riferimento | 32 test sulla logica | ~1 s |
+| Moduli, curriculum di produzione | gli stessi 32 sul curriculum di P-B | ~1 s |
+| Qualita del contenuto | 72 check su 10 fixture | <1 s |
+| Confine clinico e scalabilita | US-011 + invarianti + copy statica | <1 s |
+| Prontezza offline (statica) | dipendenze esterne, flusso senza rete | <1 s |
+| Browser E2E | TSK-010 + TSK-021, 15 check in Chromium | ~6 s |
+| Accessibilita WCAG 2.2 AA | checklist TSK-019/020/023, 11 check | ~8 s |
+| Offline in browser | TSK-011, 3 scenari di severita' crescente | ~7 s |
+
+## Cosa e' diventato automatico
+
+**TSK-011 (offline test) — chiuso.** `offline-browser.mjs` esegue i tre scenari in
+Chromium: wifi staccato con proxy vivo (flusso L1 completo fino al report), `DEMO_MODE=false`
+con `/complete` irraggiungibile (il live slot viene davvero tentato e degrada al Tier 3 in
+37 ms), offline totale col loopback spento. Lo scacco fisico del wifi resta dentro TSK-024,
+che e' comunque non negoziabile.
+
+**Checklist a11y di TSK-023 — chiusa.** `a11y-gate.mjs` calcola il contrasto su ogni testo
+visibile delle tre view invece di campionarlo a occhio in DevTools, naviga con Tab
+verificando il focus outline, controlla `prefers-reduced-motion`, cifre tabulari, nomi
+accessibili, spazio fra le opzioni e che il feedback non passi dal solo colore.
+
+## Due difetti trovati scrivendo l'automazione
+
+**1. La domanda non aveva `tabular-nums`.** Il selettore CSS elencava `.numeric`,
+`.option-btn` e le classi della number line, ma non `#question-text`: le frazioni nella
+domanda — la prima cosa che lo studente legge — erano a larghezza variabile. Risolto
+applicando la proprieta' a `main`, che la eredita a tutto il contenuto, invece di
+inseguire una lista di classi. Il footer resta fuori: e' prosa legale.
+
+**2. Un mio test passava per il motivo sbagliato.** La fase 2 dell'offline test svuotava
+`window.fixtures` per forzare il percorso live slot, ma quello e' solo uno specchio per
+DevTools: la cache vera e' interna al modulo. Il test trovava la fixture e passava senza
+mai esercitare il tier 2. Ora interroga l'explainer con una chiave inesistente e verifica
+che la richiesta a `/complete` sia stata realmente tentata prima del fallback.

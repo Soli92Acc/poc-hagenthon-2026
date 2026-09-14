@@ -1,0 +1,73 @@
+# =============================================================================
+# analytics/rates.yaml — Rate card (hourly costs per human role)
+# =============================================================================
+# EP-009 (Task Analytics & Measurement) — ADR-022 §C
+# Capability: [[task-analytics-cost-estimation-capability]]
+#   wiki/concepts/task-analytics-cost-estimation-capability.md
+#
+# TEMPLATE opt-in (R.P3): this is a *.template. Copy it to
+# `analytics/rates.yaml` and adapt it. Until the non-template file exists and
+# `analytics.measurement.enabled` remains false, nothing is activated (no lint ERROR).
+#
+# Single-writer logical owner: PM/Arch of the derived factory, **manual via PR**.
+#   No framework tool modifies this file at runtime.
+# Readers: compute_human_cost (US-034), data policy (ADR-023) — via the
+#          `cost-and-time-analytics` skill (US-036).
+#
+# Versioning: **git history** is the authoritative history. There is NO internal
+#   `version:` field. Every change = one conventional commit
+#   (e.g. `chore(rates): bump senior-engineer hourly_rate 2026-04-01`).
+#
+# valid_from semi-open on the right (ADR-022 §E): a `rates[]` entry is valid from
+#   its `valid_from` until the **next** entry replaces it. List
+#   sorted ascending by `valid_from`. At least one entry per role.
+#
+# No retroactive edit (ADR-022 §E): do NOT modify a past entry (you would alter
+#   already computed historical costs). To change a rate: append a new entry.
+#
+# PII / actor_id: `actor_id` (real person, e.g. "mario.rossi") does **NOT** live here.
+#   The actor_id → role_id map lives in
+#   `factory.config.yaml.analytics.measurement.actors_map` or in
+#   `analytics/actors.yaml` (opt-in gitignore for GDPR) — see ADR-023 §C/§D.
+#   Here there are only abstract roles and rates (commercial config, no PII).
+# =============================================================================
+
+currency: EUR                          # ISO 4217. Single currency per file (ADR-022 §C). Default EUR.
+
+rate_basis: fully-loaded               # REQUIRED at file level. Values: fully-loaded | bill-rate.
+                                       #   fully-loaded (default) = total internal company cost.
+                                       #   bill-rate = price billed to the client.
+                                       # A factory serving BOTH bases creates two files
+                                       #   (rates-fully-loaded.yaml + rates-bill-rate.yaml) and configures
+                                       #   analytics.measurement.rate_card_path accordingly (ADR-022 §C).
+                                       # rate_basis is documented in every report that uses the rate card (ADR-023).
+
+roles:
+  - id: senior-engineer                # canonical role id: lowercase, kebab-case.
+    display_name: "Senior Software Engineer"
+    aliases:                           # accepted variants, resolved to `id` (same pattern as pricing.yaml).
+      - senior-eng
+      - sr-engineer
+    rates:                             # list sorted asc by valid_from. At least one entry required.
+      - valid_from: 2026-01-01         # ISO-8601 date (YYYY-MM-DD). REQUIRED.
+        hourly_rate: 85.0              # EUR/h, interpreted according to rate_basis (here: fully-loaded).
+      - valid_from: 2026-04-01         # next entry → previous one implicitly becomes valid_to: 2026-03-31.
+        hourly_rate: 90.0
+
+  - id: tech-lead
+    display_name: "Technical Lead"
+    aliases:
+      - tl
+      - lead-engineer
+    rates:
+      - valid_from: 2026-01-01
+        hourly_rate: 110.0
+
+  - id: qa-engineer
+    display_name: "QA Engineer"
+    aliases:
+      - qa-eng
+      - quality-engineer
+    rates:
+      - valid_from: 2026-01-01
+        hourly_rate: 70.0

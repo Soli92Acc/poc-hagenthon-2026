@@ -1,0 +1,168 @@
+# =============================================================================
+# analytics/pricing.yaml — Pricing table (LLM model costs + deterministic tools)
+# =============================================================================
+# EP-009 (Task Analytics & Measurement) — ADR-022 §B
+# Capability: [[task-analytics-cost-estimation-capability]]
+#   wiki/concepts/task-analytics-cost-estimation-capability.md
+#
+# TEMPLATE opt-in (R.P3): this is a *.template. Copy it to
+# `analytics/pricing.yaml` and adapt it. Until the non-template file exists and
+# `analytics.measurement.enabled` remains false, nothing is activated (no lint ERROR).
+#
+# Single-writer logical owner: PM/Arch of the derived factory, **manual via PR**.
+#   No framework tool modifies this file at runtime.
+# Readers: compute_agentic_cost (US-034), build_reference_class (US-041),
+#          report (US-037) — via the `cost-and-time-analytics` skill (US-036).
+#
+# Versioning: **git history** is the authoritative history. There is NO internal
+#   `version:` field. Every change = one conventional commit
+#   (e.g. `chore(pricing): bump claude-opus-4-7 input price 2026-07-01`).
+#
+# INVARIANT — never hardcode prices in tools: cost tools ALWAYS read
+#   from here. An unknown model → fail-loud (see ADR-022 §D / §G), never
+#   silent zero-cost imputation.
+#
+# valid_from semi-open on the right (ADR-022 §E): an entry is valid from its
+#   `valid_from` until the **next** entry replaces it. List
+#   sorted ascending by `valid_from`. At least one entry per model.
+#
+# No retroactive edit (ADR-022 §E): do NOT modify an entry with `valid_from`
+#   in the past (you would alter already computed historical costs). To change price:
+#   append a new entry. For a true anomalous data fix: explicit commit
+#   `fix(pricing): retroactive correction for entry valid_from=YYYY-MM-DD, reason=...`.
+# =============================================================================
+
+currency: EUR                          # ISO 4217. Single currency per file (ADR-022 §B). Default EUR.
+
+models:
+  - id: claude-opus-4-7                # <<model_id>> canonical: lowercase, kebab-case, no dots, no version [brackets].
+    provider: anthropic                # informational; no logic depends on this field.
+    display_name: "Claude Opus 4.7"    # human-readable for reports.
+    aliases:                           # inverse mapping: raw variants accepted in the event, resolved to `id`.
+      - claude-opus-4.7                #   Anthropic SDK format (dots)
+      - claude-opus-4-7[1m]            #   Claude Code format (suffix bracket)
+      - anthropic/claude-opus-4-7      #   OpenRouter format (provider prefix)
+    pricing:                           # list sorted asc by valid_from. At least one entry required.
+      # fix(pricing): retroactive correction for entry valid_from=2026-01-01, reason=previous
+      # values (15/75) not aligned with official Anthropic list price. Opus 4.7 = $5/$25
+      # (same as Opus 4.8). Source: skill claude-api 2026. Also removed fabricated
+      # 2026-07-01 tier (12/60, no known real list price change). Units: USD/1M (see opus-4-8 caveat).
+      - valid_from: 2026-01-01
+        input_per_1m_tokens: 5.0
+        output_per_1m_tokens: 25.0
+        cache_read_per_1m_tokens: 0.5   # 0.1x input
+        cache_write_per_1m_tokens: 6.25 # 1.25x input (5m TTL)
+
+  - id: claude-opus-4-8                # real model for this factory (Claude Code sessions 2026).
+    provider: anthropic
+    display_name: "Claude Opus 4.8"
+    aliases:
+      - claude-opus-4.8                #   Anthropic SDK format (dots)
+      - claude-opus-4-8[1m]            #   Claude Code format (suffix bracket) — appears in transcripts
+      - anthropic/claude-opus-4-8      #   OpenRouter format (provider prefix)
+    pricing:
+      - valid_from: 2026-01-01
+        # OFFICIAL ANTHROPIC LIST PRICES (USD per 1M tokens), source: skill claude-api 2026.
+        # NB CURRENCY: rest of file labels fields as "EUR" but opus-4-7 entry above
+        # uses numbers not aligned with real opus-4-7 list price ($5/$25). Here I use official USD values.
+        # If the factory reasons in EUR, maintainer applies exchange rate (human decision, ADR-022 §A).
+        # Cache: read = 0.1x input, write-5m = 1.25x input (standard Anthropic multipliers).
+        # Opus 4.8 = 1M context at standard price (no long-context premium).
+        input_per_1m_tokens: 5.0
+        output_per_1m_tokens: 25.0
+        cache_read_per_1m_tokens: 0.5
+        cache_write_per_1m_tokens: 6.25
+
+  - id: claude-opus-4-6                # Opus 4.6 (active legacy). Official list price = $5/$25.
+    provider: anthropic
+    display_name: "Claude Opus 4.6"
+    aliases:
+      - claude-opus-4.6
+      - claude-opus-4-6[1m]
+      - anthropic/claude-opus-4-6
+    pricing:
+      - valid_from: 2026-01-01         # USD/1M, source skill claude-api. Cache: read 0.1x, write-5m 1.25x.
+        input_per_1m_tokens: 5.0
+        output_per_1m_tokens: 25.0
+        cache_read_per_1m_tokens: 0.5
+        cache_write_per_1m_tokens: 6.25
+
+  - id: claude-fable-5                # Fable 5 (more capable, 2026). Official list price = $10/$50.
+    provider: anthropic
+    display_name: "Claude Fable 5"
+    aliases:
+      - claude-fable.5                #   Anthropic SDK format (dots)
+      - claude-fable-5[1m]            #   Claude Code format (suffix bracket)
+      - anthropic/claude-fable-5      #   OpenRouter format (provider prefix)
+    pricing:
+      - valid_from: "2026-06-15"      # USD/1M, source skill claude-api 2026-06-04.
+        # Cache: read = 0.1x input ($10 × 0.1 = $1.00), write-5m = 1.25x input ($10 × 1.25 = $12.50).
+        input_per_1m_tokens: 10.0
+        output_per_1m_tokens: 50.0
+        cache_read_per_1m_tokens: 1.0
+        cache_write_per_1m_tokens: 12.5
+
+  - id: claude-sonnet-4-6             # Sonnet 4.6 (current). Official list price = $3/$15.
+    provider: anthropic
+    display_name: "Claude Sonnet 4.6"
+    aliases:
+      - claude-sonnet-4.6
+      - claude-sonnet-4-6[1m]         #   Claude Code format (suffix bracket)
+      - anthropic/claude-sonnet-4-6
+    pricing:
+      - valid_from: 2026-01-01         # USD/1M, source skill claude-api. Cache: read 0.1x, write-5m 1.25x.
+        input_per_1m_tokens: 3.0
+        output_per_1m_tokens: 15.0
+        cache_read_per_1m_tokens: 0.3
+        cache_write_per_1m_tokens: 3.75
+
+  - id: claude-haiku-4-5              # Haiku 4.5 (current). Official list price = $1/$5.
+    provider: anthropic
+    display_name: "Claude Haiku 4.5"
+    aliases:
+      - claude-haiku-4.5
+      - claude-haiku-4-5-20251001       # full id (skill models table)
+      - anthropic/claude-haiku-4-5
+    pricing:
+      - valid_from: 2026-01-01         # USD/1M, source skill claude-api. Cache: read 0.1x, write-5m 1.25x.
+        input_per_1m_tokens: 1.0
+        output_per_1m_tokens: 5.0
+        cache_read_per_1m_tokens: 0.1
+        cache_write_per_1m_tokens: 1.25
+
+  - id: claude-sonnet-4                # example model (Sonnet 4.0, historical). $3/$15 — correct.
+    provider: anthropic
+    display_name: "Claude Sonnet 4"
+    aliases:
+      - claude-sonnet-4.0
+      - anthropic/claude-sonnet-4
+    pricing:
+      - valid_from: 2026-01-01
+        input_per_1m_tokens: 3.0
+        output_per_1m_tokens: 15.0
+        cache_read_per_1m_tokens: 0.3
+        cache_write_per_1m_tokens: 3.75
+
+  - id: gpt-4-1                        # third example model (different provider).
+    provider: openai
+    display_name: "GPT-4.1"
+    aliases:
+      - gpt-4.1
+      - openai/gpt-4.1
+    pricing:
+      - valid_from: 2026-01-01
+        input_per_1m_tokens: 10.0
+        output_per_1m_tokens: 30.0
+        # cache_*_per_1m_tokens omitted = 0: absence means "no cache pricing" for the provider (ADR-022 §B).
+
+tools:                                 # priced deterministic tools (e.g. axe scan, Figma API). Optional section.
+  - name: run_a11y_scan                # tool name as it appears in event.tool_calls[].name.
+    cost_unit: scan                    # informational (matches tool_calls[].cost_unit).
+    pricing:
+      - valid_from: 2026-01-01
+        price_per_unit: 0.0            # default open-source (axe). Can be >0 for paid integrations.
+  - name: figma_api_call
+    cost_unit: call
+    pricing:
+      - valid_from: 2026-01-01
+        price_per_unit: 0.001          # EUR per API call.

@@ -156,19 +156,13 @@ bash app/tests/run-all.sh --live       # + live slot reale (COSTA 1 richiesta Op
 
 Le tre suite browser richiedono Playwright/Chromium; senza, si usa `--quick`.
 
-> **Stato al 2026-09-14: 4 suite su 8 verdi.** Il working tree è a metà di un refactor —
-> il curriculum di produzione è passato da 3 a 7 esercizi e tre suite non lo hanno seguito.
+> **Stato al 2026-09-14: 8 suite su 8 verdi**, live slot escluso.
 >
-> - `offline-check.mjs`, `browser-e2e.mjs`, `offline-browser.mjs` — stessa causa: avanzano
->   di un solo `nextStep()` dando per scontato che l'esercizio di verifica sia il terzo.
->   Con 7 esercizi non lo raggiungono più, quindi riportano *"Transfer non affrontato"*,
->   *"la sessione non si chiude"*, *"la number line è visibile sul transfer"*. Sono test
->   fermi al curriculum vecchio, non regressioni del prodotto: il flusso equivalente è
->   verde in `e2e.mjs` su entrambi i curriculum.
-> - `a11y-gate.mjs` — questo è un difetto reale: nella vista docente il paragrafo *"Report
->   al termine della sessione"* ([`app/app.js:653`](app/app.js#L653), `text-gray-500`) è a
->   **4.27:1** contro il minimo AA di 4.5:1. Va portato su un token del design system
->   (`--ink-soft`, 7:1) invece che su una utility Tailwind.
+> Ci si è arrivati nell'ultimo giro. Il curriculum di produzione è passato da 3 a 7
+> esercizi e per un po' quattro suite sono state rosse: tre perché avanzavano a passo
+> fisso dando per scontato che l'esercizio di verifica fosse il terzo, una perché il
+> contrasto del paragrafo *"Report al termine della sessione"* in vista docente stava a
+> 4.27:1 contro il minimo AA di 4.5:1. Entrambe le cose sono chiuse.
 
 ## Deliverable e documentazione
 

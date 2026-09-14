@@ -181,5 +181,20 @@ fonte è il verbale stesso. Nessun check confronta il contenuto di un decision r
 il codice che quel record ha generato. Il difetto non è che il verbale sia fuori
 perimetro — è che l'unico perimetro che lo tocca non fa la domanda giusta.
 
+**La capability adiacente esiste e non copre il caso.** Va detto esplicitamente,
+altrimenti il primo che rilegge accende `wiki_lint.semantic_check` convinto di aver
+risolto. Verificato su `.claude/skills/lint-checks-wiki-structure.md`:
+
+| Check | Cosa misura | Perché non vede questo difetto |
+|---|---|---|
+| **4ag** — staleness (always-on, WARNING) | **età** della pagina (soglie 180/365 giorni) | Il verbale ha un giorno. Sul contenuto non dice nulla. L'unico segnale che può emettere su questo file è `MISSING-DATE` (il frontmatter ha `started_at` ma non `created:`/`updated:`) — igiene dei metadati, non il fatto che nomini un modello morto. |
+| **4af** — embedding similarity (opt-in, INFO, mai gate) | deriva della pagina rispetto a **`PATTERN.md`** | Due motivi indipendenti: (a) salta in silenzio ogni pagina senza `pattern_section:` nel frontmatter, e il verbale non ce l'ha; (b) anche se ce l'avesse, confronta wiki ↔ meta-pattern, non wiki ↔ codice. |
+
+Il punto non è la configurazione: è la **direzione**. Il drift detection di questa
+factory misura wiki contro PATTERN. Il difetto qui vive sull'asse wiki contro `app/`,
+che nessuno strumento percorre. Accendere `semantic_check` non lo troverebbe.
+
+[^src: `.claude/skills/lint-checks-wiki-structure.md` §Check 4ag §Check 4af — verificato 2026-09-14; segnalazione iniziale da `poc-hagenthon-2026-dc`]
+
 **Resta aperto (maintainer):** ri-pinnare il modello in G_001 + runbook e sostituire il
 fallback array, di cui due anelli su tre sono noti non funzionanti.

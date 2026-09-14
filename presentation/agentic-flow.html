@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>NumeriMiei — Agentic Framework Flow</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:"Segoe UI",Arial,sans-serif;
+      background:#f0f4f8;
+      min-height:100vh;
+      display:flex;flex-direction:column;align-items:center;
+      padding:40px 24px 64px;
+    }
+    header{
+      width:100%;max-width:1060px;
+      display:flex;align-items:center;gap:18px;
+      margin-bottom:32px;
+    }
+    .bar{width:5px;height:58px;background:#0041F0;border-radius:3px;flex-shrink:0}
+    .ht h1{font-size:22px;font-weight:700;color:#0041F0;letter-spacing:-.3px}
+    .ht p {font-size:12px;color:#64748b;margin-top:3px}
+    .badge{
+      margin-left:auto;background:#EFF6FF;border:1.5px solid #0041F0;
+      color:#0041F0;font-size:11px;font-weight:700;padding:5px 14px;
+      border-radius:20px;letter-spacing:.7px;white-space:nowrap;
+    }
+    .card{
+      width:100%;max-width:1060px;
+      background:#fff;border-radius:14px;
+      border:1px solid #dde4ef;
+      box-shadow:0 4px 28px rgba(0,65,240,.07);
+      padding:32px 28px 36px;
+      margin-bottom:28px;
+      overflow-x:auto;
+    }
+    .clabel{
+      font-size:11px;font-weight:700;letter-spacing:1.3px;
+      text-transform:uppercase;color:#94a3b8;margin-bottom:24px;
+    }
+    #diagram{display:flex;justify-content:center}
+    .legend{
+      width:100%;max-width:1060px;
+      display:flex;flex-wrap:wrap;gap:10px;
+    }
+    .li{
+      display:flex;align-items:center;gap:8px;
+      background:#fff;border:1px solid #dde4ef;border-radius:8px;
+      padding:8px 14px;font-size:12px;color:#475569;
+    }
+    .ld{width:14px;height:14px;border-radius:3px;flex-shrink:0}
+    .la{background:#0041F0}
+    .ll{background:#fff;border:2px solid #0041F0}
+    .lg{background:#003087}
+    .lr{background:#F1F5F9;border:1.5px dashed #94a3b8}
+    .ls{background:#EFF6FF;border:1.5px solid #0041F0}
+    footer{margin-top:32px;font-size:11px;color:#94a3b8;text-align:center}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="bar"></div>
+  <div class="ht">
+    <h1>NumeriMiei — Agentic Framework Flow</h1>
+    <p>Hagenthon 2026 · Soli Multi-Agents Factory v2.42 · Processo di sviluppo L1 → L5</p>
+  </div>
+  <span class="badge">SVILUPPO AGENTICO</span>
+</header>
+
+<div class="card">
+  <div class="clabel">Cascade L1 raw → L5 codice · agenti AI · gate di qualità</div>
+  <div id="diagram">
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1560"
+     width="1000" style="max-width:100%;height:auto;display:block">
+
+<defs>
+  <style>text{font-family:"Segoe UI",Arial,sans-serif}</style>
+
+  <!-- arrowhead blue -->
+  <marker id="a" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+    <polygon points="0 0,9 3.5,0 7" fill="#0041F0"/>
+  </marker>
+  <!-- arrowhead dark-blue -->
+  <marker id="ad" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+    <polygon points="0 0,9 3.5,0 7" fill="#003087"/>
+  </marker>
+
+  <!-- agent glow -->
+  <filter id="glow" x="-8%" y="-8%" width="116%" height="130%">
+    <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0041F0" flood-opacity="0.18"/>
+  </filter>
+  <!-- card shadow -->
+  <filter id="card" x="-4%" y="-4%" width="108%" height="115%">
+    <feDropShadow dx="0" dy="3" stdDeviation="8" flood-color="#0041F0" flood-opacity="0.07"/>
+  </filter>
+</defs>
+
+<!-- ══════════════════════════════════════════════════
+     BACKGROUNDS (drawn first, behind everything)
+══════════════════════════════════════════════════ -->
+
+<!-- Tavola Rotonda subgraph -->
+<rect x="20" y="112" width="960" height="222" rx="12"
+      fill="#EFF6FF" stroke="#0041F0" stroke-width="1.5" filter="url(#card)"/>
+
+<!-- Parallel subgraph -->
+<rect x="20" y="974" width="960" height="236" rx="12"
+      fill="#EFF6FF" stroke="#0041F0" stroke-width="1.5" filter="url(#card)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     CONNECTOR LINES (behind nodes, in front of backgrounds)
+══════════════════════════════════════════════════ -->
+
+<!-- RAW → ANALYST  (left-side bypass, dashed) -->
+<path d="M 300 56 L 8 56 L 8 379 L 380 379"
+      stroke="#0041F0" stroke-width="1.5" stroke-dasharray="5 4"
+      fill="none" marker-end="url(#a)"/>
+
+<!-- TR internal: agent bottom → collection bar y=218 -->
+<line x1="123" y1="200" x2="123" y2="218" stroke="#0041F0" stroke-width="1.3"/>
+<line x1="325" y1="200" x2="325" y2="218" stroke="#0041F0" stroke-width="1.3"/>
+<line x1="527" y1="200" x2="527" y2="218" stroke="#0041F0" stroke-width="1.3"/>
+<line x1="741" y1="200" x2="741" y2="218" stroke="#0041F0" stroke-width="1.3"/>
+<!-- collection bar -->
+<line x1="123" y1="218" x2="741" y2="218" stroke="#0041F0" stroke-width="1.3"/>
+<!-- bar → BB -->
+<line x1="500" y1="218" x2="500" y2="232" stroke="#0041F0" stroke-width="1.5" marker-end="url(#a)"/>
+
+<!-- BB → ANALYST (straight down) -->
+<line x1="500" y1="288" x2="500" y2="350" stroke="#0041F0" stroke-width="1.5" marker-end="url(#a)"/>
+
+<!-- main cascade arrows -->
+<line x1="500" y1="408" x2="500" y2="428" stroke="#0041F0" stroke-width="1.5" marker-end="url(#a)"/>
+<line x1="500" y1="486" x2="500" y2="506" stroke="#0041F0" stroke-width="1.5" marker-end="url(#a)"/>
+<line x1="500" y1="564" x2="500" y2="582" stroke="#0041F0" stroke-width="1.5" marker-end="url(#a)"/>
+<line x1="500" y1="648" x2="500" y2="668" stroke="#0041F0" stroke-width="1.5" marker-end="url(#a)"/>
+<line x1="500" y1="726" x2="500" y2="744" stroke="#0041F0" stroke-width="1.5" marker-end="url(#a)"/>
+<line x1="500" y1="802" x2="500" y2="820" stroke="#0041F0" stroke-width="1.5" marker-end="url(#a)"/>
+<line x1="500" y1="878" x2="500" y2="896" stroke="#0041F0" stroke-width="1.5" marker-end="url(#a)"/>
+
+<!-- TASKS → PA (left branch) -->
+<path d="M 360 956 L 360 992 L 251 992 L 251 1012"
+      stroke="#0041F0" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+<!-- TASKS → PB (right branch) -->
+<path d="M 640 956 L 640 992 L 749 992 L 749 1012"
+      stroke="#0041F0" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+
+<!-- PA → CODE -->
+<line x1="251" y1="1162" x2="251" y2="1232" stroke="#0041F0" stroke-width="1.5" marker-end="url(#a)"/>
+<!-- PB → CODE -->
+<line x1="749" y1="1162" x2="749" y2="1232" stroke="#0041F0" stroke-width="1.5" marker-end="url(#a)"/>
+
+<!-- CODE → REVIEWER → GONOGO → DEMO -->
+<line x1="500" y1="1298" x2="500" y2="1318" stroke="#0041F0" stroke-width="1.5" marker-end="url(#a)"/>
+<line x1="500" y1="1376" x2="500" y2="1394" stroke="#0041F0" stroke-width="1.5" marker-end="url(#a)"/>
+<line x1="500" y1="1454" x2="500" y2="1472" stroke="#003087" stroke-width="2" marker-end="url(#ad)"/>
+
+
+<!-- ══════════════════════════════════════════════════
+     NODES
+══════════════════════════════════════════════════ -->
+
+<!-- ── INPUT RAW ── -->
+<rect x="300" y="28" width="400" height="56" rx="8"
+      fill="#F1F5F9" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 3"/>
+<rect x="648" y="34" width="26" height="18" rx="4" fill="#e2e8f0"/>
+<text x="661" y="47" text-anchor="middle" font-size="9" font-weight="700" fill="#64748b">L1</text>
+<text x="500" y="52" text-anchor="middle" font-size="11" font-weight="700" fill="#64748b">📁  INPUT RAW</text>
+<text x="500" y="70" text-anchor="middle" font-size="10" fill="#94a3b8">Temi sfida · Ricerca OpenRouter · Requisiti demo</text>
+
+
+<!-- ── TAVOLA ROTONDA label ── -->
+<text x="36" y="134" font-size="11" font-weight="700" fill="#003087" letter-spacing=".4">
+  🔄  TAVOLA ROTONDA — scelta tema  (EP-039)
+</text>
+
+<!-- PM_TR -->
+<rect x="30" y="148" width="186" height="52" rx="8" fill="#0041F0" filter="url(#glow)"/>
+<text x="123" y="172" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">product-manager</text>
+<text x="123" y="190" text-anchor="middle" font-size="10" fill="#c7d7ff">PM</text>
+
+<!-- Tutor -->
+<rect x="232" y="148" width="186" height="52" rx="8" fill="#0041F0" filter="url(#glow)"/>
+<text x="325" y="172" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">tutor</text>
+<text x="325" y="190" text-anchor="middle" font-size="10" fill="#c7d7ff">pedagogista</text>
+
+<!-- A11Y -->
+<rect x="434" y="148" width="186" height="52" rx="8" fill="#0041F0" filter="url(#glow)"/>
+<text x="527" y="172" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">a11y-specialist</text>
+<text x="527" y="190" text-anchor="middle" font-size="10" fill="#c7d7ff">accessibilità</text>
+
+<!-- Arch (critico) -->
+<rect x="636" y="148" width="210" height="52" rx="8" fill="#0041F0" filter="url(#glow)"/>
+<text x="741" y="170" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">lead-architect</text>
+<text x="741" y="188" text-anchor="middle" font-size="10" fill="#c7d7ff">⚔️ critico anti-compiacenza</text>
+
+<!-- BB – Blackboard -->
+<rect x="348" y="232" width="304" height="56" rx="8"
+      fill="#fff" stroke="#0041F0" stroke-width="2"/>
+<text x="500" y="254" text-anchor="middle" font-size="11" font-weight="700" fill="#0041F0">📋  Blackboard</text>
+<text x="500" y="272" text-anchor="middle" font-size="10.5" fill="#64748b">wiki/decisions/</text>
+
+<!-- label on BB→ANALYST arrow -->
+<rect x="365" y="296" width="270" height="26" rx="5" fill="#EFF6FF" stroke="#0041F0" stroke-width="1"/>
+<text x="500" y="313" text-anchor="middle" font-size="10.5" font-weight="600" fill="#0041F0">
+  Tema 03 — discalculia  ✅  verdetto unanime
+</text>
+
+
+<!-- ── ANALYST ── -->
+<rect x="380" y="350" width="240" height="58" rx="8" fill="#0041F0" filter="url(#glow)"/>
+<text x="500" y="375" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">🤖  Analyst</text>
+<text x="500" y="394" text-anchor="middle" font-size="10.5" fill="#c7d7ff">wiki-keeper</text>
+
+
+<!-- ── WIKI ── -->
+<rect x="288" y="428" width="424" height="58" rx="8"
+      fill="#fff" stroke="#0041F0" stroke-width="2"/>
+<rect x="672" y="434" width="28" height="18" rx="4" fill="#DBEAFE"/>
+<text x="686" y="447" text-anchor="middle" font-size="9" font-weight="700" fill="#1D4ED8">L2</text>
+<text x="500" y="452" text-anchor="middle" font-size="12" font-weight="700" fill="#0041F0">📁  wiki/</text>
+<text x="500" y="470" text-anchor="middle" font-size="10.5" fill="#64748b">Concetti · Fonti · Sintesi</text>
+
+
+<!-- ── PM ── -->
+<rect x="380" y="506" width="240" height="58" rx="8" fill="#0041F0" filter="url(#glow)"/>
+<text x="500" y="531" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">🤖  PM</text>
+<text x="500" y="550" text-anchor="middle" font-size="10.5" fill="#c7d7ff">product-manager</text>
+
+
+<!-- ── MGMT ── -->
+<rect x="188" y="582" width="624" height="66" rx="8"
+      fill="#fff" stroke="#0041F0" stroke-width="2"/>
+<rect x="770" y="588" width="28" height="18" rx="4" fill="#DBEAFE"/>
+<text x="784" y="601" text-anchor="middle" font-size="9" font-weight="700" fill="#1D4ED8">L3</text>
+<text x="500" y="606" text-anchor="middle" font-size="12" font-weight="700" fill="#0041F0">📁  management/</text>
+<text x="500" y="623" text-anchor="middle" font-size="10.5" fill="#64748b">Roadmap · Epiche · User Stories</text>
+<text x="500" y="639" text-anchor="middle" font-size="10" fill="#94a3b8">240 min sviluppo · 45 min demo prep</text>
+
+
+<!-- ── ARCHITECT ── -->
+<rect x="380" y="668" width="240" height="58" rx="8" fill="#0041F0" filter="url(#glow)"/>
+<text x="500" y="693" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">🤖  Architect</text>
+<text x="500" y="712" text-anchor="middle" font-size="10.5" fill="#c7d7ff">lead-architect</text>
+
+
+<!-- ── DESIGN ── -->
+<rect x="188" y="744" width="624" height="58" rx="8"
+      fill="#fff" stroke="#0041F0" stroke-width="2"/>
+<rect x="770" y="750" width="28" height="18" rx="4" fill="#DBEAFE"/>
+<text x="784" y="763" text-anchor="middle" font-size="9" font-weight="700" fill="#1D4ED8">L4</text>
+<text x="500" y="767" text-anchor="middle" font-size="12" font-weight="700" fill="#0041F0">📁  design &amp; architecture/</text>
+<text x="500" y="786" text-anchor="middle" font-size="10.5" fill="#64748b">ADR · Contratti CT-1 / CT-2 · schema curriculum · blackboard format</text>
+
+
+<!-- ── TPM ── -->
+<rect x="380" y="820" width="240" height="58" rx="8" fill="#0041F0" filter="url(#glow)"/>
+<text x="500" y="845" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">🤖  TPM</text>
+<text x="500" y="864" text-anchor="middle" font-size="10.5" fill="#c7d7ff">technical program manager</text>
+
+
+<!-- ── TASKS ── -->
+<rect x="188" y="896" width="624" height="60" rx="8"
+      fill="#fff" stroke="#0041F0" stroke-width="2"/>
+<rect x="770" y="902" width="28" height="18" rx="4" fill="#DBEAFE"/>
+<text x="784" y="915" text-anchor="middle" font-size="9" font-weight="700" fill="#1D4ED8">L4</text>
+<text x="500" y="920" text-anchor="middle" font-size="12" font-weight="700" fill="#0041F0">📁  management/kanban/</text>
+<text x="500" y="939" text-anchor="middle" font-size="10.5" fill="#64748b">TSK-001 … TSK-025  ·  2 code_path: numerimiei ∥ presentation</text>
+
+
+<!-- ── PARALLEL label ── -->
+<text x="36" y="996" font-size="11" font-weight="700" fill="#003087" letter-spacing=".4">
+  ⚡  SVILUPPO PARALLELO — split per file, non per task
+</text>
+
+<!-- PA -->
+<rect x="36" y="1012" width="430" height="150" rx="8" fill="#0041F0" filter="url(#glow)"/>
+<text x="251" y="1040" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">🤖  Dev P-A</text>
+<text x="251" y="1058" text-anchor="middle" font-size="10.5" fill="#c7d7ff">be-dev + qa-dev</text>
+<line x1="56" y1="1066" x2="446" y2="1066" stroke="#60a5fa" stroke-width=".5" opacity=".35"/>
+<text x="251" y="1082" text-anchor="middle" font-size="10" fill="#93c5fd">proxy OpenRouter · engine.js</text>
+<text x="251" y="1098" text-anchor="middle" font-size="10" fill="#93c5fd">explainer.js · router.js · session-report.js</text>
+<text x="251" y="1114" text-anchor="middle" font-size="10" fill="#93c5fd">fixtures · remediation-prompt.js</text>
+<text x="251" y="1130" text-anchor="middle" font-size="10" fill="#93c5fd">test suite: E2E · content-gate · clinical-gate</text>
+<line x1="56" y1="1140" x2="446" y2="1140" stroke="#60a5fa" stroke-width=".5" opacity=".35"/>
+<text x="251" y="1154" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fbbf24">32/32 E2E PASS · 72/72 content PASS</text>
+
+<!-- PB -->
+<rect x="534" y="1012" width="430" height="150" rx="8" fill="#0041F0" filter="url(#glow)"/>
+<text x="749" y="1040" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">🤖  Dev P-B</text>
+<text x="749" y="1058" text-anchor="middle" font-size="10.5" fill="#c7d7ff">fe-dev</text>
+<line x1="554" y1="1066" x2="944" y2="1066" stroke="#60a5fa" stroke-width=".5" opacity=".35"/>
+<text x="749" y="1082" text-anchor="middle" font-size="10" fill="#93c5fd">index.html · app.js</text>
+<text x="749" y="1098" text-anchor="middle" font-size="10" fill="#93c5fd">curriculum-discalculia.json</text>
+<text x="749" y="1114" text-anchor="middle" font-size="10" fill="#93c5fd">a11y WCAG 2.2 AA · transfer item UI</text>
+<text x="749" y="1130" text-anchor="middle" font-size="10" fill="#93c5fd">deck presentazione</text>
+<line x1="554" y1="1140" x2="944" y2="1140" stroke="#60a5fa" stroke-width=".5" opacity=".35"/>
+<text x="749" y="1154" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fbbf24">clinical-gate PASS · offline PASS</text>
+
+<!-- ∥ separator label in the gap -->
+<text x="500" y="1096" text-anchor="middle" font-size="28" fill="#0041F0" opacity=".18" font-weight="700">∥</text>
+
+
+<!-- ── CODE ── -->
+<rect x="178" y="1232" width="644" height="66" rx="8"
+      fill="#fff" stroke="#0041F0" stroke-width="2.5"/>
+<rect x="778" y="1238" width="32" height="18" rx="4" fill="#0041F0"/>
+<text x="794" y="1251" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">L5</text>
+<text x="500" y="1256" text-anchor="middle" font-size="12" font-weight="700" fill="#0041F0">📁  app/  —  NumeriMiei</text>
+<text x="500" y="1275" text-anchor="middle" font-size="10.5" fill="#64748b">32/32 E2E PASS · 72/72 content PASS · clinical-gate PASS · offline PASS</text>
+
+
+<!-- ── CODE REVIEWER ── -->
+<rect x="380" y="1318" width="240" height="58" rx="8" fill="#0041F0" filter="url(#glow)"/>
+<text x="500" y="1343" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">🤖  Code Reviewer</text>
+<text x="500" y="1362" text-anchor="middle" font-size="10.5" fill="#c7d7ff">code-quality review</text>
+
+
+<!-- ── GO / NO-GO gate ── -->
+<rect x="208" y="1394" width="584" height="60" rx="10" fill="#003087"/>
+<text x="500" y="1420" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">
+  ✅  Gate GO/NO-GO  ·  @slot 2:25
+</text>
+<text x="500" y="1440" text-anchor="middle" font-size="10.5" fill="#93c5fd">
+  offline PASS  ·  live slot 1.18 s PASS  ·  budget OpenRouter 16 / 50
+</text>
+
+
+<!-- ── DEMO ── -->
+<rect x="338" y="1472" width="324" height="66" rx="33"
+      fill="#0041F0" stroke="#003087" stroke-width="3" filter="url(#glow)"/>
+<text x="500" y="1498" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">🎬  Demo Hagenthon</text>
+<text x="500" y="1518" text-anchor="middle" font-size="10.5" fill="#c7d7ff">Hagenthon 2026</text>
+
+</svg>
+
+  </div>
+</div>
+
+<div class="legend">
+  <div class="li"><div class="ld la"></div>Agente AI</div>
+  <div class="li"><div class="ld ll"></div>Artefatto / Layer</div>
+  <div class="li"><div class="ld lg"></div>Gate di qualità</div>
+  <div class="li"><div class="ld lr"></div>Input raw (immutabile)</div>
+  <div class="li"><div class="ld ls"></div>Sottoprocesso multi-agente</div>
+</div>
+
+<footer>
+  Soli Multi-Agents Factory v2.42 · PATTERN §2 Ruoli · §3 Operazioni · §28 Tavola Rotonda · EP-039 · Hagenthon 2026
+</footer>
+
+</body>
+</html>

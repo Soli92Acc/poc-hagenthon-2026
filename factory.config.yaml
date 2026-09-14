@@ -20,8 +20,22 @@ adapters:
 topology: full-stack-agents
 
 # Code paths ---------------------------------------------------------------
-code_paths: []
-code_path: "."
+code_paths:
+  - name: numerimiei
+    path: app/
+    layers: [fe, be, qa, docs]
+    tags: [poc, hackathon, discalculia]
+    vcs:
+      mode: monorepo
+      branch_strategy: trunk
+      commit_coupling: independent
+  - name: presentation
+    path: presentation/
+    layers: [docs]
+    tags: [deliverable, ppt, documentazione]
+    vcs:
+      mode: none          # R.B6: una sola entry puo' essere monorepo (numerimiei)
+
 vcs:
   mode: monorepo
   branch_awareness:
@@ -72,7 +86,7 @@ code_quality:
 # Compression layer --------------------------------------------------------
 compression:
   output:
-    enabled: false
+    enabled: true
     provider: caveman
     policy_profile: conservative
     decision_anchor:

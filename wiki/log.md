@@ -2,6 +2,119 @@
 
 ---
 
+## 2026-09-14 — Decisioni G_001 e G_002: configurazione modelli e budget OpenRouter
+
+**Operazione:** `decision`
+**Agente:** wiki-keeper
+**Trigger:** Maintainer ha chiuso entrambi i gap aperti
+
+### Decisioni registrate
+
+| Gap | Titolo | Decisione |
+|-----|--------|-----------|
+| G_001 | Scelta modello LLM per la demo | Free-only (vincolato da G_002). Fixtures: `thinkingmachines/inkling-small:free` pinnato. Live slot: array fallback `[inkling-small:free, nemotron-3-super-120b-a12b:free, openrouter/free]`. |
+| G_002 | Caricare $10 di credito | Nessuna ricarica preventiva. Tier free $0. Rischio accettato. Ricarica in-corsa se colpito il tetto. |
+
+**Vincolo incrociato:** G_002 ha ristretto lo spazio di G_001 (modelli a pagamento
+non disponibili → tutto free-only).
+
+### File toccati
+
+| File | Natura modifica |
+|------|----------------|
+| `wiki/gaps.md` | G_001 e G_002 → `status: resolved`, decisione + vincolo incrociato |
+| `wiki/runbooks/openrouter-setup-hagenthon.md` | Sezione "Scelta del modello" annotata come superseded; nuove sezioni "Configurazione modelli vigente" e "Disciplina di budget (6 punti)"; sezione "Rischio rate limit" aggiornata (ricarica preventiva → ricarica in corsa come fallback); checklist: riga `$10 consigliato` sostituita con `nessuna ricarica preventiva` + carta a portata di mano; aggiunte 2 voci mancanti (test structured outputs su modello free pinnato + prima fixture validata a mano prima del batch) |
+| `wiki/concepts/openrouter-gateway.md` | Sezione "Rate Limit" aggiornata con decisione G_002; nuova sezione "Configurazione modelli vigente per NumeriMiei" |
+
+---
+
+## 2026-09-14 — Rettifica ingest: DigiStep → NumeriMiei (Round 2 re-scoping)
+
+**Operazione:** `correction`
+**Agente:** wiki-keeper
+**Trigger:** Segnalazione coordinatore — contesto di progetto passato all'ingest era
+obsoleto (fermo al Round 1). La sessione tavola rotonda `e3f2a1b4` ha avuto un Round 2
+di re-scoping DSA/discalculia che ha sostituito il prodotto "DigiStep" con "NumeriMiei".
+
+**Motivo:** 12 occorrenze di "DigiStep" nelle pagine create dall'ingest precedente;
+zero occorrenze di "NumeriMiei". Il contesto del coordinatore descriveva il Round 1
+(Mario, upload PDF) senza menzionare il Round 2 vigente (Luca, discalculia, frazioni).
+
+### File toccati e righe modificate
+
+| File | Tipo modifica | Righe |
+|------|--------------|-------|
+| `wiki/sources/openrouter-research.md` | Rename 2× `DigiStep` → `NumeriMiei` (abstract riga 13 e riga 21) — file omesso dalla lista originale del coordinatore, allineato in rettifica successiva | 13, 21 |
+| `wiki/concepts/openrouter-gateway.md` | Rename 2× `DigiStep` → `NumeriMiei` | 17, 44 |
+| `wiki/runbooks/openrouter-setup-hagenthon.md` | Rename 3× `DigiStep` → `NumeriMiei` (title frontmatter, H1, corpo testo); `X-OpenRouter-Title` → `"NumeriMiei"`; schema D3 ricalibrato su misconcepto matematico discalculia + constraint no-clinical + chiave composta `{step_id}-{level}-{misconcept_id}` | 2, 10, 13, 94, 118–156 |
+| `wiki/concepts/educazione-digitale-inclusiva.md` | Sezione `## Aggiornamenti` riscritta: Round 2 vigente (NumeriMiei, Luca, discalculia, 3 audience, chiave fixtures) dichiarato esplicitamente; Round 1 superseded | 82–115 |
+| `wiki/syntheses/hagenthon-2026-overview.md` | Sezione `### Tema scelto e nome prodotto`: due round descritti, Round 1 superseded, Round 2 vigente (NumeriMiei) | 61–72 |
+| `wiki/index.md` | Descrizione runbook: `DigiStep` → `NumeriMiei` | 23 |
+
+### Nota merito — schema D3 aggiornato
+
+Il campo `headline` ora specifica che nomina il misconcepto matematico rilevato (non
+una frase generica); `spiegazione` è 40-50 parole; `analogia` è calibrata al livello
+PDP (L1 = linea dei numeri + blocchi base-10 ≤20; L2 = decomposizione parziale ≤100).
+Aggiunto il constraint sul testo fixture: nessun vocabolario clinico/riabilitativo,
+presidiato da `data/clinical-denylist.json` lato rendering.
+
+### Contenuto tecnico OpenRouter invariato
+
+Endpoint, auth, rate limit, structured outputs, model fallback, proxy Python, costi:
+non toccati. Corretti solo i riferimenti al prodotto e il domain-specific dello schema.
+
+---
+
+## 2026-09-14 — Ingest: OpenRouter ricerca operativa (Hagenthon 2026)
+
+**Operazione:** `ingest`
+**Agente:** wiki-keeper
+**Sorgente:** `raw/2026-09-14-openrouter-research.md`
+**Trigger:** Richiesta esplicita ingest file raw
+**Ramo:** seriale (N=1)
+
+### Pagine create
+
+| Path | Tipo | Status |
+|------|------|--------|
+| `wiki/sources/openrouter-research.md` | source | approved |
+| `wiki/concepts/openrouter-gateway.md` | concept | approved |
+| `wiki/runbooks/openrouter-setup-hagenthon.md` | runbook | approved |
+| `wiki/index.md` | meta | rigenerato |
+
+### Pagine aggiornate
+
+| Path | Natura del delta |
+|------|-----------------|
+| `wiki/concepts/educazione-digitale-inclusiva.md` | Sezione `## Aggiornamenti (v2026-09-14)`: provider LLM (OpenRouter), dipendenze D1/D2/D3, gap G_001/G_002, link a runbook e concept |
+| `wiki/syntheses/hagenthon-2026-overview.md` | Sezione `## Aggiornamenti (v2026-09-14)`: tema scelto (DigiStep), stack LLM OpenRouter, link runbook e concept |
+| `wiki/gaps.md` | Apertura G_001 (scelta modello LLM per demo) e G_002 (carica credito $10) |
+
+### Gap aperti in questa sessione
+
+| ID | Titolo | Blocking |
+|----|--------|----------|
+| G_001 | Scelta definitiva del modello LLM per la demo | no |
+| G_002 | Decisione di caricare $10 di credito su OpenRouter | no |
+
+### Note
+
+Nessuna contraddizione con pagine esistenti. Il documento è coerente con le decisioni
+della tavola rotonda `e3f2a1b4` (piano B LLM, proxy, D1/D2/D3). Prima directory
+`wiki/runbooks/` creata in questo ingest.
+
+---
+
+## 2026-09-14 — Sessione Tavola Rotonda Round 2: Re-scoping PoC Hagenthon su supporto DSA
+
+**entry_type:** develop
+**agent:** tavola-rotonda-moderatore
+**artifact:** `wiki/decisions/tavola-rotonda-e3f2a1b4-7c5d-4e8f-9a0b-2d6c3f1e4b7a-2026-09-14.md`
+**note:** "Round 2 terminato. Motivo: consenso (Fase 3 Round 1, tutti i PA risolti). Round R2: 1 round di convergenza. Accordi R2 congelati: 3 (discalculia+prodotto, feature 4h dev, a11y must-have). Dissensi: 0 residui (a11y-specialist aggiornata da dislessia a discalculia in Fase 2). Prodotto: NumeriMiei — coach di calcolo per studente con discalculia certificata. Stack: HTML+Tailwind CDN+JS vanilla. Deliverable: LPS Luca + AE denominator_magnitude + LO transfer task scaffold-fading."
+
+---
+
 ## 2026-09-14 — Sessione Tavola Rotonda: Hagenthon 2026 tema e web app
 
 **entry_type:** develop

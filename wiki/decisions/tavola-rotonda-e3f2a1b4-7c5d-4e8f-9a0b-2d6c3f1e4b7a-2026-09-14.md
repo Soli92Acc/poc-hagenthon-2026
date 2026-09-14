@@ -366,3 +366,553 @@ Il piano B LLM (DEMO_MODE + fixtures.json) è stato trasformato da "rete di sicu
 - [x] Piano operativo 4h con slot e checkpoint go/no-go: SODDISFATTO (tabella slot + GO/NO-GO a 2:30h con 3 scenari)
 - [x] Top 3-5 rischi con mitigazione: SODDISFATTO (5 rischi, inclusi 2 di squalifica)
 - [x] Punti Aperti residui: SODDISFATTO (nessun PA aperto)
+
+---
+
+## ROUND 2 — RE-SCOPING DSA
+
+*Sessione avviata 2026-09-14T14:00:00Z — Moderatore: tavola-rotonda-moderatore*
+*Parametri: topic "Re-scoping PoC Hagenthon su supporto DSA: 3 audience, 4-5 feature, 4h dev pure" | max_round: 2 | budget: 4.00 USD | Critico: lead-architect*
+*Cosa resta immutabile dal Round 1: verdetto Tema 03, divieti, piano B LLM, zero DB/auth, stack HTML+Tailwind+JS, solo MCQ, capability = misconcepto targeting (chiave composta).*
+*Cosa cambia: dominio DSA (dislessia o discalculia), 3 audience (docenti/genitori/studenti), 4h dev pure (45 min demo separati), 4-5 feature, scalabilità come criterio.*
+
+### Posizioni Fase 1 — Round 2
+
+### product-manager — 2026-09-14T14:08:00Z
+
+**Scelta: DISCALCULIA.**
+
+La capability irriducibile del Round 1 era la tripletta (step_id, level, distractor_id) → LLM targettizza il misconcepto specifico. Per la discalculia il distractor è un numero: lo studente che sceglie 46 invece di 55 su "34 + 21 = ?" rivela il misconcepto "posizionamento valore", mappabile con precisione. La chiave composta produce spiegazioni qualitativamente diverse per ogni errore. La giuria può chiedere "cambia distractor" e verificare in 10 secondi.
+
+Con la dislessia, il mapping distractor→misconcepto in MCQ-only è diffuso: lo studente può aver sbagliato per decodifica fallita, working memory o inferenza errata — indistinguibili. La capability collassa in "riscrittura generica" esattamente come il fallimento critico identificato nel Round 1. In più, gli strumenti di supporto per dislessia (TTS, font) sono già nei sistemi operativi — una demo hackathon rischia di reinventare l'accessibilità di base.
+
+**Scarto esplicito della dislessia:** TTS è la compensazione primaria e il suo time-sink è enorme; mapping distractor→misconcepto diffuso; contenuto più soggettivo.
+
+**Nome prodotto: "NumeriMiei" — Coach di calcolo che spiega l'errore giusto allo studente con discalculia.**
+
+**Tre audience:**
+- STUDENTE (primaria): sequenza esercizi MCQ discalculia, una sola operazione per schermata. Se sbaglia: headline che nomina il misconcepto rilevato + spiegazione 40-50 parole + pulsante Riprova. Audience non riducibile.
+- DOCENTE (configurazione + monitoraggio): seleziona livello PDP dello studente (L1/L2/L3 — già certificato clinicamente, NON assegnato dal sistema). Report post-sessione con lista misconcepit rilevati e frequenza. Gate clinico: il sistema non assegna mai il livello autonomamente. Copy: "Seleziona il livello indicato nel PDP del tuo studente."
+- GENITORE (informativa — audience ridotta dichiarata): schermata read-only, riepilogo plain-language. Dati dal medesimo localStorage della sessione studente. 20-25 minuti implementazione. Primo taglio al checkpoint 2:30h se in rosso.
+
+**Le 5 feature (P0/P1/P2):**
+- F1 — Configurazione PDP docente: docente seleziona livello da menu (3 opzioni), sistema carica esercizi calibrati. 20 min. P0.
+- F2 — Engine MCQ con misconcepto targeting (CORE — capability irriducibile): 3-4 opzioni, ogni opzione errata corrisponde a misconcepto categorizzato in content JSON, tripletta step/level/distractor. 75 min incluso content JSON. P0.
+- F3 — Spiegazione adattiva LLM-driven: chiave composta → fixtures.json → live slot per 1 distractor non in fixtures. Headline descrive il misconcepto, testo 50 parole max. 45 min. P0.
+- F4 — Report post-sessione docente: tentativi, step, lista misconcepit. Da localStorage, zero API. 35 min. P1.
+- F5 — Scheda genitore plain-language: traduce report in frasi comuni. 20 min. P2 — primo taglio.
+
+**Demo narrative:** Il filo è il percorso di Luca visto da tre angoli. 0:00-0:30 docente configura L1. 0:30-1:45 Luca sbaglia ("46") → headline misconcepto → spiegazione → riprova → avanza; biforcazione visibile L1 vs L2. 1:45-2:15 report docente + scheda genitore. 2:15-3:00 live probe: distractor non in fixtures → LLM live → spiegazione nuova. Le tre audience condividono lo stesso stato localStorage → non sembrano tre app ma tre lenti sullo stesso percorso.
+
+**Difesa "3 audience in 4h":** La view docente è architetturalmente necessaria (è il gate clinico — senza di essa il sistema deve assegnare il livello autonomamente, che è screening). Costo audience secondarie: 75 min totali. L'80% del tempo va alla capability core. La view genitore (P2) è il primo taglio.
+
+**Confine clinico nel prodotto:** (a) zero path nel codice che calcola pdpLevel dalla performance — single-writer invariant sulla form docente; (b) feedback riferisce sempre all'errore matematico, mai al profilo clinico; (c) no output con "questo suggerisce difficoltà di livello X"; (d) dopo 3 tentativi falliti sullo stesso punto: "Questo esercizio è meglio affrontarlo con il tuo insegnante"; (e) footer permanente: "NumeriMiei è uno strumento didattico compensativo per studenti con diagnosi certificata di discalculia ai sensi della Legge 170/2010. Non sostituisce la valutazione clinica."
+
+---
+
+### tutor — 2026-09-14T14:09:00Z
+
+**Scelta: DISCALCULIA. Senza riserve.**
+
+Argomento strutturale: il vincolo MCQ-only è congelato dal Round 1 ed è ortogonale alla dislessia ma coerente con la discalculia. Un MCQ è testo: uno studente con dislessia che sbaglia un MCQ può averlo fatto per decodifica fonologica fallita, difficoltà di working memory o incomprensione concettuale — i tre casi sono indistinguibili in MCQ-only. La tripletta step/level/distractor perde valore diagnostico: non sai perché ha scelto quel distractor. Per la dislessia lo strumento compensativo più validato è il TTS — che rimuove la barriera di decodifica. Senza TTS un MCQ-only per dislessici è peggio di un foglio di carta.
+
+Per la discalculia gli errori in matematica seguono pattern prevedibili (Ni e Zhou 2005 sulle frazioni; Geary 2004 sul number sense): "23+9=212" → misconcepto *concatenazione*; "1/3 > 1/2" → misconcepto *denominator magnitude error*. Ogni distractor È un misconcepto. La tripletta è diagnostica.
+
+**Scarto dislessia:** MCQ-only non osserva il processo di decodifica. Il mapping distractor→misconcepto è diffuso. Senza TTS il prodotto non compensa la dislessia; con TTS è un time-sink architetturale insostenibile in 4h.
+
+**Il nodo pedagogico: compensazione vs apprendimento (Sweller + Geary 2004):**
+Distinguere discalculia procedurale (calcolatrice compensa) da difficoltà nel number sense (non compensabile con calcolatrice — richiede sviluppo di intuizione quantitativa). Il PoC si posiziona sul secondo tipo: la linea dei numeri visiva è lo strumento compensativo per ACCEDERE al ragionamento, ma il LO è che lo studente impara a USARLA autonomamente. Questo è pedagogicamente legittimo e misurabile.
+
+Per ridurre extraneous cognitive load (CLT): una sola azione per schermata, istruzioni ≤15 parole, zero elementi decorativi. La linea dei numeri visiva riduce l'intrinsic load (libera working memory dal posizionamento numerico). Il germane load — dove avviene l'apprendimento — è lo schema "uso la linea per confrontare grandezze". Questo schema è disponibile allo studente anche senza il prodotto dopo la sessione.
+
+**I 3 deliverable riformulati per discalculia:**
+
+*Learner Profile Statement (Deliverable 01):* Luca, 11 anni, classe 1a media. Diagnosi: discalculia (certificazione ASL, PDP ottobre 2025). Sottotipo: difficoltà nel number sense, specificamente nel confronto di frazioni con denominatori diversi. Misconcepto documentato: "denominator magnitude error" (Ni e Zhou, 2005) — risponde sistematicamente "1/4 è maggiore di 1/3 perché 4 > 3". Scenario concreto: la docente ha introdotto le frazioni. Il PDP prevede uso di linea dei numeri come misura compensativa ma Luca non sa usarla autonomamente.
+
+*Adaptive Evidence (Deliverable 02):* Il sistema cambia in base al tipo di errore, non solo al "livello generico". Errore tipo A (distractor "1/4 perché 4 > 3"): il sistema identifica il misconcepto "confonde grandezza denominatore con grandezza frazione" → mostra pizza divisa in 3 vs 4 parti → chiede "in quale caso ogni fetta è più grande?" → ripresenta la domanda. Errore tipo B (risposta "non so"): torna al prerequisito. Risposta corretta: avanza con variante più complessa (2/5 vs 2/4) per verificare generalizzazione.
+
+*Learning Outcome Note (Deliverable 03):* Prima: Luca risponde basandosi sul valore del denominatore. Dopo: usa la linea delle frazioni come strategia procedurale per confrontare frazioni con stesso numeratore. Metrica in ≤3 min: domanda transfer non vista "1/5 vs 1/6?" — se usa la linea autonomamente → metodo acquisito, non memorizzato. Osservabile in 30 secondi. Caveat onesto: questo LO è all'interno del PDP (linea dei numeri era già prevista come misura compensativa). Il prodotto ha insegnato a Luca a USARLA autonomamente — non è riabilitazione, è potenziamento dell'uso di uno strumento già previsto.
+
+**Trappole pedagogiche da evitare:** (1) compensazione spacciata per apprendimento ("la app legge al suo posto" → LO zero); (2) DSA come etichetta monolitica senza specificare sottotipo; (3) feedback generico "Risposta errata, riprova" invece di targettizzare il meccanismo; (4) overload working memory nell'interfaccia (troppe informazioni contemporanee); (5) report numerico "73% corretto" spacciato per LO invece di transfer task su item non visto.
+
+**Le 3 audience dal punto di vista pedagogico:**
+Il feedback allo studente deve essere in seconda persona singola e non giudicante. Gli errori non devono essere visibili al docente in tempo reale (privacy — il prodotto non è un sistema di sorveglianza). Il docente idealmente seleziona non solo "livello" ma anche quali misconcezioni prioritizzare (basato su osservazioni in classe). Il report genitore: descrittivo non valutativo, nessun termine clinico, una cosa concreta senza raccomandare pratiche autonome (quella è scelta clinica del PDP).
+
+**Retrieval practice per DSA discalculia:** feedback immediato e specifico (non differito); blocked practice prima di interleaving (studente acquisisce la strategia su tipo uniforme prima di mescolare); domande progettate per esporre il misconcepto, non per testare recall; sessioni brevi e frequenti (5-8 minuti, non 30 continui).
+
+---
+
+### a11y-specialist — 2026-09-14T14:10:00Z
+
+**Scelta: DISLESSIA.**
+
+**Argomento 1 — Implementabilità a11y in 4h:**
+Dislessia: i requisiti si traducono interamente in CSS (letter-spacing, word-spacing, line-height, max-width, hyphens, background-color) più Web Speech API opzionale. DOM invariato. Profilo tipografico compliant in 30-45 minuti, misurabile visivamente dalla giuria. WCAG 1.4.12 Text Spacing fornisce baseline testabile con axe.
+
+Discalculia: i requisiti a11y implicano rappresentazione visiva di strutture numeriche (allineamento colonne, color coding per posizione cardinale, number line, blocchi Dienes). Non sono CSS su testo esistente: richiedono componenti custom (SVG, Canvas, HTML strutturato). Complessità 3-5x superiore. Non esiste un subset WCAG che copra specificatamente la cognizione numerica.
+
+**Argomento 2 — Rischio demo:** Per dislessia il rischio è implementare il mito OpenDyslexic — mitigabile (se ne conosco la letteratura). Per discalculia il rischio è produrre uno strumento che riduce il carico per un utente generico ma non per un discalculico specificamente. Non c'è criterio visivo semplice per dimostrarlo senza test utente reali. La demo diventa una promessa non falsificabile.
+
+**Scarto discalculia:** le componenti custom (number line, blocchi) hanno complessità implementativa che supera di 3-5x la CSS-only approach della dislessia; non c'è standard a11y di riferimento consolidato per discalculia nel digitale.
+
+**Requisiti DSA per dislessia (evidence-based):**
+- Font: OpenDyslexic è un mito parzialmente smentito (Rello & Baeza-Yates 2013; Marinus et al. 2016). Non superiore ad Arial, Verdana, Comic Sans. Usare sans-serif system con spaziature corrette. OpenDyslexic solo come opzione personale, non come soluzione universale.
+- Spaziatura: letter-spacing 0.12em (WCAG 1.4.12), word-spacing 0.16em, line-height 1.5 minimo (1.8 ottimale per dislessia), max-width 60ch (BDA Style Guide — non "più è meglio", curve a U).
+- Hyphens: `hyphens: none` OBBLIGATORIO. Parole spezzate a fine riga aumentano il carico decodificativo. Usare `text-align: left`, mai `justify`.
+- TTS: non obbligatorio WCAG AA, best practice COGA. Web Speech API: play/pause su paragrafo 45-60 min, speed control 15 min aggiuntivi. Evidenziazione sincronizzata TTS+highlight: 3-4h standalone → TAGLIARE.
+- Overlay colori: evidenza controversa (Meares-Irlen). Background crema #FFF8E7 con testo #333333 supera 4.5:1 e riduce l'abbagliamento percepito. Offrire theme switcher bianco/crema (45 min).
+
+**Must-have dislessia in 4h (tabella):**
+| Requisito | Tempo | Categoria |
+|---|---|---|
+| Font sans-serif ≥18px, letter-spacing 0.12em, word-spacing 0.16em, line-height 1.5 | 15 min CSS | MUST |
+| max-width 60ch su testo | 5 min | MUST |
+| hyphens: none; text-align: left | 2 min | MUST |
+| Contrasto AA 4.5:1 verificato | 20 min | MUST |
+| HTML semantico + focus visible outline 3px | 15 min | MUST |
+| Chunking visivo (1 blocco per schermata) | 30 min UX writing | MUST |
+| Theme switcher bianco/crema (min 2 opzioni) | 45 min | NICE |
+| TTS play/pause + rate control | 60-90 min | NICE |
+| TTS + word highlight sincronizzato | 3-4h | TAGLIA |
+
+MUST totali: ~1.5-2h. Lascia 2-2.5h per feature di prodotto.
+
+**Trappole che la giuria riconosce in 5 secondi (dislessia):** (1) text-align: justify; (2) font serifato per corpo testo; (3) "usato OpenDyslexic perché aiuta i dislessici" (mito documentato); (4) TTS senza controllo velocità; (5) UI che fa implicito screening (schermata "Rileva la tua difficoltà prima di iniziare").
+
+**Miti a11y per DSA da sfatare:** (1) OpenDyslexic superiore ad Arial (Rello 2013 dice no); (2) più contrasto = sempre meglio per tutti (extreme contrast può peggiorare il visual stress per una subset di dislessici); (3) TTS risolve la dislessia digitale (TTS senza highlight e calibrazione può aumentare il carico, non ridurlo); (4) WCAG AA copre tutti i requisiti DSA (WCAG non copre font choice, TTS, chunking cognitivo — serve COGA supplementare); (5) più contenuto per schermata aiuta (meno è meglio per dislessia, evidence-based: Swanson & Siegel 2001).
+
+**Per le 3 audience:** i requisiti a11y DSA-specifici si applicano principalmente alla view studente. Eccezione 1: la dislessia è ereditaria (~40-60% — Snowling); una frazione di genitori ha tratti dislessici → applicare almeno line-height 1.5, max-width 70ch, sans-serif ≥16px anche alle view docente e genitore. Eccezione 2: contenuti adattati condivisi cross-audience mantengono stessa spaziatura. Nessuna delle 3 audience richiede TTS nella navigazione dell'app — solo nella view studente per i contenuti.
+
+---
+
+### lead-architect — 2026-09-14T14:11:00Z
+
+*(Doppio mandato: lead-architect + Critico)*
+
+**Scelta tecnica: DISCALCULIA. Cinque argomenti tecnici.**
+
+1. **Chiave composta e mapping discreto:** In matematica il misconcepto è discreto e nominato. `23+9=212` → misconcepto *concatenazione*; `0,25>0,5` → misconcepto *"più lungo è più grande"*. Ogni distractor È un misconcepto — non multi-causale. Per dislessia MCQ-only, la risposta sbagliata è diffusa (decodifica fallita, working memory, inferenza errata) — il mapping collassa verso "riscrittura generica", esattamente il fallimento identificato dal Critico nel Round 1.
+
+2. **Verificabilità dalla giuria:** la spiegazione del meccanismo d'errore matematico è oggettivamente falsificabile (giusto o sbagliato, standard in letteratura didattica). Una remediation di lettura è soggettiva ("meglio/peggiore"). La falsificabilità qui è un pregio per la demo.
+
+3. **Nessuna dipendenza TTS:** la compensazione primaria della dislessia È il TTS. Web Speech API introduce fragilità demo ambiente-dipendente: voce italiana non garantita su hardware sconosciuto, Chrome tronca utterance >15s, race di getVoices(). La compensazione della discalculia è visiva (linea dei numeri, allineamento colonna) → puro HTML/CSS, deterministico, zero API browser rischiose.
+
+4. **Nessun MathJax:** il livello compensativo è aritmetico (interi, decimali semplici, frazioni base) — renderizza in testo + CSS (grid per colonne, SVG/CSS per linea dei numeri). MathJax serve solo per notazione algebrica avanzata. Zero build, zero CDN ~1MB.
+
+5. **Autorabilità del contenuto in 4h:** item aritmetici + distractor con misconcepto categorizzato sono finiti, generabili, testabili a tavolino.
+
+**State management 3 audience:** UN solo stato (localStorage, single source of truth) + TRE proiezioni con permessi diversi. Role-switch: `?role=teacher|parent|student` come selettore di funzione di render su AppState condiviso. Perché URL param: istantaneamente dimostrabile (cambio URL e lo stesso stato si renderizza in tre modi → prova visiva); roleness ispezionabile. Demo convincente "role round-trip": errore studente → `?role=teacher` (stesso URL) → misconcepto loggato → `?role=parent` → "Marco ha esercitato le addizioni, 3 tentativi, in miglioramento". Stesso stato, tre lenti, redazione applicata.
+
+**Scalabilità — 4 extension point reali (non retorica):**
+Regola invariante: tutto il contenuto via `data/*.json` fetchato a runtime (fetch live = edit+reload, zero rebuild). Struttura: `data/curriculum-discalculia.json`, `data/misconceptions.json`, `data/fixtures.json`, `data/pdp-levels.json`.
+
+EP-1: Nuovo modulo = oggetto JSON, zero JS. Demo 30s: incollo modulo "sottrazione con prestito", reload, appare nel selettore docente.
+EP-2: Nuovo misconcepto + fixture = un distractor + una chiave in fixtures.json, zero JS. Demo 30s: aggiungo distractor "212" per 23+9, reload, appare la spiegazione mirata.
+EP-3: Nuovo livello PDP = oggetto JSON in pdp-levels.json, zero JS. Il docente seleziona "L3", stessi esercizi si renderizzano con parametri diversi.
+EP-4: Swap dominio del disturbo = swap cartella dati. L'engine è disorder-agnostic (schema-driven). `curriculum-dislessia.json` con stesso schema → stessa shell gira esercizi di lettura. Questo dimostra che discalculia è la prima istanza, non un hardcoding.
+
+**Architettura aggiornata:**
+- `LearnerProfile` → MUTATO (zona pericolo clinico): rimuovere quiz che assegna livello. Diventa lettore del livello fornito dal docente + eventuale warm-up non-clinico (preferenze di presentazione). Mai calcola pdpLevel dalla performance.
+- `GuidedTaskRunner` → regge.
+- `AdaptiveEngine` → regge, più pulito per discalculia.
+- `OutcomeTracker` → regge, aggiunge tracking per-misconcepto e scaffold-fading.
+- Nuovi: `TeacherConfigView` (~35 min — scrive SOLO config, mai tentativi — gate clinico), `ParentReportView` (~20 min — read-only + layer redazione che mappa nomi-misconcepto clinici → linguaggio incoraggiante).
+
+**Gate clinico — 3 invarianti ispezionabili:**
+1. Single-writer su pdpLevel: esiste un solo code path che scrive pdpLevel = la form docente. AdaptiveEngine lo legge, mai lo scrive. Grep del codice: un solo writer.
+2. Output allowlist: OutcomeTracker registra fatti (tentativi, quale misconcepto, risolto sì/no), mai giudizi clinici. ParentReportView renderizza da allowlist di frasi incoraggianti.
+3. Affordance UI: la form docente etichetta "Livello PDP (dal Piano Didattico Personalizzato certificato)". La UI dichiara che il livello viene dal PDP, non dall'app.
+
+**Piano B LLM per discalculia:** chiave `{step_id}-{level}-{misconcept_id}` (distractor_id ↔ misconcept_id). Fixture è spiegazione del meccanismo d'errore + analogia con manipolativo calibrata al livello (L1 = linea numeri + blocchi base-10 ≤20; L2 = decomposizione parziale ≤100). 12-18 fixtures. Live slot confermato. Testo fixture non usa mai vocabolario clinico/riabilitativo (constraint esplicito nel prompt di generazione).
+
+**Punti di attacco Critico (Fase 2):**
+a) **Sconfinamento clinico subdolo:** il punto più fragile non è la form docente (presidio facile) ma il testo LLM del live slot (non pre-vetted) e il warm-up (se sconfina dal "preferenze di presentazione" al "profilare"). Qualsiasi linguaggio normativo/comparativo nel report genitore ("sotto la media per l'età") = screening mascherato. Chiederò: dove è il filtro sul testo LLM live?
+b) **3 audience come feature theater:** la view docente deve SCRIVERE davvero config che cambia il comportamento studente. La view genitore deve REDIGERE davvero (trasformazione, non filtro CSS). Se nessuna delle due esiste → tre temi CSS.
+c) **Feature contata ma non funzionante a 3:45h:** candidato numero 1: sincronizzazione cross-tab role round-trip. L'evento `storage` non scatta nella stessa tab che ha scritto — quirk noto. Se dimenticiamo il listener → sembra rotto in demo. Candidato 2: live slot (già noto Round 1).
+d) **Scalabilità raccontata vs dimostrata:** reale = il runtime legge il nuovo JSON al reload SENZA rebuild (garantito solo se zero contenuto inlined in JS). Falso = JSON "esterno" ma serve un rebuild o il contenuto è string literal nel .js. Chiederò: "aprite il JS — nessun testo di esercizio inline, zero".
+e) **Compensazione spacciata per apprendimento — il più profondo:** Se lo studente può ritentare infinitamente con spiegazione migliore ogni volta, dov'è il Learning Outcome? La tensione: tool che compensa basta non produce delta misurabile; tool che misura il miglioramento rischia assessment/screening. Risoluzione non-negoziabile che propongo: **scaffold-fading + transfer task**. L'outcome è "autonomia riduzione scaffolding": lo studente risolve item equivalente NUOVO con meno scaffolding (senza linea dei numeri, o al primo tentativo) dopo la remediation. Senza scaffold-fading il deliverable 03 collassa in "retry infiniti = nessun LO". Questa è la singola cosa più importante da costruire.
+
+---
+
+### tpm — 2026-09-14T14:12:00Z
+
+**Scelta pianificativa: DISCALCULIA. Dislessia scartata.**
+
+Overhead implementativo dislessia: TTS/read-aloud 45-60 min + font toggle 10 min + overlay 20 min = 90-95 minuti di requisiti DSA-specifici che non esistono senza DSA. Con 2:30h di coding effettivo prima del checkpoint, 90 min su requisiti DSA lasciano 60 min per il core engine. Matematicamente insufficiente.
+
+Overhead implementativo discalculia: numeri in lettere accanto alle cifre nel JSON 10 min + colore non usato come unico segnale (già incluso nel contrasto check) + feedback che nomina tipo errore (nella logica engine.js, costo zero aggiuntivo) + spazio bianco tra elementi numerici (architetturale, costo zero se fatto dall'inizio) = 15-20 minuti totali.
+
+Scarto dislessia: overhead tecnico DSA-specifico di 90 min in budget di 240 min porta il piano in rosso strutturalmente. Non è un rischio gestibile al checkpoint — è una certezza matematica.
+
+**La matematica reale — 4h piene con 2 persone (240 min):**
+
+| Voce | Elapsed (min) | P-A | P-B | Note |
+|---|---|---|---|---|
+| Setup | 10 | API key test, proxy CORS, schema fixtures.json condiviso | index.html + Tailwind CDN, struttura HTML semantica | Parallelo totale |
+| Core engine (profiling + MCQ + adaptive explainer + fixtures) | 70 | quiz-engine.js state machine, explainer.js chiave composta, genera 12-18 fixtures via API | mario-content.json 3 step × MCQ × 2-3 distractori con misconcepto_slug | Sync a 1:20 per schema condiviso |
+| A11y base + DSA discalculia | 65 | 10 min verifica logica | 55 min: contrasto DevTools 10, touch target 10, plain language review discalculia 20 (non delegabile a LLM), progress indicator 15 | P-B sequenziale dopo content JSON |
+| 3 audience (URL param + docente panel + genitore report) | 45 | 5 min URL param detection | 40 min: docente panel 20, genitore report 20 | P-B dopo a11y |
+| Integration + E2E | 30 | Wiring + test flussi L1/L2/offline | Fix bug visivi | |
+| Buffer tecnico | 20 | Per bug imprevisti | — | Non toccare per feature aggiuntive |
+| **TOTALE** | **240** | | | A 4:00 stop netto. |
+
+**Piano operativo — slot espliciti 0:00-4:00:**
+
+| Slot | P-A | P-B | Dipendenze |
+|---|---|---|---|
+| 0:00–0:10 | API key test, proxy CORS Python 30 righe, schema fixtures.json definito e scritto | index.html Tailwind CDN, font 18px sans-serif, palette #1a1a1a/#ffffff, HTML semantico | D1: API key entro 0:10; D2: schema fixtures condiviso entro 0:10 |
+| 0:10–1:20 | quiz-engine.js (PROFILING→STEP→CHECKPOINT→REMEDIATION→NEXT→COMPLETION), profiling 3 MCQ discalculia → L1/L2. explainer.js: resolveRemediation via chiave composta, fallback API, fallback testuale. Genera fixtures.json 12-18 chiavi | mario-content.json: 3 step discalculia × 1 MCQ × 2-3 distractori, campo misconcepto_slug. Testo max 15 parole per frase | D3: fixtures.json ≥6 chiavi entro 1:20 |
+| 1:20–2:25 | Verifica logica (1 azione/schermata, no timeout, no auto-avanzamento). Poi debug fixtures, schema JSON docente | A11y 55 min + audience views: docente panel ?role=docente (20 min), genitore report ?role=genitore (20 min) | D5: A11y pass completato entro 2:25 |
+| **2:25–2:30** | **CHECKPOINT GO/NO-GO** | GO: L1 sbaglia→remediation→riprova→avanza + offline test + docente view visibile. PARZIALE-A: engine OK, genitore assente. PARZIALE-B: solo core+a11y, zero audience. NO-GO: <2 step funzionanti. | D4: flusso E2E entro 2:25 |
+| 2:30–3:30 | Wiring engine+content+fixtures, test L2 nominale, test L1 errore da fixtures, test offline, test live slot. Fix bug critici | Fix bug a11y. Screenshot Adaptive Evidence (L1 vs L2 affiancati) | |
+| 3:30–4:00 | Buffer per ≤1 bug critico. Se non consumato: secondo live slot o transfer task | | |
+
+**4:00 STOP DEV — 4:00–4:45 DEMO PREP SEPARATO**
+Script narrativo 3 min (4:00-4:15) + rehearsal 2× cronometrato (4:15-4:30) + dry run cavo staccato (4:30-4:45).
+
+**Feature prioritizzate:**
+
+| Feature | P0/P1/P2 | P-A min | P-B min |
+|---|---|---|---|
+| F1 — Profiling quiz discalculia (3 MCQ → L1/L2) | P0 | 20 | 15 |
+| F2 — Adaptive MCQ engine + fixtures.json | P0 | 60 | 25 |
+| F3 — A11y DSA discalculia | P0 | 10 | 55 |
+| F4 — Docente config view + report | P1 | 5 | 20 |
+| F5 — Genitore report view | P2 — primo taglio | 5 | 20 |
+
+**Rischio "3 audience = nessuna fatta bene":** il budget è saturato a 240 min. Proposta: eliminare genitore view (F5) dal piano base. F5 diventa bonus al checkpoint se il buffer non è stato consumato. Questo porta il buffer a 40 min (da 20 min). La genitore view rimane in roadmap dichiarata.
+
+**Dipendenze critiche aggiornate D1-D6:**
+- D1 (0:10): API key funzionante, una call di prova con risposta parsabile. Fallimento → Plan B manual fixtures (5-6 scritte a mano), stop tentativi dopo 15 min.
+- D2 (0:10): schema fixtures.json condiviso tra P-A e P-B. Rischio silenzioso più sottovalutato: disallineamento emerge a 2:00h quando è troppo tardi. Risolto in 5 min al minuto 10.
+- D3 (1:20): fixtures.json ≥6 chiavi prioritarie (1 distractor per step per livello, 3 step × 2 livelli).
+- D4 (2:25): flusso studente E2E completo (L1 sbaglia → remediation → riprova → avanza → completion). Offline test.
+- D5 (2:25): A11y pass completato da P-B.
+- D6 (1:20): contenuto discalculia validato: nessun numero senza contesto, frasi <15 parole, feedback che nomina tipo errore invece di "sbagliato". Non delegabile a P-A o a LLM.
+
+---
+
+## Fase 2 — Confronto Round 2 — 2026-09-14T14:20:00Z
+
+### a11y-specialist — aggiornamento posizione
+
+**Aggiorna a DISCALCULIA.** L'argomento del lead-architect sul mapping distractor→misconcepto convincente per ragioni tecniche precise: in MCQ per dislessia, il distractor errato cattura difficoltà di decodifica, non un misconcepto matematico nominabile. L'indistinguibilità diagnostica annulla il valore dell'MCQ engine. Aggiorna anche la stima number line: una number line statica CSS con click-to-place (non drag) è 45-60 min, non "3-5x" — la stima precedente era per componente interattivo generico.
+
+Requisiti a11y specifici per discalculia (aggiornati):
+- `font-variant-numeric: tabular-nums` su elementi con digit — evidence-based (Butterworth), 5 min.
+- Stacked fraction (numeratore/denominatore visivamente separati, ≥28px per numero), non slash inline — componente HTML+CSS, 20-30 min.
+- Number line statica HTML+CSS con `position: relative` + marker assoluti a percentuali precalcolate — 25-45 min P-B.
+- Una coppia di frazioni per schermata. Zero animazioni su elementi numerici (`prefers-reduced-motion` + no-animation default su numeri). Domanda persistente in viewport (sticky top). Gap ≥1.5rem tra opzioni MCQ. Single-column layout MCQ.
+- `visibility: hidden` (non `display:none`) per elementi scaffold nel transfer task (mantiene box model, no layout shift).
+- Feedback: mostrare risposta corretta CON number line che evidenzia la posizione. No punteggio numerico prominente in sessione.
+- Miti sfatati: (1) OpenDyslexic superiore ad Arial → no evidence; (2) più contrasto sempre meglio → falso per visual stress; (3) standard WCAG bastano → WCAG non copre cognizione numerica, serve COGA.
+- Condizione per scaffold-fading nell'a11y: elementi scaffold nel transfer item a `visibility: hidden`, no layout shift, focus management invariato, `aria-live: off` durante la transizione.
+
+### lead-architect (Critico) — confronto argomentato
+
+**a) Sconfinamento clinico live slot:** Il presidio è un denylist clinico deterministico — file `data/clinical-denylist.json` (~20-25 termini: diagnosi, disturbo, specialista, riabilit*, deficit, clinic*, etc.). Un unico entry point di rendering `renderRemediation(text)` usato SIA per fixtures SIA per live slot — ritorna il testo solo se nessun termine denylist è presente; altrimenti fallback pre-scritto. Verificabile: `grep -c renderRemediation *.js` = 1. Costo: ~10 min. Il prompt-constraint resta come primo strato; il denylist deterministico è il presidio reale.
+
+**b) Feature theater 3 audience:** La view docente deve SCRIVERE config che cambia il comportamento studente. Propone `focusMisconceptions: [slug]` come secondo campo write — non derivabile dal livello, cambia il comportamento studente al reload (i primi item sono quelli targettizzati). Se al 2:25 l'engine non legge `focusMisconceptions`, degrada a `?level=` param (2 audience oneste). Alternativa: il PM ha dimostrato che pdpLevel L1 vs L2 cambia il set di esercizi, i distractor disponibili, e la policy di scaffold-fading — quindi il single-writer su pdpLevel è già architetturalmente significativo.
+
+**c) Cross-tab sync:** Tagliare il live cross-tab sync è doppiamente corretto — sia per il quirk `storage` event, sia perché il tutor dice esplicitamente che gli errori non devono essere visibili al docente in tempo reale (privacy). Decisione: role round-trip single-tab via URL param reload. Zero listener `storage`. Costo: 0 min.
+
+**d) Scalabilità:** Gate meccanico al sync 1:20 e checkpoint 2:25 — `grep -nE 'misconcepto|frazione|denominatore' *.js`. Match ≠ 0 → il contenuto è inlined, la scalabilità è finta → si sposta in JSON PRIMA di dichiararla in demo.
+
+**e) Scaffold-fading:** Non buffer material — è il deliverable 03. Costo P-A 15 min + P-B 20 min = 35 min totali. Finanziato tagliando F5 genitore dal piano base + step 3 diventa item transfer (2 step training + 1 fade). Se scaffold-fading non gira al 2:25, si rivendica "task completion" non "Learning Outcome".
+
+**f) Number line:** SVG custom è per componente generico/interattivo. CSS+HTML con posizioni precalcolate è sufficiente per scope di questo PoC (25 min P-B). L'assenza di standard WCAG per cognizione numerica si gestisce spostando il claim: non si rivendica "ridotto il carico cognitivo per un discalculico" ma "targettizzato IL misconcepto denominator-magnitude di Luca con la remediation corretta" — questo secondo claim è falsificabile dalla giuria in 10 secondi.
+
+### tutor — confronto pedagogico
+
+**Scaffold-fading:** conferma "non negoziabile" per il transfer item. Evidence-based: CRA-sequence (Maccini e Gagnon 2000) per math learning disabilities ha rating "strong" nel What Works Clearinghouse. Il transfer item presenta la stessa domanda-struttura senza la linea dei numeri (non `visibility: hidden` ma fisicamente assente nel componente). Lo studente deve rispondere basandosi sullo schema procedurale acquisito. Se la linea è visibile ma non usata, la giuria non può distinguere autonomia da dipendenza. Il feedback sul transfer: mostrare risposta corretta CON la number line solo dopo che lo studente ha risposto — non durante.
+
+**Profilo Luca frazioni vs aritmetica base:** Luca/frazioni è pedagogicamente superiore. Il denominator magnitude error (Ni e Zhou 2005; Vamvakoussi e Vosniadou 2010) ha nome, causa, letteratura — un giudice non specialista capisce immediatamente perché quell'errore è logico per il bambino. Con aritmetica base la spiegazione richiede mediazione.
+
+**Sessioni brevi vs demo 3 min:** la tensione è reale e va dichiarata esplicitamente. La soluzione è narrativa: "una sessione reale dura 5-8 minuti — vi mostriamo la struttura." La demo mostra 1 loop completo (errore → targeting → risoluzione → transfer), non tutti e 3 gli step.
+
+**Report genitore:** taglio confermato come prima azione. Se GO a 2:30h: 1 slide, 20 secondi di demo. La perdita pedagogica esiste (il genitore DSA ha un ruolo nel PDP) ma è accettabile in demo.
+
+### product-manager — confronto product
+
+**Risposta al Critico su 3 audience:** la selezione docente L1 vs L2 cambia CONCRETAMENTE: (a) set esercizi caricato (denominatori ≤4 vs ≤10), (b) distractor disponibili e relativi misconcepto_id, (c) chiave fixtures generata, (d) policy scaffold-fading (L2 mostra number line solo dopo due tentativi falliti; L1 la mostra subito). Il sistema si rifiuta di operare senza pdpLevel — non esiste default. Questo soddisfa la condizione del Critico ("mostrami UNA cosa che la view docente SCRIVE che cambia il comportamento studente").
+
+**Scaffold-fading adottato come requisito di prodotto.** Presentazione allo studente: "Prova questa!" senza annunci ("ora togliamo gli aiuti") — la linea semplicemente non appare. Se lo studente chiede "e la linea?", è già un risultato pedagogico. Report docente: "Transfer task completato autonomamente. Supporto visivo non richiesto."
+
+**Demo narrative aggiornata (con scaffold-fading):** 0:00-0:25 docente configura L1. 0:25-1:30 Luca percorso guidato: step 1 corretto → step 2 sbaglia → headline misconcepto → number line + analogia pizza → riprova → avanza. 1:30-2:00 transfer task "Prova questa!": 1/5 vs 1/6, senza linea, corretto al primo tentativo → "Marco ha risolto un esercizio nuovo da solo". 2:00-2:30 report docente (+ scheda genitore se in piano). 2:30-3:00 live probe: distractor non-fixture → LLM live → output diverso. "Il motore non ha letto da un file."
+
+### tpm — confronto pianificativo
+
+**Scaffold-fading nel piano:** 35 min (P-A 15 + P-B 20), slot 2:30-3:30. Budget aggiornato: 275 min vs 240 → deficit 35 min. Soluzione concreta: (a) 1 item transfer (no mock-form-2 separata) → risparmio 15 min; (b) fixtures 9 chiavi invece di 12 (elimina step3×L2×distractor_B) → risparmio 13 min di API call; (c) plain language review 15 min invece di 20 → risparmio 5 min. Totale recupero: 33 min. Buffer residuo: ~13 min. Piano in equilibrio.
+
+**Cross-tab:** opzione (a) single-tab URL param, costo 0 min. Regola operativa: commento nel codice "NO cross-tab sync by design".
+
+**Number line:** HTML+CSS con posizioni precalcolate nel content JSON (position_pct per ogni frazione). 25 min P-B. I valori `position_pct` vanno precalcolati e inseriti nel JSON durante la scrittura del content (non derivati a runtime in JS).
+
+**D2 schema procedure:** file-first concreta → P-A scrive `fixtures.json` con UNA chiave reale a 0:05 → P-B legge e scrive `mario-content.json` allineato a 0:08 → integration test `resolveRemediation("step1","L1","denominator_magnitude")` a 0:12 → schema locked a 0:15. Formato chiave: `{step_id}-{level}-{misconcepto_slug}` (non `distractor_id`).
+
+**Luca/frazioni vs aritmetica:** +15 min content JSON per frazioni vs interi, accettabile per la maggiore evidenza visiva in demo.
+
+**Genitore P2:** fuori piano base; bonus esplicito nel buffer 3:30-4:00 SE buffer non consumato. Se attivato: funzione `toParentLanguage(report)` lookup table che mappa `denominator_magnitude` → "Marco sta imparando a confrontare le frazioni" (non CSS filter). 15 min.
+
+---
+
+## Punti Aperti Round 2
+
+*[Vuoto — tutti i PA Round 2 risolti in Fase 3 Round 1. Condizione di stop: consenso. Motivo: consenso.]*
+
+## Accordi Round 2 (congelati)
+
+- [Round 2 F3] **PA-R2-1 RISOLTO — focusMisconceptions**: pdpLevel single-writer è la condizione sufficiente per una view docente architetturalmente non-teatro. L1 vs L2 cambia set esercizi, distractor disponibili, policy scaffold-fading (L1 mostra number line da subito; L2 solo dopo 2 tentativi) — divergenza dimostrabile in demo. `focusMisconceptions` documentato come EP post-hackathon, zero implementazione nel PoC.
+
+- [Round 2 F3] **PA-R2-2 RISOLTO — Budget equilibrio 240 min**: soluzione TPM accettata unanimemente. (a) 1 item transfer MCQ single-column (no mock-form-2 separata) → risparmio 15 min P-B; (b) 9 fixtures invece di 12 → risparmio 13 min P-A; (c) plain language review 15 min invece di 20 → risparmio 5 min P-B. Buffer residuo: ~13 min. Il transfer item DEVE avere denominatori non visti in training (1/5 vs 1/6 dopo training su 1/3 e 1/4). Ordine di taglio in caso di overrun: prima cade l'item transfer, MAI la denylist clinica o i must-have a11y.
+
+- [Round 2 F3] **PA-R2-3 RISOLTO — Lista a11y must-have discalculia**: tabular-nums (5 min), stacked fraction ≥28px + aria-label parlato ("un terzo") (20-30 min), number line CSS statica con ancoraggi 0/1 e posizioni proporzionali (25 min), no animation su numeri + prefers-reduced-motion (5 min), single-column MCQ + gap 1.5rem (0 min extra), visibility:hidden per scaffold nel transfer task (5 min), feedback con number line DOPO risposta + focus spostato sulla regione feedback con aria-live="polite" (5-10 min), no punteggio numerico prominente in sessione, feedback correct/incorrect non solo con colore. Nice-to-have (se buffer): domanda sticky-top. Totale must-have: ~60-70 min P-B (redistributi nel slot 1:20-2:25; stacked fraction è candidato al taglio in caso di sforamento, degrada a slash inline con gap aumentato).
+
+---
+
+## Registro Decisioni — Round 2 Re-scoping DSA — 2026-09-14T16:00:00Z
+
+**Terminazione**: consenso raggiunto in Fase 3 Round 1. Motivo: tutti i Punti Aperti risolti (PA vuoto). Partecipanti: product-manager, tutor, a11y-specialist, lead-architect (Critico), tpm.
+
+---
+
+### 1. Scelta Dislessia vs Discalculia
+
+**DISCALCULIA. Confermata con accordo unanime (5/5).**
+
+L'a11y-specialist ha aggiornato la propria posizione da dislessia a discalculia in Fase 2, portando la convergenza a unanimità.
+
+**Rationale della scelta:**
+
+Il vincolo congelato dal Round 1 — MCQ-only, zero input testuale libero — è ortogonale alla dislessia ma coerente con la discalculia. Per la dislessia, il mapping distractor→misconcepto in un MCQ è multi-causale e diffuso: uno studente può scegliere l'opzione errata per decodifica fonologica fallita, working memory o inferenza sbagliata — i tre casi sono indistinguibili senza audio. La tripletta (step_id, level, distractor_id) perde valore diagnostico e la capability collassa nella "riscrittura generica" esattamente come il fallimento critico identificato dal Critico nel Round 1.
+
+Per la discalculia, l'errore è discreto e nominato: "23+9=212" → misconcepto *concatenazione*; "1/3 > 1/2" → misconcepto *denominator magnitude error*. Ogni distractor È un misconcepto — mappabile, nominabile, verificabile. La tripletta è diagnostica. La giuria può chiedere "cambia errore" e l'output LLM cambia qualitativamente in modo falsificabile in 10 secondi.
+
+In più, la compensazione primaria per dislessia è il TTS — che crea una dipendenza da Web Speech API con fragilità demo ambiente-dipendente (voce italiana non garantita su hardware sconosciuto, race conditions, qualità non controllabile). La compensazione per discalculia è visiva (number line CSS, stacked fraction) — puro HTML/CSS, deterministico, zero API browser rischiose.
+
+**Motivo esplicito dello scarto della dislessia:**
+- MCQ-only rende la dislessia una trappola metodologica: il sistema non può osservare la decodifica fonologica e la chiave composta misura risposta, non difficoltà DSA specifica.
+- TTS = dipendenza esterna fragile in demo. Senza TTS il prodotto non compensa effettivamente la dislessia (è il suo strumento primario), non si degrada gracefully.
+- Gli strumenti di supporto per dislessia (TTS, font, spaziatura) esistono già nei browser e sistemi operativi — una demo hackathon rischia di reinventare l'accessibilità di base.
+
+**Sottotipo specifico scelto:** difficoltà nel confronto di frazioni con denominatori diversi — misconcepto *denominator magnitude error* (Ni e Zhou, 2005; Vamvakoussi e Vosniadou, 2010). Il bambino applica correttamente la regola "numero più grande = quantità maggiore" in un dominio dove non funziona. Questo misconcepto è documentato, ha una causa identificabile, e la spiegazione correttiva è verificabile dalla giuria.
+
+---
+
+### 2. Il Prodotto
+
+**Nome operativo: "NumeriMiei"**
+
+**One-liner (13 parole):** Coach di calcolo che spiega l'errore giusto allo studente con discalculia.
+
+#### Learner Profile Statement (Deliverable 01)
+
+Luca, 11 anni, classe 1a media. Diagnosi: discalculia certificata (certificazione ASL, PDP redatto con la scuola, ottobre 2025). Sottotipo: difficoltà nel number sense — specificamente nel confronto di frazioni con denominatori diversi (compromissione del sistema approssimativo di grandezza, non difficoltà procedurale pura). Il misconcepto attivo è *denominator magnitude error*: Luca risponde sistematicamente "1/4 è maggiore di 1/3 perché 4 > 3", applicando la regola corretta per numeri interi a un dominio dove è sbagliata.
+
+Scenario concreto: la docente di matematica ha introdotto le frazioni. Il PDP prevede uso di linea dei numeri stampata come misura compensativa, ma Luca non sa usarla in modo autonomo — la guarda e non sa dove posizionare 1/3. Si blocca davanti ai problemi di confronto tra frazioni e copia dal vicino per non mostrare di non capire.
+
+#### Le tre audience
+
+**STUDENTE — audience primaria e non riducibile.** Vede una sequenza di esercizi MCQ su confronto di frazioni, uno per schermata. Se sbaglia: il sistema mostra un'headline che nomina il misconcepto ("Sembra che tu stia guardando solo il numero sotto della frazione"), seguita da una spiegazione in 40-50 parole che usa un'analogia concreta (pizza divisa in pezzi) con la number line visiva. Pulsante "Riprova". L'ultimo step del percorso è il transfer task: stessa struttura, denominatori nuovi (non visti in training), senza number line. "Prova questa!" senza annunci.
+
+**DOCENTE — audience di configurazione e gate clinico.** Seleziona il livello PDP di Luca (L1/L2/L3 — già certificato dall'ASL, non assegnato dal sistema). Il sistema si rifiuta di avviare il percorso senza questa configurazione (nessun default). La selezione L1 vs L2 cambia concretamente: (a) set di esercizi caricato (L1: denominatori ≤4; L2: denominatori ≤10), (b) distractor disponibili e relativi misconcepto_id, (c) policy scaffold-fading (L1: number line visibile da subito; L2: appare solo dopo 2 tentativi falliti). Report post-sessione: lista misconcepit rilevati con frequenza + esito del transfer task ("Transfer completato autonomamente / con supporto"). Questa divergenza L1 vs L2 è dimostrabile in demo.
+
+**GENITORE — audience informativa, P2 condizionale al checkpoint.** Schermata read-only con funzione `toParentLanguage()` che mappa i termini clinici dei misconcepit in frasi in linguaggio comune: `denominator_magnitude` → "Luca sta imparando a confrontare le frazioni guardando le dimensioni, non i numeri". Zero terminologia clinica, zero diagnosi implicita, zero raccomandazioni riabilitative. Implementata solo se al checkpoint 2:30h il team è in GO con buffer intatto. Se assente: roadmap dichiarata.
+
+---
+
+### 3. Le 4-5 Feature
+
+| # | Nome feature | Cosa fa | Audience | Stima (min) | Priorità |
+|---|---|---|---|---|---|
+| F1 | Configurazione PDP docente | Il docente seleziona livello L1/L2/L3 dal PDP certificato. Il sistema carica il curriculum calibrato. Gate clinico: nessun default, nessun path che assegna autonomamente il livello. Copy: "Seleziona il livello indicato nel PDP del tuo studente." | Docente | P-A 10, P-B 15 | P0 |
+| F2 | Adaptive MCQ Engine con misconcepto targeting (CORE — capability irriducibile) | Presenta esercizi MCQ su confronto frazioni. Ogni opzione errata corrisponde a un misconcepto categorizzato. La tripletta (step_id, level, misconcepto_slug) identifica il misconcepto rivelato dall'errore. State machine: STEP → CHECKPOINT → REMEDIATION → NEXT → COMPLETION. | Studente | P-A 60, P-B 25 | P0 |
+| F3 | Spiegazione adattiva LLM-driven | Dalla chiave composta recupera fixtures.json. Headline descrive il misconcepto. Spiegazione 40-50 parole con analogia e number line. Live slot: 1 distractor non in fixtures → LLM live → filtro denylist clinico → rendering. DEMO_MODE default ON. | Studente | P-A 45 | P0 |
+| F4 | Report post-sessione docente + Transfer Task | Report: lista misconcepit, frequenza per step, esito transfer ("completato autonomamente / con supporto"). Il transfer task è un MCQ con denominatori non visti (1/5 vs 1/6 dopo training su 1/3 e 1/4) senza number line visibile (visibility:hidden). Scaffold-fading: OutcomeTracker registra se risolto senza scaffolding. | Docente + Studente | P-A 15 (scaffold flag) + P-B 20 (transfer item + report HTML) | P0 — questo è il Deliverable 03 |
+| F5 | Scheda genitore plain-language | Funzione toParentLanguage() (lookup table JSON: misconcepto_slug → frase incoraggiante). Schermata read-only ?role=parent. | Genitore | P-B 15 | P2 — bonus al checkpoint 2:30h |
+
+**Nota sulla feature irriducibile:** la capability agentica non è "la spiegazione" in sé — è la tripletta. La giuria può chiedere "cambia errore" (seleziona un distractor diverso dallo stesso step) e ottenere una spiegazione qualitativamente diversa in 10 secondi perché targeting misconceiti diversi. Questo non è hardcodabile con la stessa risposta per tutti gli errori.
+
+---
+
+### 4. I 3 Deliverable del Tema 03
+
+**Deliverable 01 — Learner Profile Statement:**
+Luca, 11 anni, 1a media, discalculia certificata (ASL, PDP 2025). Difficoltà specifica: confronto di frazioni con denominatori diversi. Misconcepto attivo: *denominator magnitude error* — risponde sistematicamente "1/4 > 1/3 perché 4 > 3". Scenario: docente ha introdotto le frazioni; PDP prevede linea dei numeri come compensativo ma Luca non sa usarla autonomamente.
+
+**Deliverable 02 — Adaptive Evidence:**
+Il sistema cambia in base al tipo di errore, non solo al livello. Errore tipo A (distractor "1/4 perché 4 > 3") → misconcepto *denominator_magnitude* → headline "Sembra che tu stia guardando solo il numero sotto" → show number line + analogia pizza (L1) o metro lineare (L2). Errore tipo B (distractor "1/2" su un confronto diverso) → misconcepto diverso → spiegazione diversa. Stessa domanda, distractor diverso, spiegazione qualitativamente diversa. Il live probe dimostra lo stesso con un distractor non in fixtures: LLM genera la spiegazione corretta in tempo reale.
+
+**Deliverable 03 — Learning Outcome Note:**
+Prima: Luca risponde basandosi sul valore del denominatore (risposta sbagliata sistematica). Dopo: usa la strategia procedurale della linea delle frazioni autonomamente su item transfer non visto (1/5 vs 1/6, denominatori mai incontrati nel percorso). Il transfer task viene presentato senza la linea dei numeri. Se Luca risponde correttamente → il metodo è acquisito, non memorizzato. Metrica osservabile in 30 secondi. Caveats espliciti: il LO è la capacità di usare lo strumento compensativo previsto dal PDP in modo autonomo — non riabilitazione, non aumento dell'intuizione numerica innata. Questo è pedagogicamente onesto e clinicamente sicuro (CRA-sequence, What Works Clearinghouse rating "strong").
+
+---
+
+### 5. Scalabilità — Extension Points Reali
+
+Regola invariante: tutto il contenuto via `data/*.json` fetchato a runtime. Con zero build (python3 -m http.server), `fetch('data/x.json')` è live — edit + reload = cambiamento visibile senza rebuild. Nessun contenuto inline nei .js. Gate al checkpoint 2:25: `grep -nE 'misconcepto|frazione|denominatore' *.js` deve restituire 0.
+
+**EP-1 — Nuovo modulo di esercizi:** oggetto JSON in `data/curriculum-discalculia.json`. Demo 30s: incollo modulo "sottrazione con prestito" → reload → appare nel selettore docente e funziona.
+
+**EP-2 — Nuovo misconcepto + fixtures:** aggiunto un distractor con `misconcepto_slug` + una chiave in `data/fixtures.json`. Zero modifica al codice JS. Demo 30s: aggiungo distractor "212" per 23+9 → reload → appare la spiegazione targettizzata.
+
+**EP-3 — Nuovo livello PDP:** oggetto JSON in `data/pdp-levels.json` (scaffold_policy, max_denominator, show_number_line_immediately). Zero modifica al codice. Demo 30s: il docente seleziona "L3" → lo stesso esercizio si renderizza con parametri diversi.
+
+**EP-4 — Swap dominio del disturbo:** l'engine è disorder-agnostic (schema-driven). Fornendo `data/curriculum-dislessia.json` con lo stesso schema, la stessa shell gira esercizi di lettura. La discalculia è la prima istanza; l'architettura generalizza. Dimostrazione in 30s: "ecco il file curriculum-dislessia.json che usereste per espandere a dislessia — stessa struttura, contenuto diverso."
+
+**`focusMisconceptions` come EP documentato (post-hackathon):** il docente potrà indicare quali misconcezioni prioritizzare in base alle osservazioni in classe. Non implementato nel PoC; l'architettura è predisposta (`focusMisconceptions: [slug]` nel curriculum JSON come campo opzionale).
+
+---
+
+### 6. Stack + Piano B LLM + A11y aggiornati
+
+**Stack:** HTML + Tailwind CDN + JavaScript vanilla. Zero npm, zero build. `python3 -m http.server 8080`. Role routing: URL param `?role=student|teacher|parent` — selettore di funzione di render su AppState condiviso in localStorage. Single-tab, reload-based. Zero listener `storage` by design (commento obbligatorio nel codice).
+
+**Struttura file:**
+```
+index.html, app.js, engine.js, explainer.js
+data/
+  curriculum-discalculia.json   (step → items → distractors → misconcepto_slug)
+  misconceptions.json           (slug → nome, categoria, manipolativo)
+  fixtures.json                 (chiave {step_id}-{level}-{misconcepto_slug} → testo)
+  pdp-levels.json               (level_id → parametri adattamento)
+  clinical-denylist.json        (~25 termini clinici vietati nell'output LLM)
+```
+
+**Provider LLM:** Anthropic Haiku (latenza ~1s, costo basso) o qualsiasi provider con key funzionante al minuto 0. Key NON nel browser: mini-proxy Python locale (30 righe, 10 min setup).
+
+**Piano B LLM (DEMO_MODE default ON):**
+- Tier 1: fixtures.json con chiave composta — 9 chiavi pre-generate durante lo sviluppo (6 canoniche + 3 ad alta frequenza). Zero rete richiesta.
+- Tier 2: live slot — 1 distractor non in fixtures. DEMO_MODE=false SOLO per questa chiamata. Output passa per `renderRemediation()` con filtro denylist prima del rendering.
+- Tier 3: fallback testuale pre-scritto — se il live slot fallisce, appare il fallback senza crash, senza spinner infinito. Il presentatore dice: "Vi mostro il prompt che questa chiamata avrebbe eseguito."
+- Regola operativa: a 3:45h il team stacca il cavo di rete e ri-esegue il flusso completo. Se crasha, il problema si risolve qui.
+
+**Requisiti a11y MUST-HAVE per discalculia/Luca (lista definitiva):**
+
+| Requisito | Dettaglio | Stima P-B | Categoria |
+|---|---|---|---|
+| font-variant-numeric: tabular-nums | Su tutti gli elementi con digit | 5 min | MUST |
+| Stacked fraction ≥28px + aria-label parlato | "un terzo" — non slash inline | 20-30 min | MUST (candidato taglio → slash con gap) |
+| Number line CSS statica + ancoraggi 0/1 | position_pct precalcolate JSON | 25 min | MUST |
+| No animation su numeri + prefers-reduced-motion | No transizioni su elementi numerici by default | 5 min | MUST |
+| Single-column MCQ + gap 1.5rem | Linear layout, no 2-column grid | 0 min extra | MUST |
+| visibility:hidden per scaffold in transfer task | No layout shift, zero display:none | 5 min | MUST |
+| Focus post-submit su regione feedback | element.focus() + aria-live="polite" | 5-10 min | MUST |
+| No punteggio numerico prominente in sessione | Il contatore errori non appare in real-time | 5 min | MUST |
+| Feedback correct/incorrect non solo colore | Shape o icona aggiuntiva, WCAG 1.4.1 | 5 min | MUST |
+| Contrasto AA 4.5:1 (baseline WCAG) | #1a1a1a su #ffffff | 10 min verifica | MUST |
+| HTML semantico + focus visible 3px | Heading, landmark, outline | 10 min | MUST |
+| Domanda sticky-top | position:sticky con overflow check | 15 min | NICE (se buffer) |
+
+Totale must-have: ~60-70 min P-B. Slot 1:20-2:25.
+
+**Confine clinico nell'interfaccia (non a parole):**
+- Nessun path nel codice che calcola o assegna pdpLevel dalla performance (single-writer invariant — grep verificabile).
+- `clinical-denylist.json` (~25 termini) + unico entry point `renderRemediation()` che filtra output LLM PRIMA del rendering. Questo copre SIA le fixtures SIA il live slot.
+- Copy dell'interfaccia: "Seleziona il livello indicato nel PDP del tuo studente" (non "valuta il livello"). "NumeriMiei è pensato per studenti con diagnosi certificata di discalculia" (non "rileva difficoltà").
+- Il sistema mostra la schermata docente e non avanza senza pdpLevel configurato — fail-loud.
+- Dopo 3 tentativi consecutivi falliti sullo stesso step: "Questo esercizio è meglio affrontarlo con il tuo insegnante o il tuo tutor di riferimento." Stop, nessun'altra remediation.
+- Footer permanente su tutte le schermate: "NumeriMiei è uno strumento didattico compensativo per studenti con diagnosi certificata di discalculia ai sensi della Legge 170/2010. Non sostituisce la valutazione clinica o il percorso previsto dal PDP."
+
+---
+
+### 7. Piano Operativo — 4h Sviluppo Puro + 45 min Demo Prep Separati
+
+Budget: 240 minuti di dev puro (4h). I 45 min di demo prep sono un blocco SEPARATO, dopo le 4h.
+
+| Slot | P-A (logica / engine / LLM) | P-B (UI / contenuto / a11y) | Dipendenze |
+|---|---|---|---|
+| **0:00–0:15** Setup | API key test (1 call di prova parsabile), proxy CORS Python 30 righe, schema fixtures.json scritto come FILE REALE con 1 chiave e integration test `resolveRemediation("step1","L1","denominator_magnitude")` a 0:12 → schema locked a 0:15 | index.html + Tailwind CDN, font 18px sans-serif, palette #1a1a1a/#ffffff, struttura HTML semantica (main, sections, headings, landmark) | **D1**: API key entro 0:10. **D2**: schema fixtures.json scritto e testato entro 0:15 (risk più sottovalutato) |
+| **0:15–1:25** Core engine + content | quiz-engine.js: state machine (PROFILING→STEP→CHECKPOINT→REMEDIATION→NEXT→COMPLETION). explainer.js: `resolveRemediation(step, level, slug)` → chiave composta → fixtures.json → fallback API → fallback testuale → filtro denylist. Genera 9 fixtures (6 canoniche + 3 ad alta frequenza denominator_magnitude) tramite API. | mario-content.json: 2 step training (frazioni con denominatori L1: {1/2,1/3,1/4}; L2: {1/3,1/5,1/7}) + 1 step transfer (1/5 vs 1/6, `scaffold:false`). Per ogni distractor: campo `misconcepto_slug`. Frasi max 15 parole. Number line posizioni precalcolate (position_pct). | **D3**: fixtures.json ≥6 chiavi entro 1:25. **D6**: contenuto discalculia validato (plain language, nessun termine clinico) entro 1:25 |
+| **1:25–2:25** A11y + audience views | Verifica logica: single-writer pdpLevel, no code path che lo deriva dalla performance. Docente view (?role=teacher): form pdpLevel (3 opzioni), report read-only. Commento nel codice "NO cross-tab sync by design". | A11y must-have (70 min): tabular-nums 5, stacked fraction 20, number line CSS 25, no-animation 5, visibility:hidden scaffold 5, focus post-submit aria-live 10. Se buffer: sticky-top 15. | **D5**: a11y pass completato entro 2:25 |
+| **2:25–2:30** | **CHECKPOINT GO/NO-GO** | GO: flusso L1 sbaglia → remediation da fixtures → riprova → avanza → transfer senza number line. Offline test (rete staccata). Docente view visibile. → Procedi. PARZIALE-A: engine OK, genitore assente → elimina P2, consolida. PARZIALE-B: solo core, zero audience views → demo "prodotto studente", audience come roadmap. NO-GO: <2 step funzionanti → mostra quello che c'è. | **D4**: flusso E2E entro 2:25 |
+| **2:30–3:30** Integration + E2E + scaffold-fading | Wiring engine + content + fixtures + scaffold flag. Test flusso L2 nominale (avanza senza remediation). Test L1 con errore (remediation da fixtures). Test offline. Test live slot. Test transfer MCQ senza number line → OutcomeTracker.solvedWithoutScaffold. Fix bug critici. | Fix bug visivi/a11y. Screenshot Adaptive Evidence (L1 vs L2 affiancati stessa domanda). |  |
+| **3:30–4:00** Buffer | Buffer per ≤1 bug critico. Se buffer non consumato: view genitore (F5, 15 min — lookup table toParentLanguage + schermata ?role=parent). A 4:00 stop netto. Nessuna feature aggiuntiva. | |
+
+**Checkpoint GO/NO-GO a 2:30h:**
+- **GO**: 3 flussi E2E passati (L2 nominale, L1 con remediation, offline). Scaffold-fading: transfer item senza number line. → Polish.
+- **PARZIALE-A**: engine OK, live slot instabile → DEMO_MODE puro, "output Claude pre-validati" + mostra il codice del prompt.
+- **PARZIALE-B**: transfer task non pronto → LO dichiarato come "task completion" non "schema acquisito". Onestà esplicita.
+- **NO-GO**: meno di 2 step funzionanti → si mostra quello che funziona. Dichiarazione aperta.
+
+**Dipendenze critiche:**
+
+| Dep | Scadenza | Rischio fallimento |
+|---|---|---|
+| D1 — API key funzionante + 1 call parsabile | 0:10 | → Plan B: 5-6 fixtures scritte a mano, stop tentativi dopo 15 min |
+| D2 — schema fixtures.json scritto + integration test | 0:15 | → Rischio silenzioso: disallineamento P-A/P-B emerge a 2:00h. Risolto in 5 min o NON si procede |
+| D3 — fixtures.json ≥6 chiavi | 1:25 | → fallback: fixtures hardcoded nel codice (scalabilità ridotta ma demo funzionante) |
+| D4 — flusso E2E completo (transfer incluso) | 2:25 | → qualsiasi scenario E2E rotto = PARZIALE o NO-GO |
+| D5 — a11y pass completato | 2:25 | → senza a11y la giuria inclusione boccia prima della capability agentica |
+| D6 — contenuto discalculia validato | 1:25 | → contenuto stigmatizzante o tecnicista è trappola demo fatale |
+
+**4:00 STOP DEV NETTO.**
+
+**4:00–4:45 Demo Prep (blocco separato):**
+- 4:00–4:15: script narrativo 3 min (docente configura → Luca sbaglia step 2 → misconcepto → number line → riprova → transfer autonomo → live probe). Accordo "chi parla / chi clicca".
+- 4:15–4:30: rehearsal 2× cronometrato (target ≤4 min). A11y checklist finale.
+- 4:30–4:45: dry run con cavo staccato. Se crasha → il problema si risolve qui.
+
+---
+
+### 8. Top 5 Rischi
+
+**R1 — Sconfinamento clinico in demo (rischio squalifica — in cima):**
+Il prodotto è per studenti con diagnosi certificata. Il punto di massima esposizione è il live slot: LLM raw output davanti alla giuria. Output come "Questo tipo di errore è tipico di bambini con difficoltà nel number sense — potrebbe valutare con il suo specialista" → squalifica.
+Mitigazione: `clinical-denylist.json` (~25 termini) + unico entry point `renderRemediation()` che filtra output LLM prima del rendering. Stesso filtro su fixtures e live slot. Il prompt-constraint è il primo strato; il denylist deterministico è il presidio verificabile con `grep`. Probabilità residua senza mitigazione: alta. Con mitigazione: bassa.
+
+**R2 — "3 audience = nessuna fatta bene" (rischio feature theater):**
+La view docente è architetturalmente significativa (single-writer pdpLevel, divergenza L1 vs L2 dimostrabile). La view genitore è P2 bonus — fuori dal piano base. Se il checkpoint 2:30h è in PARZIALE, il genitore cade senza impatto sul GO/NO-GO. Il rischio "feature theater" è presidiato dal fatto che L1 vs L2 diverge concretamente in demo (scelta esplicita docente → diverso comportamento sistema).
+Mitigazione: genitore fuori dal piano base; view docente con divergenza L1 vs L2 dimostrabile.
+
+**R3 — Capability percepita come riscrittura generica (rischio squalifica parziale):**
+La giuria chiede "cos'è la capability?" e la risposta non convince perché l'adattamento è cosmetico. Mitigazione: live probe — selezionare un distractor non-fixture → LLM live → output diverso dai fixtures. La risposta alla giuria è preparata: "Il prodotto rileva IL misconcepto specifico dall'errore e genera la spiegazione che corregge QUEL meccanismo — non il concetto in generale. Qui vedete due distractor diversi sullo stesso step: due spiegazioni qualitativamente diverse."
+
+**R4 — Learning Outcome non dimostrabile (deliverable 03 vuoto):**
+Se il scaffold-fading non è implementato, il deliverable 03 si riduce a "completion score" — un numero, non un LO. Mitigazione: scaffold-fading è nel piano base (35 min, slot 2:30-3:30), non nel buffer. Ordine di taglio: prima l'item transfer cade, non il flag. Se al checkpoint 2:25 scaffold-fading non gira → si rivendica "task completion" non "Learning Outcome" — dichiarazione onesta, non bluff.
+
+**R5 — Budget a11y/scaffolding (overrun P-B):**
+I must-have a11y per discalculia sono ~60-70 min P-B. Con scaffold-fading e content JSON frazioni (+15 min vs aritmetica base), P-B è il critical path. Candidato primo taglio: stacked fraction (degrada a slash con gap aumentato, risparmio 20 min). Candidato secondo taglio: item transfer ridotto a 1 (già nel piano). La sequenza di taglio è definita e non improvvisata.
+
+---
+
+### 9. Punti Aperti Residui
+
+Nessun punto aperto decisionale. Tutti i PA del Round 2 risolti in Fase 3 Round 1 per consenso unanime.
+
+**Note tecniche residue (non PA — rischi implementativi da monitorare):**
+- Il disallineamento schema fixtures.json (D2) è il rischio più sottovalutato del piano — risolto alla procedura file-first a 0:15, ma richiede disciplina (P-A scrive il file, P-B lo legge e conferma con integration test).
+- La number line CSS con posizioni precalcolate richiede che i valori `position_pct` siano nel content JSON sin dall'inizio. Se vengono calcolati a runtime in JS, la scalabilità (EP-2) è compromessa.
+- Il live slot deve passare per `renderRemediation()` e non avere un code path diretto al DOM — verificabile con `grep -c renderRemediation *.js`.
+
+---
+
+### Motivazione
+
+La sessione ha prodotto convergenza completa (5/5 partecipanti) su tutte le scelte fondamentali. La tensione principale era dislessia vs discalculia: l'a11y-specialist ha aggiornato la propria posizione da dislessia a discalculia in Fase 2, dopo l'argomento decisivo del Critico (maping distractor→misconcepto diffuso per dislessia = collasso della capability). La seconda tensione — sconfinamento clinico — ha prodotto il presidio più importante del prodotto: il denylist clinico deterministico su unico entry point `renderRemediation()`, che è la sola mitigazione verificabile in 2 secondi con un grep.
+
+Il contributo del Critico (lead-architect) ha svolto il suo ruolo in modo determinante: ha identificato scaffold-fading come non-negoziabile per il deliverable 03 (senza scaffold-fading il LO collassa in "retry infiniti = nessun apprendimento misurabile"), ha forzato il presidio concreto del live slot, e ha sfidato la "3 audience" fino a ottenere la dimostrazione che pdpLevel L1 vs L2 produce divergenza comportamentale reale.
+
+### Dissensi registrati
+
+Nessun dissenso residuo. L'a11y-specialist ha cambiato posizione in Fase 2 con argomenti tecnici espliciti.
+
+### Criteri di successo verificati
+
+- [x] Scelta dislessia vs discalculia con rationale e scarto motivato: SODDISFATTO (discalculia unanime)
+- [x] Prodotto: nome, one-liner, 3 audience con ruolo e costo: SODDISFATTO (NumeriMiei)
+- [x] 4-5 feature con audience, stima, priorità: SODDISFATTO (F1-F4 P0, F5 P2)
+- [x] 3 deliverable Tema 03 riformulati: SODDISFATTO (LPS Luca + AE denominator_magnitude + LO transfer)
+- [x] Scalabilità: extension points reali, dimostrabili in 30s: SODDISFATTO (EP1-4 via data/*.json)
+- [x] Stack + Piano B LLM aggiornati: SODDISFATTO (denylist clinico + unico entry point)
+- [x] A11y specifici DSA discalculia (must-have con stime): SODDISFATTO (lista 12 requisiti)
+- [x] Piano operativo 4h dev puro + 45 min demo separati: SODDISFATTO (tabella slot + checkpoint)
+- [x] Top 5 rischi con rischio clinico in cima: SODDISFATTO
+- [x] Punti Aperti residui: SODDISFATTO (nessun PA aperto)
+
+## Storie collegate
+
+- [EP-001](management/kanban/EP-001-core-adattivo-mcq-engine-llm/EP-001.md) — Core Adattivo — MCQ Engine e Spiegazione LLM-driven
+- [EP-002](management/kanban/EP-002-viste-per-ruolo/EP-002.md) — Viste per Ruolo — Docente, Transfer Task, Genitore
+- [EP-003](management/kanban/EP-003-accessibilita-confine-clinico/EP-003.md) — Accessibilità e Confine Clinico
+- [EP-004](management/kanban/EP-004-demo-e-deliverable/EP-004.md) — Demo e Deliverable — Script, Rehearsal, PPT

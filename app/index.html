@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NumeriMiei</title>
+  <!-- Tailwind local — obbligatorio per dry run offline (TSK-024) -->
+  <script src="./vendor/tailwind.js"></script>
+  <style>
+    /* ── Numerics: tabular-nums su tutti gli elementi con cifre ── */
+    .numeric,
+    .option-btn,
+    .fraction-marker,
+    .stacked-fraction,
+    .nl-label {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── prefers-reduced-motion: remove all animations/transitions ── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    /* ── No transitions on numeric elements ── */
+    .number-line,
+    .fraction-marker,
+    .stacked-fraction,
+    .nl-label {
+      animation: none;
+      transition: none;
+    }
+
+    /* ── Focus outline global: 3px, visibile ── */
+    :focus-visible {
+      outline: 3px solid #1a1a1a;
+      outline-offset: 2px;
+    }
+
+    /* ── Option button: selected state via aria-pressed ── */
+    .option-btn[aria-pressed="true"] {
+      background-color: #f0f0f0;
+      font-weight: 600;
+    }
+
+    /* ── Number line ── */
+    .number-line-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 16px 0 24px;
+    }
+    .nl-label {
+      font-size: 13px;
+      min-width: 14px;
+      text-align: center;
+      color: #555;
+    }
+    .number-line {
+      flex: 1;
+      position: relative;
+      height: 52px;
+      animation: none;
+      transition: none;
+    }
+    /* horizontal track */
+    .number-line::before {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      top: 50%;
+      height: 2px;
+      background: #1a1a1a;
+      transform: translateY(-50%);
+    }
+    /* tick at 0 */
+    .number-line::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 0;
+    }
+    .fraction-marker {
+      position: absolute;
+      /* above the track */
+      top: 0;
+      transform: translateX(-50%);
+      font-size: 13px;
+      line-height: 1.2;
+      text-align: center;
+      padding: 2px 5px;
+      background: #fff;
+      border: 2px solid #1a1a1a;
+      border-radius: 4px;
+      white-space: nowrap;
+      animation: none;
+      transition: none;
+    }
+    /* tick line from marker down to track */
+    .fraction-marker::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 10px;
+      background: #1a1a1a;
+    }
+    .fraction-marker.highlighted {
+      background: #dbeafe;
+      border-color: #1d4ed8;
+      color: #1d4ed8;
+      font-weight: 700;
+    }
+
+    /* ── Stacked fraction (≥28px font) ── */
+    .stacked-fraction {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 28px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      vertical-align: middle;
+      animation: none;
+      transition: none;
+    }
+    .stacked-fraction .num {
+      border-bottom: 2px solid currentColor;
+      padding-bottom: 2px;
+      line-height: 1.3;
+      min-width: 1ch;
+      text-align: center;
+    }
+    .stacked-fraction .den {
+      padding-top: 2px;
+      line-height: 1.3;
+      min-width: 1ch;
+      text-align: center;
+    }
+  </style>
+</head>
+<body class="bg-white text-[#1a1a1a] text-[18px] font-sans min-h-screen flex flex-col">
+
+  <header class="border-b border-gray-200 px-6 py-4" role="banner">
+    <h1 class="text-2xl font-bold">NumeriMiei</h1>
+  </header>
+
+  <main id="app" class="flex-1 px-6 py-8 max-w-2xl mx-auto w-full" role="main">
+
+    <!-- Student view (TSK-005, TSK-015, TSK-020) -->
+    <div id="view-student" hidden></div>
+
+    <!-- Teacher view (TSK-013, TSK-017) -->
+    <div id="view-teacher" hidden></div>
+
+    <!-- Parent view (TSK-018) -->
+    <div id="view-parent" hidden></div>
+
+    <!-- Loading placeholder, hidden after init -->
+    <div id="loading-message" class="text-center py-12">
+      <p>Caricamento...</p>
+    </div>
+
+  </main>
+
+  <!-- Footer Legge 170/2010 — permanente, visibile senza scroll -->
+  <footer class="border-t border-gray-100 px-6 py-3 bg-gray-50 text-sm text-gray-600" role="contentinfo">
+    <p>
+      NumeriMiei è uno strumento didattico compensativo per studenti con diagnosi certificata
+      di discalculia ai sensi della Legge 170/2010. Non sostituisce la valutazione clinica
+      o il percorso previsto dal PDP.
+    </p>
+  </footer>
+
+  <!-- app.js: P-B (UI, routing, rendering) -->
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
